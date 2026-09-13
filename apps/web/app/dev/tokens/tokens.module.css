@@ -1,0 +1,185 @@
+.main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--sp-4);
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.kepala {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.wordmark {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: var(--fs-l);
+  letter-spacing: var(--track-title);
+}
+
+.meta {
+  font-family: var(--f-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  margin-left: auto;
+}
+
+.bagian {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.label {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--f-ui);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--ink-2);
+}
+
+.baris {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.swatch {
+  display: grid;
+  gap: var(--sp-1);
+  width: 96px;
+}
+
+.swatchWarna {
+  height: 40px;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+}
+
+.swatchNama {
+  font-family: var(--f-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.semantik {
+  width: 128px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-m);
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.semantikAngka {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--fs-xl);
+  letter-spacing: var(--track-title);
+  line-height: var(--lead-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.skala {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-radius: var(--r-s);
+  overflow: hidden;
+  max-width: 480px;
+}
+
+.skalaSel {
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--sp-1);
+}
+
+.skalaBatas {
+  font-family: var(--f-mono);
+  font-size: var(--fs-xs);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-s);
+}
+
+.display {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--fs-display);
+  letter-spacing: var(--track-display);
+  line-height: var(--lead-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.judul {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--fs-xl);
+  letter-spacing: var(--track-title);
+  line-height: var(--lead-title);
+}
+
+.labelContoh {
+  composes: label;
+  margin: 0;
+}
+
+.tubuh {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.prosa {
+  margin: 0;
+  font-family: var(--f-prose);
+  font-size: 1.06rem;
+  line-height: var(--lead-prose);
+  max-width: 60ch;
+}
+
+.tabel {
+  border-collapse: collapse;
+  max-width: 420px;
+  font-size: var(--fs-s);
+}
+
+.tabel th,
+.tabel td {
+  text-align: left;
+  padding: var(--sp-1) var(--sp-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.tabel th {
+  padding-top: 0;
+  font-family: var(--f-ui);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--ink-2);
+}
+
+.tabel td:last-child {
+  text-align: right;
+}
+
+.logoBaris {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-6);
+}
+
+.logoSel {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-2);
+}

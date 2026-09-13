@@ -4,14 +4,21 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css"
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "lint": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "react": "^19"
+  },
   "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   }

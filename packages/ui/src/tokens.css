@@ -1,0 +1,206 @@
+/*
+ * Token desain PetaSurya. Satu-satunya tempat nilai warna, huruf, radius,
+ * bayangan, dan spasi didefinisikan. Komponen hanya memakai var(--…).
+ *
+ * Palet diturunkan dari material fotovoltaik: sel monokristalin (biru sangat
+ * gelap), perak busbar, amber cahaya, hijau daun. Tema gelap = "modul di
+ * malam hari": token sendiri, bukan inversi tema terang.
+ *
+ * Tema terang = :root. Tema gelap berlaku bila (a) sistem gelap dan pengguna
+ * belum memilih terang, atau (b) pengguna memilih gelap ([data-theme="dark"]).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* --- brand: konstan di kedua tema --- */
+  --brand-sel: #17204a;
+  --brand-sel-2: #2b3a77;
+  --brand-busbar: #aeb7c7;
+  --brand-surya: #e8920f;
+  --brand-surya-2: #c4551a;
+  --brand-daun: #2e7d52;
+
+  /* --- permukaan & tinta (terang) --- */
+  --paper: #edeff4;
+  --surface: #ffffff;
+  --surface-2: #f6f7fa;
+  --surface-3: #e7eaf1;
+  --ink: #10152e;
+  --ink-2: #4c5573;
+  --ink-3: #6f7999;
+  --line: #d7dbe6;
+  --line-2: #bfc6d6;
+
+  /* --- peran semantik --- */
+  --pri: #2b3a77;
+  --pri-bg: #e6eaf7;
+  --surya: #c4700a;
+  --surya-bg: #fbeeda;
+  --daun: #1f6b45;
+  --daun-bg: #dff1e7;
+  --merah: #b03a1e;
+  --merah-bg: #fbe6df;
+  --busbar: #8a93a6;
+
+  /* --- tipografi: empat peran, tidak lebih --- */
+  --f-display: var(--font-archivo, "Archivo"), "Segoe UI", system-ui, sans-serif;
+  --f-ui: var(--font-instrument-sans, "Instrument Sans"), "Segoe UI", system-ui, sans-serif;
+  --f-prose: var(--font-newsreader, "Newsreader"), Georgia, "Times New Roman", serif;
+  --f-mono: var(--font-plex-mono, "IBM Plex Mono"), "Cascadia Mono", Consolas, monospace;
+
+  /* skala ukuran (rem, basis 16 px) */
+  --fs-xs: 0.74rem;
+  --fs-s: 0.82rem;
+  --fs-m: 0.92rem;
+  --fs-b: 1rem;
+  --fs-l: 1.18rem;
+  --fs-xl: 1.6rem;
+  --fs-2xl: 2.2rem;
+  --fs-display: clamp(2.4rem, 6vw, 3.6rem);
+
+  /* tracking & leading per peran: display rapat, label longgar, tubuh netral */
+  --track-display: -0.02em;
+  --track-title: -0.01em;
+  --track-label: 0.06em;
+  --lead-display: 1.05;
+  --lead-title: 1.2;
+  --lead-ui: 1.45;
+  --lead-prose: 1.68;
+
+  /* --- bayangan: dua tingkat, tidak ada yang ketiga --- */
+  --shadow-s: 0 1px 2px rgba(16, 21, 46, 0.06), 0 1px 1px rgba(16, 21, 46, 0.04);
+  --shadow-m: 0 2px 8px rgba(16, 21, 46, 0.07), 0 1px 3px rgba(16, 21, 46, 0.05);
+
+  /* --- radius: 4 / 8 / 10 --- */
+  --r-s: 4px;
+  --r-m: 8px;
+  --radius: 10px;
+
+  /* --- spasi: kelipatan 4 px --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* --- motion: hanya respons sentuhan & transisi keadaan --- */
+  --t-fast: 100ms;
+  --t-base: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* --- fokus keyboard --- */
+  --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--pri);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --paper: #0a0e1c;
+    --surface: #121834;
+    --surface-2: #182041;
+    --surface-3: #1d2650;
+    --ink: #e6eaf6;
+    --ink-2: #9aa4c2;
+    --ink-3: #7e87a3;
+    --line: #252e52;
+    --line-2: #36406b;
+
+    --pri: #8fa4f0;
+    --pri-bg: #1b2450;
+    --surya: #f2a93f;
+    --surya-bg: #3a2a10;
+    --daun: #4fc489;
+    --daun-bg: #10331f;
+    --merah: #ee8460;
+    --merah-bg: #3a1a12;
+    --busbar: #7a85a0;
+
+    --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-m: 0 2px 10px rgba(0, 0, 0, 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0a0e1c;
+  --surface: #121834;
+  --surface-2: #182041;
+  --surface-3: #1d2650;
+  --ink: #e6eaf6;
+  --ink-2: #9aa4c2;
+  --ink-3: #7e87a3;
+  --line: #252e52;
+  --line-2: #36406b;
+
+  --pri: #8fa4f0;
+  --pri-bg: #1b2450;
+  --surya: #f2a93f;
+  --surya-bg: #3a2a10;
+  --daun: #4fc489;
+  --daun-bg: #10331f;
+  --merah: #ee8460;
+  --merah-bg: #3a1a12;
+  --busbar: #7a85a0;
+
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-m: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* --- dasar dokumen --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--f-ui);
+  font-size: 16px;
+  line-height: var(--lead-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Angka mesin: selalu mono + tabular. Kelas ini dipakai di tabel dan metadata. */
+.num {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: var(--r-s);
+}
+
+/*
+ * Reduced motion: yang boleh tersisa hanya perubahan opacity ≤ 200 ms.
+ * Komponen memakai --t-base untuk opacity dan --t-move untuk perpindahan;
+ * di sini --t-move dinolkan sehingga transform/geser mati, opacity tetap.
+ */
+:root {
+  --t-move: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-move: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
