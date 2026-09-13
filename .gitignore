@@ -1,0 +1,40 @@
+# dependensi
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.pyc
+
+# build
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+.turbo/
+
+# lingkungan
+.env
+.env.*
+!.env.example
+
+# uji & cache
+coverage/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+playwright-report/
+test-results/
+
+# model & data besar
+services/engine/models/*.onnx
+data/tiles/
+
+# editor & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# dihasilkan next saat build
+next-env.d.ts

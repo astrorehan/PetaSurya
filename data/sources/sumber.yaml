@@ -1,0 +1,18 @@
+# Registri sumber angka eksternal PetaSurya.
+# Setiap konstanta yang dipakai mesin atau antarmuka WAJIB punya entri di sini.
+# Tes CI menolak entri tanpa penerbit, url, dan tanggal diambil.
+#
+# Format tiap entri:
+#   - id: tarif_pln_r1_1300va          # kunci yang dirujuk kode
+#     nama: Tarif tenaga listrik R-1/TR 1.300 VA
+#     nilai:                           # kosong bila belum diverifikasi manusia
+#     satuan: Rp/kWh
+#     penerbit: PT PLN (Persero)
+#     url: https://...
+#     tahun: 2026
+#     diambil: 2026-09-13              # tanggal angka dibaca dari sumber
+#     dipakai_untuk: L4 ekonomi, penghematan tagihan
+#     status: belum diverifikasi       # terverifikasi | belum diverifikasi
+#     catatan: ...
+
+sumber: []
