@@ -1,0 +1,54 @@
+{
+  "_catatan": "Bangunan nyata dari OpenStreetMap via Overpass API; respons mentah di mentah/way-991016391.overpass.json. Luas dari shoelace ekuirektangular lokal.",
+  "_sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL)",
+    "url_kueri": "https://overpass-api.de/api/interpreter",
+    "kueri": "[out:json][timeout:60];way(991016391);out meta geom;",
+    "diambil": "2026-09-15",
+    "osm_timestamp": "2026-06-21T10:49:45Z",
+    "osm_version": 6
+  },
+  "id": 991016391,
+  "source": "osm",
+  "source_ref": "way/991016391",
+  "geom": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          102.271636,
+          -3.7626287
+        ],
+        [
+          102.2718471,
+          -3.7627138
+        ],
+        [
+          102.2718167,
+          -3.762789
+        ],
+        [
+          102.2715798,
+          -3.7626932
+        ],
+        [
+          102.2715985,
+          -3.7626469
+        ],
+        [
+          102.2716244,
+          -3.7626574
+        ],
+        [
+          102.271636,
+          -3.7626287
+        ]
+      ]
+    ]
+  },
+  "footprint_m2": 244.6,
+  "building_tag": "yes",
+  "levels": null,
+  "nama": "Indomaret",
+  "region_code": null
+}

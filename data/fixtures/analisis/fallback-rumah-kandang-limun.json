@@ -1,0 +1,20 @@
+{
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Jalur mundur (footprint_fallback) sesuai aturan L2: luas atap = jejak OSM × 0,85, tilt 15°, azimut = sumbu panjang jejak (PCA atas simpul poligon rumah-kandang-limun). confidence dan peringatan dari contoh respons. Tipe atap tidak dideteksi pada jalur ini; 'pelana' hanya nilai pengisi karena kontrak mewajibkan enum.",
+  "roof_analysis_id": 9913,
+  "building_id": 1145010599,
+  "roof_area_m2": 277.9,
+  "usable_area_m2": 236.2,
+  "obstruction_frac": 0.0,
+  "tilt_deg": 15.0,
+  "azimuth_deg": 174.2,
+  "roof_type": "pelana",
+  "confidence": 0.34,
+  "method": "footprint_fallback",
+  "model_version": "mobilesam-osmprompt-v3",
+  "imagery": {
+    "source": "esri-world-imagery",
+    "date": null
+  },
+  "mask_geojson": null,
+  "peringatan": "Keyakinan CV rendah. Luas atap diperkirakan dari jejak bangunan OSM dikali 0,85. Silakan gambar ulang batas atap secara manual."
+}

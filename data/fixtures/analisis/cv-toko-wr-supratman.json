@@ -1,0 +1,56 @@
+{
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka dari contoh respons POST /analyze (jalur cv). building_id dan mask_geojson diarahkan ke fixture bangunan toko-wr-supratman agar bisa ditampilkan di peta; mask = jejak bangunan OSM, bukan hasil segmentasi, dan luas contoh (112,4 m²) tidak berasal dari bangunan itu.",
+  "roof_analysis_id": 9912,
+  "building_id": 991016391,
+  "roof_area_m2": 112.4,
+  "usable_area_m2": 78.7,
+  "obstruction_frac": 0.19,
+  "tilt_deg": 22.0,
+  "azimuth_deg": 285.0,
+  "roof_type": "pelana",
+  "confidence": 0.81,
+  "method": "cv",
+  "model_version": "mobilesam-osmprompt-v3",
+  "imagery": {
+    "source": "esri-world-imagery",
+    "date": "2025-07-14"
+  },
+  "mask_geojson": {
+    "type": "MultiPolygon",
+    "coordinates": [
+      [
+        [
+          [
+            102.271636,
+            -3.7626287
+          ],
+          [
+            102.2718471,
+            -3.7627138
+          ],
+          [
+            102.2718167,
+            -3.762789
+          ],
+          [
+            102.2715798,
+            -3.7626932
+          ],
+          [
+            102.2715985,
+            -3.7626469
+          ],
+          [
+            102.2716244,
+            -3.7626574
+          ],
+          [
+            102.271636,
+            -3.7626287
+          ]
+        ]
+      ]
+    ]
+  },
+  "catatan": "Dua objek terdeteksi di atap (kemungkinan tangki air) dan sudah dikurangkan."
+}

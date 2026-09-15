@@ -1,0 +1,70 @@
+{
+  "_catatan": "Bangunan nyata dari OpenStreetMap via Overpass API; respons mentah di mentah/way-1145010599.overpass.json. Luas dari shoelace ekuirektangular lokal.",
+  "_sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL)",
+    "url_kueri": "https://overpass-api.de/api/interpreter",
+    "kueri": "[out:json][timeout:60];way(1145010599);out meta geom;",
+    "diambil": "2026-09-15",
+    "osm_timestamp": "2023-02-14T04:41:10Z",
+    "osm_version": 1
+  },
+  "id": 1145010599,
+  "source": "osm",
+  "source_ref": "way/1145010599",
+  "geom": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          102.265379,
+          -3.7627823
+        ],
+        [
+          102.2653538,
+          -3.762841
+        ],
+        [
+          102.2654143,
+          -3.762867
+        ],
+        [
+          102.2653841,
+          -3.7629372
+        ],
+        [
+          102.2654886,
+          -3.762982
+        ],
+        [
+          102.2655317,
+          -3.7628818
+        ],
+        [
+          102.2654906,
+          -3.7628642
+        ],
+        [
+          102.265526,
+          -3.7627818
+        ],
+        [
+          102.2654668,
+          -3.7627565
+        ],
+        [
+          102.2654438,
+          -3.76281
+        ],
+        [
+          102.265379,
+          -3.7627823
+        ]
+      ]
+    ]
+  },
+  "footprint_m2": 277.9,
+  "building_tag": "house",
+  "levels": null,
+  "nama": null,
+  "region_code": null
+}

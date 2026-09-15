@@ -1,0 +1,78 @@
+{
+  "_catatan": "Bangunan nyata dari OpenStreetMap via Overpass API; respons mentah di mentah/way-1146141501.overpass.json. Luas dari shoelace ekuirektangular lokal.",
+  "_sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL)",
+    "url_kueri": "https://overpass-api.de/api/interpreter",
+    "kueri": "[out:json][timeout:60];way(1146141501);out meta geom;",
+    "diambil": "2026-09-15",
+    "osm_timestamp": "2024-03-04T04:25:58Z",
+    "osm_version": 2
+  },
+  "id": 1146141501,
+  "source": "osm",
+  "source_ref": "way/1146141501",
+  "geom": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          102.268099,
+          -3.7605783
+        ],
+        [
+          102.2682016,
+          -3.760901
+        ],
+        [
+          102.268351,
+          -3.7608538
+        ],
+        [
+          102.2683363,
+          -3.7608075
+        ],
+        [
+          102.2685927,
+          -3.7607264
+        ],
+        [
+          102.2685174,
+          -3.7604895
+        ],
+        [
+          102.2682591,
+          -3.7605712
+        ],
+        [
+          102.268245,
+          -3.760527
+        ],
+        [
+          102.2682227,
+          -3.7605341
+        ],
+        [
+          102.2682157,
+          -3.760512
+        ],
+        [
+          102.2681455,
+          -3.7605343
+        ],
+        [
+          102.2681539,
+          -3.760561
+        ],
+        [
+          102.268099,
+          -3.7605783
+        ]
+      ]
+    ]
+  },
+  "footprint_m2": 1505.3,
+  "building_tag": "university",
+  "levels": 2,
+  "nama": "Fakultas Hukum UNIB",
+  "region_code": null
+}

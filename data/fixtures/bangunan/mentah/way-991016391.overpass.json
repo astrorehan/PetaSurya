@@ -1,0 +1,68 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-15T08:18:22Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 991016391,
+  "timestamp": "2026-06-21T10:49:45Z",
+  "version": 6,
+  "changeset": 184384576,
+  "user": "FajrAl",
+  "uid": 2649988,
+  "bounds": {
+    "minlat": -3.7627890,
+    "minlon": 102.2715798,
+    "maxlat": -3.7626287,
+    "maxlon": 102.2718471
+  },
+  "nodes": [
+    9156620180,
+    9156620179,
+    9156620178,
+    9156620175,
+    9156620176,
+    9156620174,
+    9156620180
+  ],
+  "geometry": [
+    { "lat": -3.7626287, "lon": 102.2716360 },
+    { "lat": -3.7627138, "lon": 102.2718471 },
+    { "lat": -3.7627890, "lon": 102.2718167 },
+    { "lat": -3.7626932, "lon": 102.2715798 },
+    { "lat": -3.7626469, "lon": 102.2715985 },
+    { "lat": -3.7626574, "lon": 102.2716244 },
+    { "lat": -3.7626287, "lon": 102.2716360 }
+  ],
+  "tags": {
+    "addr:city": "Bengkulu",
+    "addr:housenumber": "46",
+    "addr:postcode": "38119",
+    "addr:street": "Jalan WR Supratman",
+    "air_conditioning": "yes",
+    "brand": "Indomaret",
+    "brand:wikidata": "Q4262825",
+    "brand:wikipedia": "id:Indomaret",
+    "building": "yes",
+    "name": "Indomaret",
+    "name:en": "Indomaret",
+    "name:id": "Indomaret",
+    "name:ja": "インドマレット",
+    "opening_hours": "07:00-23:00",
+    "operator": "PT. Indomarco Prismatama",
+    "payment:cash": "yes",
+    "phone": "+62 812 7188 8168",
+    "shop": "convenience",
+    "toilets": "yes",
+    "toilets:access": "permissive",
+    "website": "https://www.klikindomaret.com"
+  }
+}
+
+  ]
+}

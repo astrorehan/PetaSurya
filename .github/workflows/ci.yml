@@ -31,3 +31,20 @@ jobs:
       - run: uv sync
       - run: uv run ruff check .
       - run: uv run pytest
+
+  kontrak:
+    # Kontrak zod → JSON Schema → pydantic harus sudah di-generate dan di-commit;
+    # generator dijalankan ulang dan diff wajib kosong.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v5
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --project services/engine
+      - run: pnpm gen:contracts
+      - run: git diff --exit-code

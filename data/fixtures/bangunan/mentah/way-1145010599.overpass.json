@@ -1,0 +1,56 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-15T08:30:08Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 1145010599,
+  "timestamp": "2023-02-14T04:41:10Z",
+  "version": 1,
+  "changeset": 132517754,
+  "user": "Rendra Regen Rais",
+  "uid": 10106321,
+  "bounds": {
+    "minlat": -3.7629820,
+    "minlon": 102.2653538,
+    "maxlat": -3.7627565,
+    "maxlon": 102.2655317
+  },
+  "nodes": [
+    10656714817,
+    10656714818,
+    10656714819,
+    10656714820,
+    10656714821,
+    10656714822,
+    10656714823,
+    10656714824,
+    10656714825,
+    10656714826,
+    10656714817
+  ],
+  "geometry": [
+    { "lat": -3.7627823, "lon": 102.2653790 },
+    { "lat": -3.7628410, "lon": 102.2653538 },
+    { "lat": -3.7628670, "lon": 102.2654143 },
+    { "lat": -3.7629372, "lon": 102.2653841 },
+    { "lat": -3.7629820, "lon": 102.2654886 },
+    { "lat": -3.7628818, "lon": 102.2655317 },
+    { "lat": -3.7628642, "lon": 102.2654906 },
+    { "lat": -3.7627818, "lon": 102.2655260 },
+    { "lat": -3.7627565, "lon": 102.2654668 },
+    { "lat": -3.7628100, "lon": 102.2654438 },
+    { "lat": -3.7627823, "lon": 102.2653790 }
+  ],
+  "tags": {
+    "building": "house"
+  }
+}
+
+  ]
+}

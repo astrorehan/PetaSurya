@@ -1,0 +1,46 @@
+{
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka disalin dari contoh respons POST /simulate; tarif_rp_kwh diturunkan balik dari contoh (savings ÷ (E_AC × SCR) = 12.118.000 ÷ (19.840 × 0,42)) dan ef_grid_tco2_mwh dari kalimat peringatan contoh skenario (Sumatera 0,76). Keduanya belum diverifikasi — lihat data/sources/sumber.yaml.",
+  "id": "3f8c-contoh",
+  "engine_version": "l3.2026.09.14+l4.2026.09.20+l5.2026.09.22",
+  "kwp": 14.3,
+  "module_count": 26,
+  "poa_kwh_m2_yr": 1712.4,
+  "e_ac_kwh_yr1": 19840,
+  "pr": 0.808,
+  "scr": 0.42,
+  "capex_idr": 207350000,
+  "savings_idr_yr1": 12118000,
+  "payback_years": 17.1,
+  "npv_idr": -18420000,
+  "irr": 0.041,
+  "lcoe_idr_kwh": 1284.0,
+  "co2e_ton_yr": 14.1,
+  "co2e_ton_25yr": 329.4,
+  "monthly_kwh": [1780, 1660, 1712, 1640, 1602, 1520, 1588, 1655, 1690, 1720, 1698, 1575],
+  "asumsi": {
+    "golongan_tarif": "R-1/TR",
+    "daya_va": 2200,
+    "tarif_rp_kwh": 1454.3,
+    "scr": 0.42,
+    "biaya_per_kwp": 14500000,
+    "opex_frac": 0.01,
+    "diskonto": 0.09,
+    "eskalasi_tarif": 0.0,
+    "degradasi_thn": 0.006,
+    "umur_tahun": 25,
+    "ef_grid_tco2_mwh": 0.76,
+    "faktor_ekspor": 0.0
+  },
+  "jejak": {
+    "poa": { "rumus": "POA = DNI·cos(AOI) + POA_dif + POA_tanah", "sumber": "Perez (1990)" },
+    "suhu_sel": { "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8", "sumber": "IEC 61215" },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02,
+      "gabungan": 0.808
+    }
+  }
+}

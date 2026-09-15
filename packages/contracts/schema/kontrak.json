@@ -1,0 +1,621 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://petasurya.id/schema/kontrak.json",
+  "$defs": {
+    "AnalisisAtap": {
+      "type": "object",
+      "properties": {
+        "roof_analysis_id": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "building_id": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "roof_area_m2": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Luas atap terdeteksi, m²"
+        },
+        "usable_area_m2": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Luas layak setelah obstruksi & sempadan, m²"
+        },
+        "obstruction_frac": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "tilt_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 60,
+          "description": "Kemiringan atap, derajat"
+        },
+        "azimuth_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360,
+          "description": "Arah hadap, derajat dari utara searah jarum jam"
+        },
+        "roof_type": {
+          "$ref": "#/$defs/TipeAtap"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "method": {
+          "$ref": "#/$defs/MetodeAnalisis"
+        },
+        "model_version": {
+          "type": "string"
+        },
+        "imagery": {
+          "$ref": "#/$defs/CitraAnalisis"
+        },
+        "mask_geojson": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MultiPolygonGeoJSON"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "null bila tidak ada segmentasi"
+        },
+        "catatan": {
+          "type": "string"
+        },
+        "peringatan": {
+          "description": "Diisi bila method bukan 'cv'",
+          "type": "string"
+        }
+      },
+      "required": [
+        "roof_analysis_id",
+        "building_id",
+        "roof_area_m2",
+        "usable_area_m2",
+        "obstruction_frac",
+        "tilt_deg",
+        "azimuth_deg",
+        "roof_type",
+        "confidence",
+        "method",
+        "model_version",
+        "imagery",
+        "mask_geojson"
+      ]
+    },
+    "AsumsiSimulasi": {
+      "type": "object",
+      "properties": {
+        "golongan_tarif": {
+          "type": "string",
+          "description": "Golongan tarif PLN, mis. 'R-1/TR'"
+        },
+        "daya_va": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Daya tersambung, VA"
+        },
+        "tarif_rp_kwh": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Tarif berlaku, Rp/kWh"
+        },
+        "scr": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Self-consumption ratio, fraksi 0–1"
+        },
+        "biaya_per_kwp": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Biaya terpasang, Rp/kWp"
+        },
+        "opex_frac": {
+          "default": 0.01,
+          "description": "O&M per tahun, fraksi capex",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1
+        },
+        "diskonto": {
+          "default": 0.09,
+          "description": "Tingkat diskonto nominal, fraksi",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.3
+        },
+        "eskalasi_tarif": {
+          "default": 0,
+          "description": "Kenaikan tarif per tahun, fraksi",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.2
+        },
+        "degradasi_thn": {
+          "default": 0.006,
+          "description": "Degradasi modul per tahun, fraksi",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.02
+        },
+        "umur_tahun": {
+          "default": 25,
+          "description": "Umur sistem, tahun",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "ef_grid_tco2_mwh": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Faktor emisi jaringan, tCO2e/MWh"
+        },
+        "faktor_ekspor": {
+          "default": 0,
+          "description": "Nilai ekspor relatif terhadap tarif; 0 bila net-metering dihapus",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "golongan_tarif",
+        "daya_va",
+        "tarif_rp_kwh",
+        "scr",
+        "biaya_per_kwp",
+        "ef_grid_tco2_mwh"
+      ]
+    },
+    "BangunanRingkas": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "description": "id bangunan di basis data"
+        },
+        "source": {
+          "$ref": "#/$defs/SumberBangunan"
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "Rujukan di sumber, mis. 'way/123456789'"
+        },
+        "geom": {
+          "description": "Jejak bangunan, WGS84",
+          "$ref": "#/$defs/PolygonGeoJSON"
+        },
+        "footprint_m2": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Luas jejak geodesik, m²"
+        },
+        "building_tag": {
+          "description": "Tag OSM building=*, mis. 'house'",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "levels": {
+          "description": "Jumlah lantai bila diketahui",
+          "anyOf": [
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nama": {
+          "description": "Nama di sumber bila ada",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "region_code": {
+          "description": "Kode BPS wilayah bila sudah dipetakan",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "source_ref",
+        "geom",
+        "footprint_m2",
+        "building_tag"
+      ]
+    },
+    "CitraAnalisis": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Penyedia citra, mis. 'esri-world-imagery'"
+        },
+        "date": {
+          "description": "Tanggal citra ISO-8601 bila diketahui",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "date"
+      ]
+    },
+    "GalatApi": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/KodeGalat"
+            },
+            "message": {
+              "type": "string",
+              "description": "Kalimat untuk pengguna, bahasa Indonesia"
+            },
+            "hint": {
+              "description": "Saran tindakan",
+              "type": "string"
+            },
+            "retriable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retriable"
+          ]
+        }
+      },
+      "required": [
+        "error"
+      ]
+    },
+    "HasilSimulasi": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "UUID simulasi"
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "Gabungan VERSION tiap lapisan, mis. 'l3.2026.09.14+l4.2026.09.20'"
+        },
+        "kwp": {
+          "type": "number",
+          "description": "Kapasitas DC terpasang, kWp"
+        },
+        "module_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "poa_kwh_m2_yr": {
+          "type": "number",
+          "description": "Iradiasi bidang modul, kWh/m²/tahun"
+        },
+        "e_ac_kwh_yr1": {
+          "type": "number",
+          "description": "Energi AC tahun pertama, kWh"
+        },
+        "pr": {
+          "type": "number",
+          "description": "Performance ratio, fraksi"
+        },
+        "scr": {
+          "type": "number",
+          "description": "Self-consumption ratio yang dipakai, fraksi"
+        },
+        "capex_idr": {
+          "type": "number",
+          "description": "Investasi awal, Rp"
+        },
+        "savings_idr_yr1": {
+          "type": "number",
+          "description": "Penghematan tagihan tahun pertama, Rp"
+        },
+        "payback_years": {
+          "description": "null = tidak balik modal dalam umur sistem",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "npv_idr": {
+          "type": "number",
+          "description": "Nilai kini bersih, Rp"
+        },
+        "irr": {
+          "description": "null = tidak konvergen",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "lcoe_idr_kwh": {
+          "type": "number",
+          "description": "Biaya energi rata-rata, Rp/kWh"
+        },
+        "co2e_ton_yr": {
+          "type": "number",
+          "description": "Emisi terhindar tahun pertama, tCO2e"
+        },
+        "co2e_ton_25yr": {
+          "type": "number",
+          "description": "Emisi terhindar sepanjang umur, tCO2e"
+        },
+        "monthly_kwh": {
+          "minItems": 12,
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Energi AC per bulan Jan–Des, kWh"
+        },
+        "asumsi": {
+          "$ref": "#/$defs/AsumsiSimulasi"
+        },
+        "jejak": {
+          "$ref": "#/$defs/JejakSimulasi"
+        }
+      },
+      "required": [
+        "id",
+        "engine_version",
+        "kwp",
+        "module_count",
+        "poa_kwh_m2_yr",
+        "e_ac_kwh_yr1",
+        "pr",
+        "scr",
+        "capex_idr",
+        "savings_idr_yr1",
+        "payback_years",
+        "npv_idr",
+        "irr",
+        "lcoe_idr_kwh",
+        "co2e_ton_yr",
+        "co2e_ton_25yr",
+        "monthly_kwh",
+        "asumsi"
+      ]
+    },
+    "JejakDerate": {
+      "type": "object",
+      "properties": {
+        "kotoran": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi kotoran, fraksi"
+        },
+        "mismatch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi mismatch modul, fraksi"
+        },
+        "kabel_dc": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi kabel DC, fraksi"
+        },
+        "inverter": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Efisiensi inverter, fraksi (bukan rugi)"
+        },
+        "ketersediaan": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi ketersediaan, fraksi"
+        },
+        "gabungan": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Performance ratio hasil perkalian"
+        }
+      },
+      "required": [
+        "kotoran",
+        "mismatch",
+        "kabel_dc",
+        "inverter",
+        "ketersediaan",
+        "gabungan"
+      ]
+    },
+    "JejakRumus": {
+      "type": "object",
+      "properties": {
+        "rumus": {
+          "type": "string"
+        },
+        "sumber": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rumus",
+        "sumber"
+      ]
+    },
+    "JejakSimulasi": {
+      "type": "object",
+      "properties": {
+        "poa": {
+          "$ref": "#/$defs/JejakRumus"
+        },
+        "suhu_sel": {
+          "$ref": "#/$defs/JejakRumus"
+        },
+        "derate": {
+          "$ref": "#/$defs/JejakDerate"
+        }
+      },
+      "required": [
+        "poa",
+        "suhu_sel",
+        "derate"
+      ]
+    },
+    "KodeGalat": {
+      "type": "string",
+      "enum": [
+        "BUILDING_NOT_FOUND",
+        "IMAGERY_UNAVAILABLE",
+        "IRRADIANCE_UNAVAILABLE",
+        "TARIFF_NOT_FOUND",
+        "ROOF_TOO_SMALL",
+        "NARRATION_UNVERIFIED",
+        "DEVICE_UNAUTHORIZED",
+        "VALIDATION_ERROR",
+        "INTERNAL"
+      ]
+    },
+    "MetodeAnalisis": {
+      "type": "string",
+      "enum": [
+        "cv",
+        "footprint_fallback",
+        "manual"
+      ]
+    },
+    "MultiPolygonGeoJSON": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "MultiPolygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "minItems": 4,
+              "type": "array",
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2,
+                "description": "[lon, lat] derajat, WGS84"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ]
+    },
+    "PolygonGeoJSON": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Polygon"
+        },
+        "coordinates": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "minItems": 4,
+            "type": "array",
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                },
+                {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "[lon, lat] derajat, WGS84"
+            }
+          }
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ]
+    },
+    "SumberBangunan": {
+      "type": "string",
+      "enum": [
+        "osm",
+        "ms_footprints",
+        "user_drawn"
+      ]
+    },
+    "TipeAtap": {
+      "type": "string",
+      "enum": [
+        "datar",
+        "pelana",
+        "limas",
+        "kompleks"
+      ]
+    }
+  }
+}

@@ -15,4 +15,35 @@
 #     status: belum diverifikasi       # terverifikasi | belum diverifikasi
 #     catatan: ...
 
-sumber: []
+sumber:
+  - id: osm_overpass_bangunan_bengkulu
+    nama: Jejak bangunan OpenStreetMap, Kandang Limun, Kota Bengkulu (3 way)
+    nilai:
+    satuan: poligon WGS84
+    penerbit: OpenStreetMap contributors (ODbL 1.0)
+    url: https://overpass-api.de/api/interpreter
+    tahun: 2026
+    diambil: 2026-09-15
+    dipakai_untuk: L1 geo, fixture data/fixtures/bangunan (way/1145010599, way/991016391, way/1146141501)
+    status: terverifikasi
+    catatan: >-
+      Kueri "way(<id>);out meta geom;" — respons mentah tersimpan di
+      data/fixtures/bangunan/mentah/. Luas jejak dihitung skrip
+      services/engine/scripts/buat_fixture_bangunan.py (shoelace ekuirektangular lokal).
+      Atribusi wajib "© OpenStreetMap contributors" di antarmuka.
+
+  - id: contoh_cetak_biru_simulasi
+    nama: Contoh respons /simulate dan /analyze dari cetak biru §04
+    nilai:
+    satuan:
+    penerbit: cetak biru internal PetaSurya (bukan sumber eksternal)
+    url: https://petasurya.id/metodologi
+    tahun: 2026
+    diambil: 2026-09-15
+    dipakai_untuk: fixture data/fixtures/simulasi dan data/fixtures/analisis selama mesin L3–L5 belum hijau
+    status: belum diverifikasi
+    catatan: >-
+      Angka ilustrasi, bukan hasil hitungan. Di antarmuka WAJIB berlabel "contoh".
+      tarif_rp_kwh 1454,3 dan ef_grid 0,76 tCO2e/MWh di dalamnya hanya menurunkan
+      contoh itu sendiri; nilai resmi menunggu entri tarif PLN dan faktor emisi
+      Sumatera yang diverifikasi manusia.

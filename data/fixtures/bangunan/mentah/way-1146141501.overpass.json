@@ -1,0 +1,62 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-15T08:18:22Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 1146141501,
+  "timestamp": "2024-03-04T04:25:58Z",
+  "version": 2,
+  "changeset": 148189067,
+  "user": "Rendra Regen Rais",
+  "uid": 10106321,
+  "bounds": {
+    "minlat": -3.7609010,
+    "minlon": 102.2680990,
+    "maxlat": -3.7604895,
+    "maxlon": 102.2685927
+  },
+  "nodes": [
+    10666023659,
+    10666023660,
+    10666023661,
+    11689912323,
+    10666023662,
+    10666023664,
+    10666023665,
+    10666023666,
+    11689912327,
+    11689912326,
+    11689912325,
+    11689912324,
+    10666023659
+  ],
+  "geometry": [
+    { "lat": -3.7605783, "lon": 102.2680990 },
+    { "lat": -3.7609010, "lon": 102.2682016 },
+    { "lat": -3.7608538, "lon": 102.2683510 },
+    { "lat": -3.7608075, "lon": 102.2683363 },
+    { "lat": -3.7607264, "lon": 102.2685927 },
+    { "lat": -3.7604895, "lon": 102.2685174 },
+    { "lat": -3.7605712, "lon": 102.2682591 },
+    { "lat": -3.7605270, "lon": 102.2682450 },
+    { "lat": -3.7605341, "lon": 102.2682227 },
+    { "lat": -3.7605120, "lon": 102.2682157 },
+    { "lat": -3.7605343, "lon": 102.2681455 },
+    { "lat": -3.7605610, "lon": 102.2681539 },
+    { "lat": -3.7605783, "lon": 102.2680990 }
+  ],
+  "tags": {
+    "building": "university",
+    "building:levels": "2",
+    "name": "Fakultas Hukum UNIB"
+  }
+}
+
+  ]
+}
