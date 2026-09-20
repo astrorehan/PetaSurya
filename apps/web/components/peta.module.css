@@ -1,0 +1,123 @@
+.peta {
+  position: relative;
+  min-height: 240px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-s);
+}
+
+.kanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.kanvas :global(.maplibregl-canvas) {
+  outline: none;
+}
+
+.kanvas :global(.maplibregl-ctrl-group) {
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-s);
+  box-shadow: var(--shadow-s);
+  background: var(--surface);
+}
+
+.kanvas :global(.maplibregl-ctrl-group button) {
+  width: 32px;
+  height: 32px;
+  border-color: var(--line);
+  background-color: var(--surface);
+}
+
+.kanvas :global(.maplibregl-ctrl-group button:hover) {
+  background-color: var(--surface-2);
+}
+
+.kanvas :global(.maplibregl-ctrl-attrib) {
+  color: var(--ink-2);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+.kanvas :global(.maplibregl-ctrl-attrib a) {
+  color: var(--pri);
+}
+
+.toolbar {
+  position: absolute;
+  z-index: 2;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.tombolPeta {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-s);
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: var(--shadow-s);
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+
+.tombolPeta:hover,
+.tombolPeta[aria-pressed="true"] {
+  border-color: var(--pri);
+  color: var(--pri);
+}
+
+.tombolPeta[aria-pressed="true"] {
+  background: var(--pri-bg);
+}
+
+.watermark {
+  position: absolute;
+  z-index: 1;
+  right: var(--sp-4);
+  bottom: var(--sp-8);
+  color: var(--ink);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.keterangan {
+  position: absolute;
+  z-index: 2;
+  right: var(--sp-3);
+  bottom: var(--sp-2);
+  left: var(--sp-3);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  color: var(--ink-2);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  .tombolPeta span {
+    display: none;
+  }
+
+  .tombolPeta {
+    width: 32px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .keterangan {
+    font-size: 9px;
+  }
+}
