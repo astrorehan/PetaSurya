@@ -45,12 +45,16 @@
 }
 
 .kanvas :global(.maplibregl-ctrl-attrib) {
-  color: var(--ink-2);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--ink) !important;
+  background: var(--surface) !important;
 }
 
 .kanvas :global(.maplibregl-ctrl-attrib a) {
-  color: var(--pri);
+  color: var(--ink) !important;
+}
+
+.kanvas :global(.maplibregl-ctrl-attrib a:hover) {
+  color: var(--ink) !important;
 }
 
 .toolbar {

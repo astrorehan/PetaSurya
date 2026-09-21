@@ -178,11 +178,8 @@
   }
 
   .nav {
-    gap: var(--sp-3);
-  }
-
-  .nav a:first-child {
-    display: none;
+    gap: var(--sp-2);
+    font-size: var(--fs-xs);
   }
 
   .tombolTema {

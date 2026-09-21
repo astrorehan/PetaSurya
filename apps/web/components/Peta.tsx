@@ -382,8 +382,6 @@ export function Peta({
 
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
-      <div ref={containerRef} className={s.kanvas} />
-      {tampilanKosong ? <div className={s.arsiranKosong} aria-hidden="true" /> : null}
       <div className={s.toolbar} aria-label="Alat peta">
         <button
           className={s.tombolPeta}
@@ -407,6 +405,8 @@ export function Peta({
           <span>{satelit ? "Peta jalan" : "Satelit"}</span>
         </button>
       </div>
+      <div ref={containerRef} className={s.kanvas} />
+      {tampilanKosong ? <div className={s.arsiranKosong} aria-hidden="true" /> : null}
       <div className={s.watermark} aria-hidden="true">
         <Logo size={48} mono label="" />
       </div>
