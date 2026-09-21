@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pvlib
 
-VERSION = "l3.2026.09.14"
+VERSION = "l3.2026.09.21"
 
 
 @dataclass(frozen=True)
@@ -28,20 +28,28 @@ class POAResult:
 
 
 def _cosd(value: Any) -> Any:
+    """Hitung cosinus untuk sudut masukan dalam derajat."""
+
     return np.cos(np.deg2rad(value))
 
 
 def _sind(value: Any) -> Any:
+    """Hitung sinus untuk sudut masukan dalam derajat."""
+
     return np.sin(np.deg2rad(value))
 
 
 def _non_negative(value: Any) -> Any:
+    """Ganti nilai iradiansi tak valid atau negatif dengan nol."""
+
     if isinstance(value, pd.Series):
         return value.astype(float).replace([np.inf, -np.inf], np.nan).fillna(0).clip(lower=0)
     return np.maximum(np.nan_to_num(np.asarray(value, dtype=float), nan=0.0), 0.0)
 
 
 def _dni_extra_for(index: pd.Index | None) -> Any:
+    """Ambil irradiansi ekstraterestrial harian dari fungsi referensi pvlib."""
+
     if isinstance(index, pd.DatetimeIndex):
         return pd.Series(
             pvlib.irradiance.get_extra_radiation(index.dayofyear),
@@ -97,6 +105,82 @@ def hitung_poa(
     return POAResult(direct=direct, diffuse=diffuse, ground=ground)
 
 
+def suhu_sel_noct(poa_wm2: Any, temp_air_c: Any, *, t_noct_c: float) -> Any:
+    """Hitung suhu sel dengan model NOCT dalam °C.
+
+    Rumusnya ``T_sel = T_amb + (POA/1000)·(T_NOCT−20)/0,8``. POA bersatuan
+    W/m², suhu masukan dan keluaran °C, serta ``t_noct_c`` adalah °C. Nilai
+    NOCT wajib diberikan karena belum ada lembar data modul produksi di
+    registri sumber. Sumber rumus: cetak biru PetaSurya §05 butir 2.
+    """
+
+    return temp_air_c + (poa_wm2 / 1000.0) * (float(t_noct_c) - 20.0) / 0.8
+
+
+def daya_dc(
+    poa_wm2: Any,
+    temp_sel_c: Any,
+    *,
+    kwp: float,
+    gamma_pdc: float,
+    temp_ref_c: float = 25.0,
+) -> Any:
+    """Hitung daya DC PVWatts dari POA dan suhu sel.
+
+    Rumusnya ``P_DC = P_STC·(POA/1000)·[1+γ_P·(T_sel−T_ref)]``; POA
+    bersatuan W/m², ``kwp`` menghasilkan daya W, suhu °C, dan ``gamma_pdc``
+    bersatuan 1/°C. ``kwp`` dan ``gamma_pdc`` wajib diberikan agar tidak ada
+    spesifikasi modul rekaan. Sumber rumus dan acuan numerik:
+    cetak biru PetaSurya §05 butir 3 dan ``pvlib.pvsystem.pvwatts_dc``.
+    """
+
+    if kwp <= 0:
+        raise ValueError("kwp harus lebih besar dari nol")
+    return pvlib.pvsystem.pvwatts_dc(
+        effective_irradiance=poa_wm2,
+        temp_cell=temp_sel_c,
+        pdc0=kwp * 1000.0,
+        gamma_pdc=gamma_pdc,
+        temp_ref=temp_ref_c,
+    )
+
+
+def _periksa_faktor(nama: str, nilai: float) -> float:
+    """Validasi faktor derate sebagai fraksi antara nol dan satu."""
+
+    faktor = float(nilai)
+    if not 0.0 <= faktor <= 1.0:
+        raise ValueError(f"{nama} harus berada di antara 0 dan 1")
+    return faktor
+
+
+def derate_berurutan(
+    daya_w: Any,
+    *,
+    kotoran: float,
+    mismatch: float,
+    kabel_dc: float,
+    efisiensi_inverter: float,
+    ketersediaan: float,
+) -> Any:
+    """Kalikan rantai derate listrik dan operasional dalam satuan daya W.
+
+    Rumusnya ``P_out = P_in·kotoran·mismatch·kabel_dc·efisiensi_inverter·ketersediaan``.
+    Semua faktor adalah fraksi tanpa satuan dan wajib diberikan; ``daya_w``
+    dan hasilnya bersatuan W. Sumber urutan faktor: cetak biru PetaSurya §05
+    butir 3. Nilai faktor modul produksi belum ditetapkan.
+    """
+
+    faktor = (
+        _periksa_faktor("kotoran", kotoran)
+        * _periksa_faktor("mismatch", mismatch)
+        * _periksa_faktor("kabel_dc", kabel_dc)
+        * _periksa_faktor("efisiensi_inverter", efisiensi_inverter)
+        * _periksa_faktor("ketersediaan", ketersediaan)
+    )
+    return daya_w * faktor
+
+
 def energi_tahunan(
     lat: float,
     lon: float,
@@ -105,8 +189,8 @@ def energi_tahunan(
     cuaca_tmy: pd.DataFrame,
     *,
     kwp: float,
-    albedo: float = 0.2,
-    gamma_pdc: float = -0.0035,
+    albedo: float,
+    gamma_pdc: float,
 ) -> float:
     """Hitung energi AC tahunan dari cuaca hourly.
 
@@ -117,8 +201,9 @@ def energi_tahunan(
     (m/s) dengan indeks waktu berzona. Keluaran adalah kWh/tahun. Sumber
     persamaan dan parameter pembanding: cetak biru PetaSurya §05 dan pvlib.
 
-    Nilai ``albedo`` dan ``gamma_pdc`` masih berupa parameter pembanding
-    eksplisit; lembar data modul produksi akan diwajibkan pada L3b.
+    Nilai ``albedo`` dan ``gamma_pdc`` wajib diberikan oleh pemanggil; belum
+    ada default produksi sebelum lembar data modul dan asumsi permukaan
+    dicatat di registri sumber.
     """
 
     if kwp <= 0:
@@ -151,11 +236,6 @@ def energi_tahunan(
         wind_speed=cuaca_tmy["wind_speed"],
         **parameter_suhu,
     )
-    pdc = pvlib.pvsystem.pvwatts_dc(
-        effective_irradiance=poa.total,
-        temp_cell=suhu_sel,
-        pdc0=kwp * 1000.0,
-        gamma_pdc=gamma_pdc,
-    )
+    pdc = daya_dc(poa.total, suhu_sel, kwp=kwp, gamma_pdc=gamma_pdc)
     pac = pvlib.inverter.pvwatts(pdc=pdc, pdc0=kwp * 1000.0)
     return float(pd.Series(pac, index=cuaca_tmy.index).fillna(0).sum() / 1000.0)

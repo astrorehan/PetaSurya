@@ -47,7 +47,16 @@ def cuaca_tmy() -> pd.DataFrame:
 def test_deviasi_di_bawah_2_persen(
     lat: float, lon: float, tilt: float, azim: float, cuaca_tmy: pd.DataFrame
 ) -> None:
-    kita = energi_tahunan(lat, lon, tilt, azim, cuaca_tmy, kwp=5.0)
+    kita = energi_tahunan(
+        lat,
+        lon,
+        tilt,
+        azim,
+        cuaca_tmy,
+        kwp=5.0,
+        albedo=0.2,
+        gamma_pdc=-0.0035,
+    )
     lokasi = pvlib.location.Location(lat, lon, tz="Asia/Jakarta")
     sistem = pvlib.pvsystem.PVSystem(
         surface_tilt=tilt,
