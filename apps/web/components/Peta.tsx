@@ -13,6 +13,7 @@ const GAYA_PETA = {
   light: "https://tiles.openfreemap.org/styles/liberty",
   dark: "https://tiles.openfreemap.org/styles/dark",
 } as const;
+const URL_WORKER_PETA = "/maplibre/maplibre-gl-worker.mjs";
 
 const PUSAT_BENGKULU: [number, number] = [102.269, -3.7618];
 const ZOOM_AWAL = 15.1;
@@ -58,7 +59,7 @@ function pasangCitra(map: MapLibreMap, tampil: boolean) {
 }
 
 export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaProps) {
-  const { terpilih } = useTema();
+  const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const gayaRef = useRef(GAYA_PETA[terpilih]);
@@ -67,7 +68,10 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaPro
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || mapRef.current) return;
+    if (!siap || !container || mapRef.current) return;
+
+    gayaRef.current = GAYA_PETA[terpilih];
+    maplibregl.setWorkerUrl(URL_WORKER_PETA);
 
     const map = new maplibregl.Map({
       container,
@@ -100,7 +104,7 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaPro
       map.remove();
       mapRef.current = null;
     };
-  }, [label]);
+  }, [label, siap, terpilih]);
 
   useEffect(() => {
     const map = mapRef.current;

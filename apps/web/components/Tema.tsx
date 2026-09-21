@@ -10,6 +10,7 @@ export type TemaTerpilih = "light" | "dark";
 type KonteksTema = {
   pilihan: PilihanTema;
   terpilih: TemaTerpilih;
+  siap: boolean;
   setPilihan: (tema: Exclude<PilihanTema, "system">) => void;
 };
 
@@ -22,12 +23,14 @@ function temaSistem(): TemaTerpilih {
 export function PenyediaTema({ children }: { children: ReactNode }) {
   const [pilihan, setPilihanState] = useState<PilihanTema>("system");
   const [terpilih, setTerpilih] = useState<TemaTerpilih>("light");
+  const [siap, setSiap] = useState(false);
 
   useEffect(() => {
     const tersimpan = window.localStorage.getItem(KUNCI_TEMA);
     const awal: PilihanTema = tersimpan === "light" || tersimpan === "dark" ? tersimpan : "system";
     setPilihanState(awal);
     setTerpilih(awal === "system" ? temaSistem() : awal);
+    setSiap(true);
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const saatSistemBerubah = () => {
@@ -49,13 +52,14 @@ export function PenyediaTema({ children }: { children: ReactNode }) {
     () => ({
       pilihan,
       terpilih,
+      siap,
       setPilihan: (tema) => {
         window.localStorage.setItem(KUNCI_TEMA, tema);
         setPilihanState(tema);
         setTerpilih(tema);
       },
     }),
-    [pilihan, terpilih],
+    [pilihan, terpilih, siap],
   );
 
   return <TemaContext.Provider value={nilai}>{children}</TemaContext.Provider>;
