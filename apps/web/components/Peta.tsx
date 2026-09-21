@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Crosshair, Satellite } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
-import type { Map as MapLibreMap } from "maplibre-gl";
+import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
 import { Logo } from "@petasurya/ui";
 import { useTema } from "./Tema";
@@ -23,23 +23,25 @@ const LAPISAN_CITRA = "esri-world-imagery-layer";
 const SUMBER_ATAP = "petasurya-atap-sorot";
 const LAPISAN_ATAP_ISI = "petasurya-atap-sorot-isi";
 const LAPISAN_ATAP_GARIS = "petasurya-atap-sorot-garis";
+const SUMBER_BANGUNAN = "petasurya-bangunan";
+const LAPISAN_BANGUNAN_ISI = "petasurya-bangunan-isi";
+const LAPISAN_BANGUNAN_GARIS = "petasurya-bangunan-garis";
 
 type GeometriSorot = PolygonGeoJSON | MultiPolygonGeoJSON;
-type FiturGeoJSON = {
+export type BangunanPeta = {
+  id: number;
+  nama?: string | null;
+  geom: PolygonGeoJSON;
+};
+type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, never>> = {
   type: "Feature";
-  properties: Record<string, never>;
+  properties: TProperties;
   geometry: {
     type: "Polygon" | "MultiPolygon";
     coordinates: number[][][] | number[][][][];
   };
 };
-
-type PetaProps = {
-  label?: string;
-  className?: string;
-  tinggi?: number;
-  geometriSorot?: GeometriSorot | null;
-};
+type FiturBangunan = FiturGeoJSON<{ id: string; nama: string }>;
 
 function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
   const berkurang = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -131,7 +133,66 @@ function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefine
   }
 }
 
-export function Peta({ label = "Peta lokasi", className, tinggi = 440, geometriSorot }: PetaProps) {
+function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[]) {
+  if (!bangunan.length) return;
+
+  const data: { type: "FeatureCollection"; features: FiturBangunan[] } = {
+    type: "FeatureCollection",
+    features: bangunan.map((item) => ({
+      type: "Feature",
+      properties: { id: String(item.id), nama: item.nama ?? `Bangunan ${item.id}` },
+      geometry: item.geom,
+    })),
+  };
+  const sumber = map.getSource(SUMBER_BANGUNAN);
+  if (!sumber) {
+    map.addSource(SUMBER_BANGUNAN, { type: "geojson", data });
+  } else if (sumber instanceof maplibregl.GeoJSONSource) {
+    sumber.setData(data);
+  }
+
+  if (!map.getLayer(LAPISAN_BANGUNAN_ISI)) {
+    map.addLayer({
+      id: LAPISAN_BANGUNAN_ISI,
+      type: "fill",
+      source: SUMBER_BANGUNAN,
+      paint: { "fill-color": "#e8920f", "fill-opacity": 0.2 },
+    });
+  }
+  if (!map.getLayer(LAPISAN_BANGUNAN_GARIS)) {
+    map.addLayer({
+      id: LAPISAN_BANGUNAN_GARIS,
+      type: "line",
+      source: SUMBER_BANGUNAN,
+      paint: { "line-color": "#e8920f", "line-width": 2, "line-opacity": 0.92 },
+    });
+  }
+
+  const bounds = new maplibregl.LngLatBounds();
+  bangunan.forEach((item) => titikGeometri(item.geom.coordinates, bounds));
+  if (!bounds.isEmpty()) {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.fitBounds(bounds, { padding: 64, maxZoom: 15.5, duration: reducedMotion ? 0 : 500 });
+  }
+}
+
+type PetaProps = {
+  label?: string;
+  className?: string;
+  tinggi?: number;
+  geometriSorot?: GeometriSorot | null;
+  bangunan?: BangunanPeta[];
+  onPilihBangunan?: (id: number) => void;
+};
+
+export function Peta({
+  label = "Peta lokasi",
+  className,
+  tinggi = 440,
+  geometriSorot,
+  bangunan = [],
+  onPilihBangunan,
+}: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -164,9 +225,23 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440, geometriS
       "bottom-right",
     );
 
+    const saatBangunanDiklik = (event: MapMouseEvent) => {
+      const fitur = map.queryRenderedFeatures(event.point, { layers: [LAPISAN_BANGUNAN_ISI] });
+      const id = fitur[0]?.properties?.id;
+      if (typeof id === "string" && onPilihBangunan) onPilihBangunan(Number(id));
+    };
+    let pendengarBangunanTerpasang = false;
+
     const siapGaya = () => {
       pasangCitra(map, satelitRef.current);
       pasangSorot(map, geometriSorot);
+      pasangBangunan(map, bangunan);
+      if (bangunan.length && !pendengarBangunanTerpasang) {
+        map.on("click", saatBangunanDiklik);
+        map.on("mouseenter", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
+        map.on("mouseleave", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = ""; });
+        pendengarBangunanTerpasang = true;
+      }
     };
     map.on("style.load", siapGaya);
     map.once("load", () => {
@@ -177,10 +252,13 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440, geometriS
     });
 
     return () => {
+      if (bangunan.length) {
+        map.off("click", saatBangunanDiklik);
+      }
       map.remove();
       mapRef.current = null;
     };
-  }, [geometriSorot, label, siap, terpilih]);
+  }, [bangunan, geometriSorot, label, onPilihBangunan, siap, terpilih]);
 
   useEffect(() => {
     const map = mapRef.current;

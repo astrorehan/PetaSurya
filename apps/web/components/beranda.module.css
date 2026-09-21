@@ -1,0 +1,170 @@
+.halaman {
+  width: min(100% - var(--sp-8), 1440px);
+  margin: 0 auto;
+  padding: var(--sp-10) 0 var(--sp-12);
+}
+
+.kepala {
+  margin-bottom: var(--sp-6);
+}
+
+.label {
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.judul {
+  max-width: 24ch;
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  letter-spacing: var(--track-display);
+  line-height: var(--lead-display);
+}
+
+.pengantar {
+  max-width: 62ch;
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-2);
+}
+
+.barisPeta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--sp-4);
+  align-items: stretch;
+}
+
+.kolomPeta {
+  min-width: 0;
+}
+
+.keteranganPeta {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.statusJudul {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: var(--lead-title);
+}
+
+.statusTeks {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-2);
+  font-size: var(--fs-s);
+}
+
+.daftarBangunan {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.daftarBangunan a {
+  display: block;
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  color: var(--ink);
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.daftarBangunan a:hover {
+  border-color: var(--pri);
+  background: var(--pri-bg);
+}
+
+.ringkasanBangunan {
+  display: grid;
+  gap: var(--sp-1);
+  font-size: var(--fs-xs);
+}
+
+.ringkasanBangunan > div {
+  display: grid;
+  gap: 2px;
+}
+
+.ringkasanBangunan strong {
+  font-family: var(--f-display);
+  font-size: var(--fs-m);
+  font-weight: 600;
+}
+
+.ringkasanBangunan span {
+  color: var(--ink-2);
+}
+
+.ringkasanBangunan .num {
+  color: var(--ink-3);
+  font-size: 10px;
+}
+
+.keadaanKosong {
+  padding: var(--sp-3);
+  border-left: 3px solid var(--line-2);
+  color: var(--ink-2);
+  font-size: var(--fs-s);
+}
+
+.keadaanKosong p {
+  margin: 0 0 var(--sp-2);
+}
+
+.keadaanKosong a {
+  color: var(--pri);
+  text-underline-offset: 3px;
+}
+
+.statusCatatan {
+  margin: auto 0 0;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+@media (max-width: 900px) {
+  .halaman {
+    width: min(100% - var(--sp-6), 1440px);
+    padding-top: var(--sp-8);
+  }
+
+  .barisPeta {
+    grid-template-columns: 1fr;
+  }
+
+  .status {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 560px) {
+  .halaman {
+    width: min(100% - var(--sp-4), 1440px);
+    padding-top: var(--sp-6);
+  }
+}
