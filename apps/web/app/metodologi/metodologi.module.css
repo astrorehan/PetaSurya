@@ -1,0 +1,122 @@
+.halaman {
+  width: min(100% - var(--sp-8), 1200px);
+  margin: 0 auto;
+  padding: var(--sp-10) 0 var(--sp-12);
+}
+
+.kepala { max-width: 720px; }
+
+.label {
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.judul {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: var(--track-display);
+  line-height: var(--lead-display);
+}
+
+.pengantar {
+  max-width: 62ch;
+  margin: var(--sp-4) 0 0;
+  color: var(--ink-2);
+  font-size: var(--fs-l);
+}
+
+.rantai {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: var(--sp-10);
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.rantai div {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  background: var(--surface);
+}
+
+.rantai strong { font-family: var(--f-display); font-size: var(--fs-l); }
+.rantai span:last-child { color: var(--ink-2); font-size: var(--fs-s); }
+.nomor { color: var(--surya); font-family: var(--f-mono); font-size: var(--fs-s); font-weight: 600; }
+
+.rumusGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+}
+
+.rumusKartu {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.rumusKartu h2,
+.kejujuran h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: var(--lead-title);
+}
+
+.prosa { color: var(--ink-2); font-family: var(--f-prose); font-size: 1.08rem; line-height: var(--lead-prose); }
+.rumusKartu .prosa { min-height: 150px; margin: var(--sp-4) 0; }
+
+.blokRumus {
+  min-height: 190px;
+  margin: 0;
+  padding: var(--sp-3);
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  color: var(--ink);
+  background: var(--surface-2);
+  font-family: var(--f-mono);
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.rujukan { margin: var(--sp-4) 0 0; color: var(--ink-3); font-size: var(--fs-xs); }
+
+.kejujuran {
+  margin-top: var(--sp-10);
+  padding: var(--sp-6);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--daun);
+  background: var(--surface);
+}
+
+.kejujuranGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr); gap: var(--sp-8); }
+.kejujuranGrid .prosa { margin: 0; }
+.kejujuranGrid ul { display: grid; gap: var(--sp-2); margin: 0; padding-left: var(--sp-5); color: var(--ink-2); font-size: var(--fs-s); }
+
+@media (max-width: 900px) {
+  .halaman { width: min(100% - var(--sp-6), 1200px); padding-top: var(--sp-8); }
+  .rumusGrid { grid-template-columns: 1fr; }
+  .rumusKartu .prosa { min-height: 0; }
+}
+
+@media (max-width: 560px) {
+  .halaman { width: min(100% - var(--sp-4), 1200px); padding-top: var(--sp-6); }
+  .rantai { grid-template-columns: 1fr; }
+  .kejujuran { padding: var(--sp-4); }
+  .kejujuranGrid { grid-template-columns: 1fr; gap: var(--sp-4); }
+}
