@@ -5,6 +5,7 @@ description = "Mesin hitung PetaSurya: geo, vision, fisika, ekonomi, karbon, agr
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",
+    "pvlib>=0.11",
     "uvicorn[standard]>=0.30",
 ]
 

@@ -50,6 +50,22 @@ sumber:
       data/fixtures/wilayah/. Batas yang belum tersedia di OSM tidak diisi
       dengan geometri rekaan.
 
+  - id: nasa_power_hourly_bengkulu_2024
+    nama: Iradiansi dan cuaca hourly NASA POWER, titik Bengkulu
+    nilai:
+    satuan: GHI/DNI/DHI Wh/m² per jam; suhu °C; angin m/s
+    penerbit: NASA Langley Research Center POWER Project
+    url: https://power.larc.nasa.gov/api/temporal/hourly/point
+    tahun: 2024
+    diambil: 2026-09-21
+    dipakai_untuk: L3 fisika, pembanding transposisi POA terhadap pvlib
+    status: terverifikasi
+    catatan: >-
+      Query hourly 20240101–20241231, UTC, community=RE, latitude=-3.76268,
+      longitude=102.27168, parameter ALLSKY_SFC_SW_DWN, ALLSKY_SFC_SW_DNI,
+      ALLSKY_SFC_SW_DIFF, T2M, dan WS2M. Respons mentah tersimpan di
+      data/fixtures/cuaca/mentah/nasa-power-bengkulu-2024.json.
+
   - id: contoh_cetak_biru_simulasi
     nama: Contoh respons /simulate dan /analyze dari cetak biru §04
     nilai:
