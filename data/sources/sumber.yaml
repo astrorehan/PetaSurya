@@ -32,6 +32,24 @@ sumber:
       services/engine/scripts/buat_fixture_bangunan.py (shoelace ekuirektangular lokal).
       Atribusi wajib "© OpenStreetMap contributors" di antarmuka.
 
+  - id: osm_overpass_batas_kota_bengkulu
+    nama: Batas administratif Kota Bengkulu dan kecamatan yang tersedia di OSM
+    nilai:
+    satuan: poligon WGS84
+    penerbit: OpenStreetMap contributors (ODbL 1.0)
+    url: https://overpass-api.de/api/interpreter
+    tahun: 2026
+    diambil: 2026-09-21
+    dipakai_untuk: L1 geo, Mode Kota /kota/[kode], fixture data/fixtures/wilayah
+    status: terverifikasi
+    catatan: >-
+      Batas kota dari relation/16196019 (official_name=Kota Bengkulu).
+      Batas admin_level=6 yang tersedia di sekitar kota: relation/16196021
+      Muara Bangka Hulu, relation/16196022 Sungai Serut, dan relation/16196023
+      Singaran Pati. Respons mentah dan kueri disimpan di
+      data/fixtures/wilayah/. Batas yang belum tersedia di OSM tidak diisi
+      dengan geometri rekaan.
+
   - id: contoh_cetak_biru_simulasi
     nama: Contoh respons /simulate dan /analyze dari cetak biru §04
     nilai:

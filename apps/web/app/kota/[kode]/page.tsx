@@ -1,21 +1,28 @@
-import { Peta } from "../../../components/Peta";
-import s from "../../placeholder.module.css";
+import fs from "node:fs";
+import path from "node:path";
+import { KotaInteraktif } from "../../../components/Kota";
+import type { WilayahPeta } from "../../../components/Peta";
+
+type KoleksiWilayah = {
+  type: "FeatureCollection";
+  features: Array<{
+    properties: { id: string | number; nama: string };
+    geometry: WilayahPeta["geom"];
+  }>;
+};
+
+function bacaWilayah(): WilayahPeta[] {
+  const berkas = path.resolve(process.cwd(), "../../data/fixtures/wilayah/kecamatan-kota-bengkulu.geojson");
+  const koleksi = JSON.parse(fs.readFileSync(berkas, "utf8")) as KoleksiWilayah;
+  return koleksi.features.map((fitur) => ({
+    id: String(fitur.properties.id),
+    nama: fitur.properties.nama,
+    geom: fitur.geometry,
+  }));
+}
 
 export default async function HalamanKota({ params }: { params: Promise<{ kode: string }> }) {
   const { kode } = await params;
 
-  return (
-    <main className={s.halaman}>
-      <p className={s.label}>MODE KOTA</p>
-      <h1 className={s.judul}>Potensi wilayah {kode}</h1>
-      <p className={s.teks}>Peta wilayah dan agregat per kecamatan akan ditampilkan setelah data bangunan dianalisis.</p>
-      <div className={s.grid}>
-        <Peta label={`Peta wilayah ${kode}`} tinggi={420} />
-        <aside className={s.panel}>
-          <h2>Belum ada simulasi</h2>
-          <p>Total kapasitas wilayah belum dihitung.</p>
-        </aside>
-      </div>
-    </main>
-  );
+  return <KotaInteraktif kode={kode} wilayah={bacaWilayah()} />;
 }

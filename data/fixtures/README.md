@@ -4,7 +4,7 @@ Bangunan uji nyata di Kota Bengkulu beserta sumbernya (OSM via Overpass: respons
 URL kueri, tanggal ambil). Angka hasil simulasi yang belum keluar dari mesin diberi
 `"_catatan": "contoh"` dan ditampilkan berlabel contoh di antarmuka.
 
-Struktur: `bangunan/`, `analisis/`, `simulasi/`, `cuaca/`.
+Struktur: `bangunan/`, `wilayah/`, `analisis/`, `simulasi/`, `cuaca/`.
 
 ## Bangunan (`bangunan/`)
 
@@ -26,3 +26,18 @@ hasil `/simulate`. Semuanya angka contoh dari cetak biru, ditandai `"_catatan": 
 hitungan"`. Tes `packages/contracts/src/fixture.test.ts` dan `services/engine/tests/test_contracts.py` memvalidasi
 setiap berkas terhadap kontrak di dua bahasa.
 
+## Wilayah (`wilayah/`)
+
+`kota-bengkulu.geojson` dan `kecamatan-kota-bengkulu.geojson` dibuat dari
+relasi batas administratif OpenStreetMap melalui Overpass. Batas kota memakai
+relasi `relation/16196019` (tag `official_name=Kota Bengkulu`). Saat fixture
+diambil, OSM mengembalikan tiga relasi `admin_level=6` di sekitar kota:
+`16196021` Muara Bangka Hulu, `16196022` Sungai Serut, dan `16196023`
+Singaran Pati. Batas lain yang belum tersedia tidak digambar atau diisi dengan
+geometri rekaan.
+
+Respons mentah tersimpan di direktori yang sama. Sungai Serut diambil sebagai
+metadata relasi dan way `outer` anggota secara terpisah karena respons relasi
+lengkap melewati batas waktu endpoint Overpass. Skrip
+`services/engine/scripts/buat_fixture_wilayah.py` menyambung way tersebut
+menjadi GeoJSON; koordinat tetap WGS84 `[lon, lat]`.

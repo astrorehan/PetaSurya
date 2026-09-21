@@ -26,12 +26,22 @@ const LAPISAN_ATAP_GARIS = "petasurya-atap-sorot-garis";
 const SUMBER_BANGUNAN = "petasurya-bangunan";
 const LAPISAN_BANGUNAN_ISI = "petasurya-bangunan-isi";
 const LAPISAN_BANGUNAN_GARIS = "petasurya-bangunan-garis";
+const SUMBER_WILAYAH = "petasurya-wilayah";
+const LAPISAN_WILAYAH_ISI = "petasurya-wilayah-isi";
+const LAPISAN_WILAYAH_GARIS = "petasurya-wilayah-garis";
+const LAPISAN_WILAYAH_TERPILIH_ISI = "petasurya-wilayah-terpilih-isi";
+const LAPISAN_WILAYAH_TERPILIH_GARIS = "petasurya-wilayah-terpilih-garis";
 
 type GeometriSorot = PolygonGeoJSON | MultiPolygonGeoJSON;
 export type BangunanPeta = {
   id: number;
   nama?: string | null;
   geom: PolygonGeoJSON;
+};
+export type WilayahPeta = {
+  id: string;
+  nama: string;
+  geom: GeometriSorot;
 };
 type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, never>> = {
   type: "Feature";
@@ -42,6 +52,7 @@ type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, n
   };
 };
 type FiturBangunan = FiturGeoJSON<{ id: string; nama: string }>;
+type FiturWilayah = FiturGeoJSON<{ id: string; nama: string }>;
 
 function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
   const berkurang = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -176,6 +187,68 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[]) {
   }
 }
 
+function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih: string | null) {
+  if (!wilayah.length) return;
+
+  const data: { type: "FeatureCollection"; features: FiturWilayah[] } = {
+    type: "FeatureCollection",
+    features: wilayah.map((item) => ({
+      type: "Feature",
+      properties: { id: item.id, nama: item.nama },
+      geometry: item.geom,
+    })),
+  };
+  const sumber = map.getSource(SUMBER_WILAYAH);
+  if (!sumber) {
+    map.addSource(SUMBER_WILAYAH, { type: "geojson", data });
+  } else if (sumber instanceof maplibregl.GeoJSONSource) {
+    sumber.setData(data);
+  }
+
+  if (!map.getLayer(LAPISAN_WILAYAH_ISI)) {
+    map.addLayer({
+      id: LAPISAN_WILAYAH_ISI,
+      type: "fill",
+      source: SUMBER_WILAYAH,
+      paint: { "fill-color": "#7a4a12", "fill-opacity": 0.18 },
+    });
+  }
+  if (!map.getLayer(LAPISAN_WILAYAH_GARIS)) {
+    map.addLayer({
+      id: LAPISAN_WILAYAH_GARIS,
+      type: "line",
+      source: SUMBER_WILAYAH,
+      paint: { "line-color": "#e8920f", "line-width": 1.6, "line-opacity": 0.92 },
+    });
+  }
+  const filter = ["==", ["get", "id"], wilayahTerpilih ?? ""] as maplibregl.FilterSpecification;
+  if (!map.getLayer(LAPISAN_WILAYAH_TERPILIH_ISI)) {
+    map.addLayer({
+      id: LAPISAN_WILAYAH_TERPILIH_ISI,
+      type: "fill",
+      source: SUMBER_WILAYAH,
+      filter,
+      paint: { "fill-color": "#e8920f", "fill-opacity": 0.5 },
+    });
+  }
+  if (!map.getLayer(LAPISAN_WILAYAH_TERPILIH_GARIS)) {
+    map.addLayer({
+      id: LAPISAN_WILAYAH_TERPILIH_GARIS,
+      type: "line",
+      source: SUMBER_WILAYAH,
+      filter,
+      paint: { "line-color": "#ffc46b", "line-width": 3, "line-opacity": 1 },
+    });
+  }
+
+  const bounds = new maplibregl.LngLatBounds();
+  wilayah.forEach((item) => titikGeometri(item.geom.coordinates, bounds));
+  if (!bounds.isEmpty()) {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.fitBounds(bounds, { padding: 64, maxZoom: 12.5, duration: reducedMotion ? 0 : 500 });
+  }
+}
+
 type PetaProps = {
   label?: string;
   className?: string;
@@ -183,6 +256,10 @@ type PetaProps = {
   geometriSorot?: GeometriSorot | null;
   bangunan?: BangunanPeta[];
   onPilihBangunan?: (id: number) => void;
+  wilayah?: WilayahPeta[];
+  wilayahTerpilih?: string | null;
+  onPilihWilayah?: (id: string) => void;
+  tampilanKosong?: boolean;
 };
 
 export function Peta({
@@ -192,6 +269,10 @@ export function Peta({
   geometriSorot,
   bangunan = [],
   onPilihBangunan,
+  wilayah = [],
+  wilayahTerpilih = null,
+  onPilihWilayah,
+  tampilanKosong = false,
 }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -225,22 +306,43 @@ export function Peta({
       "bottom-right",
     );
 
-    const saatBangunanDiklik = (event: MapMouseEvent) => {
-      const fitur = map.queryRenderedFeatures(event.point, { layers: [LAPISAN_BANGUNAN_ISI] });
-      const id = fitur[0]?.properties?.id;
-      if (typeof id === "string" && onPilihBangunan) onPilihBangunan(Number(id));
+    const saatFiturDiklik = (event: MapMouseEvent) => {
+      if (wilayah.length && onPilihWilayah) {
+        const fiturWilayah = map.queryRenderedFeatures(event.point, {
+          layers: [LAPISAN_WILAYAH_ISI, LAPISAN_WILAYAH_TERPILIH_ISI],
+        });
+        const idWilayah = fiturWilayah[0]?.properties?.id;
+        if (typeof idWilayah === "string") {
+          onPilihWilayah(idWilayah);
+          return;
+        }
+      }
+      if (bangunan.length && onPilihBangunan) {
+        const fiturBangunan = map.queryRenderedFeatures(event.point, { layers: [LAPISAN_BANGUNAN_ISI] });
+        const idBangunan = fiturBangunan[0]?.properties?.id;
+        if (typeof idBangunan === "string") onPilihBangunan(Number(idBangunan));
+      }
     };
-    let pendengarBangunanTerpasang = false;
+    let pendengarFiturTerpasang = false;
 
     const siapGaya = () => {
       pasangCitra(map, satelitRef.current);
       pasangSorot(map, geometriSorot);
       pasangBangunan(map, bangunan);
-      if (bangunan.length && !pendengarBangunanTerpasang) {
-        map.on("click", saatBangunanDiklik);
-        map.on("mouseenter", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-        map.on("mouseleave", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = ""; });
-        pendengarBangunanTerpasang = true;
+      pasangWilayah(map, wilayah, wilayahTerpilih);
+      if ((bangunan.length || wilayah.length) && !pendengarFiturTerpasang) {
+        map.on("click", saatFiturDiklik);
+        if (wilayah.length) {
+          map.on("mouseenter", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
+          map.on("mouseleave", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = ""; });
+          map.on("mouseenter", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
+          map.on("mouseleave", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = ""; });
+        }
+        if (bangunan.length) {
+          map.on("mouseenter", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
+          map.on("mouseleave", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = ""; });
+        }
+        pendengarFiturTerpasang = true;
       }
     };
     map.on("style.load", siapGaya);
@@ -252,13 +354,13 @@ export function Peta({
     });
 
     return () => {
-      if (bangunan.length) {
-        map.off("click", saatBangunanDiklik);
+      if (bangunan.length || wilayah.length) {
+        map.off("click", saatFiturDiklik);
       }
       map.remove();
       mapRef.current = null;
     };
-  }, [bangunan, geometriSorot, label, onPilihBangunan, siap, terpilih]);
+  }, [bangunan, geometriSorot, label, onPilihBangunan, onPilihWilayah, siap, terpilih, wilayah, wilayahTerpilih]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -281,6 +383,7 @@ export function Peta({
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
       <div ref={containerRef} className={s.kanvas} />
+      {tampilanKosong ? <div className={s.arsiranKosong} aria-hidden="true" /> : null}
       <div className={s.toolbar} aria-label="Alat peta">
         <button
           className={s.tombolPeta}
