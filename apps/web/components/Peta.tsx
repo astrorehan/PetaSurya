@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Crosshair, Satellite } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap } from "maplibre-gl";
+import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
 import { Logo } from "@petasurya/ui";
 import { useTema } from "./Tema";
 import s from "./peta.module.css";
@@ -19,11 +20,25 @@ const PUSAT_BENGKULU: [number, number] = [102.269, -3.7618];
 const ZOOM_AWAL = 15.1;
 const SUMBER_CITRA = "esri-world-imagery";
 const LAPISAN_CITRA = "esri-world-imagery-layer";
+const SUMBER_ATAP = "petasurya-atap-sorot";
+const LAPISAN_ATAP_ISI = "petasurya-atap-sorot-isi";
+const LAPISAN_ATAP_GARIS = "petasurya-atap-sorot-garis";
+
+type GeometriSorot = PolygonGeoJSON | MultiPolygonGeoJSON;
+type FiturGeoJSON = {
+  type: "Feature";
+  properties: Record<string, never>;
+  geometry: {
+    type: "Polygon" | "MultiPolygon";
+    coordinates: number[][][] | number[][][][];
+  };
+};
 
 type PetaProps = {
   label?: string;
   className?: string;
   tinggi?: number;
+  geometriSorot?: GeometriSorot | null;
 };
 
 function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
@@ -58,7 +73,65 @@ function pasangCitra(map: MapLibreMap, tampil: boolean) {
   }
 }
 
-export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaProps) {
+function titikGeometri(koordinat: unknown, bounds: maplibregl.LngLatBounds) {
+  if (!Array.isArray(koordinat)) return;
+  if (koordinat.length === 2 && koordinat.every((nilai) => typeof nilai === "number")) {
+    bounds.extend([koordinat[0], koordinat[1]]);
+    return;
+  }
+  koordinat.forEach((anak) => titikGeometri(anak, bounds));
+}
+
+function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefined) {
+  if (!geometri) return;
+
+  const data: FiturGeoJSON = {
+    type: "Feature",
+    properties: {},
+    geometry: geometri,
+  };
+
+  const sumber = map.getSource(SUMBER_ATAP);
+  if (!sumber) {
+    map.addSource(SUMBER_ATAP, { type: "geojson", data });
+  } else if (sumber instanceof maplibregl.GeoJSONSource) {
+    sumber.setData(data);
+  }
+
+  if (!map.getLayer(LAPISAN_ATAP_ISI)) {
+    map.addLayer({
+      id: LAPISAN_ATAP_ISI,
+      type: "fill",
+      source: SUMBER_ATAP,
+      paint: {
+        "fill-color": "#e8920f",
+        "fill-opacity": 0.28,
+      },
+    });
+  }
+
+  if (!map.getLayer(LAPISAN_ATAP_GARIS)) {
+    map.addLayer({
+      id: LAPISAN_ATAP_GARIS,
+      type: "line",
+      source: SUMBER_ATAP,
+      paint: {
+        "line-color": "#17204a",
+        "line-width": 3,
+        "line-opacity": 0.92,
+      },
+    });
+  }
+
+  const bounds = new maplibregl.LngLatBounds();
+  titikGeometri(geometri.coordinates, bounds);
+  if (!bounds.isEmpty()) {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.fitBounds(bounds, { padding: 56, maxZoom: 18, duration: reducedMotion ? 0 : 500 });
+  }
+}
+
+export function Peta({ label = "Peta lokasi", className, tinggi = 440, geometriSorot }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -91,7 +164,10 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaPro
       "bottom-right",
     );
 
-    const siapGaya = () => pasangCitra(map, satelitRef.current);
+    const siapGaya = () => {
+      pasangCitra(map, satelitRef.current);
+      pasangSorot(map, geometriSorot);
+    };
     map.on("style.load", siapGaya);
     map.once("load", () => {
       const canvas = map.getCanvas();
@@ -104,7 +180,7 @@ export function Peta({ label = "Peta lokasi", className, tinggi = 440 }: PetaPro
       map.remove();
       mapRef.current = null;
     };
-  }, [label, siap, terpilih]);
+  }, [geometriSorot, label, siap, terpilih]);
 
   useEffect(() => {
     const map = mapRef.current;

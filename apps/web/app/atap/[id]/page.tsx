@@ -1,21 +1,40 @@
-import { Peta } from "../../../components/Peta";
-import s from "../../placeholder.module.css";
+import type { AnalisisAtap, BangunanRingkas, HasilSimulasi } from "@petasurya/contracts";
+import analisisCvJson from "../../../../../data/fixtures/analisis/cv-toko-wr-supratman.json";
+import analisisFallbackJson from "../../../../../data/fixtures/analisis/fallback-rumah-kandang-limun.json";
+import bangunanRumahJson from "../../../../../data/fixtures/bangunan/rumah-kandang-limun.json";
+import bangunanTokoJson from "../../../../../data/fixtures/bangunan/toko-wr-supratman.json";
+import simulasiJson from "../../../../../data/fixtures/simulasi/contoh-3f8c.json";
+import { HasilAtap, KeadaanAtap } from "../../../components/HasilAtap";
+
+const analisisCv = analisisCvJson as unknown as AnalisisAtap;
+const analisisFallback = analisisFallbackJson as unknown as AnalisisAtap;
+const bangunanRumah = bangunanRumahJson as unknown as BangunanRingkas;
+const bangunanToko = bangunanTokoJson as unknown as BangunanRingkas;
+const simulasi = simulasiJson as unknown as HasilSimulasi;
+
+type DataAtap = {
+  bangunan: BangunanRingkas;
+  analisis: AnalisisAtap;
+  simulasi: HasilSimulasi;
+};
+
+const DATA_CONTOH: Record<string, DataAtap> = {
+  contoh: { bangunan: bangunanToko, analisis: analisisCv, simulasi },
+  "3f8c-contoh": { bangunan: bangunanToko, analisis: analisisCv, simulasi },
+  "991016391": { bangunan: bangunanToko, analisis: analisisCv, simulasi },
+  "1145010599": { bangunan: bangunanRumah, analisis: analisisFallback, simulasi },
+};
 
 export default async function HalamanAtap({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const idBersih = decodeURIComponent(id).trim().toLowerCase();
 
-  return (
-    <main className={s.halaman}>
-      <p className={s.label}>MODE WARGA / UMKM</p>
-      <h1 className={s.judul}>Hasil untuk bangunan {id}</h1>
-      <p className={s.teks}>Peta lokasi sudah tersedia. Hasil kapasitas, produksi, dan balik modal akan tampil di sini.</p>
-      <div className={s.grid}>
-        <Peta label={`Lokasi bangunan ${id}`} tinggi={420} />
-        <aside className={s.panel}>
-          <h2>Menunggu analisis</h2>
-          <p>Belum ada simulasi yang terhubung ke mesin hitung.</p>
-        </aside>
-      </div>
-    </main>
-  );
+  if (idBersih === "galat" || idBersih === "error") {
+    return <KeadaanAtap jenis="galat" id={id} />;
+  }
+
+  const data = DATA_CONTOH[idBersih];
+  if (!data) return <KeadaanAtap jenis="kosong" id={id} />;
+
+  return <HasilAtap id={id} {...data} />;
 }
