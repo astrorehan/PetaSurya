@@ -1,10 +1,24 @@
-"""Titik masuk FastAPI. Satu service: rute, CORS, health, simulasi."""
+"""Titik masuk FastAPI. Satu service: rute, CORS, health, simulasi, geodata."""
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.contracts import Error, GalatApi, HasilSimulasi, KodeGalat
+from app.contracts import (
+    AnalisisAtap,
+    BangunanRingkas,
+    Error,
+    GalatApi,
+    HasilSimulasi,
+    KodeGalat,
+)
+from app.geodata import (
+    HasilGeocode,
+    PermintaanAnalisis,
+    cari_bangunan_radius,
+    geocode_pencarian_lokal,
+    proses_analisis_atap,
+)
 from app.simulation import (
     BuildingNotFoundError,
     PermintaanSimulasi,
@@ -30,7 +44,7 @@ def building_not_found_handler(request: Request, exc: BuildingNotFoundError) -> 
         error=Error(
             code=KodeGalat.BUILDING_NOT_FOUND,
             message=str(exc),
-            hint="Pastikan ID analisis atap terdaftar dalam basis data.",
+            hint="Pastikan ID bangunan atau analisis atap terdaftar dalam basis data.",
             retriable=False,
         )
     )
@@ -54,6 +68,35 @@ def roof_too_small_handler(request: Request, exc: RoofTooSmallError) -> JSONResp
 def health() -> dict[str, str]:
     """Dipakai pemantau hosting dan footer web (menampilkan versi mesin)."""
     return {"status": "ok", "engine_version": VERSION}
+
+
+@app.get("/api/v1/buildings", response_model=list[BangunanRingkas])
+def get_buildings(
+    lat: float = Query(..., description="Lintang titik pusat pencarian"),
+    lon: float = Query(..., description="Bujur titik pusat pencarian"),
+    r: float = Query(
+        200.0,
+        gt=0.0,
+        le=200.0,
+        description="Radius pencarian dalam meter (maksimal 200 meter)",
+    ),
+) -> list[BangunanRingkas]:
+    """Kembalikan poligon bangunan di sekitar koordinat dalam radius r meter."""
+    return cari_bangunan_radius(lat=lat, lon=lon, radius_m=r)
+
+
+@app.get("/api/v1/geocode", response_model=list[HasilGeocode])
+def geocode(
+    q: str = Query(..., min_length=1, description="Kata kunci alamat atau nama tempat"),
+) -> list[HasilGeocode]:
+    """Pencarian alamat dan nama tempat lokal."""
+    return geocode_pencarian_lokal(q)
+
+
+@app.post("/api/v1/analyze", response_model=AnalisisAtap)
+def analyze(permintaan: PermintaanAnalisis) -> AnalisisAtap:
+    """Analisis segmentasi atap satu bangunan (CV atau fallback)."""
+    return proses_analisis_atap(permintaan.building_id)
 
 
 @app.post("/api/v1/simulate", response_model=HasilSimulasi)
