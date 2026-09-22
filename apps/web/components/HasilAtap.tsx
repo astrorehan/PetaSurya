@@ -193,6 +193,10 @@ function PanelJejak({ jejak, tutup }: { jejak: JejakTampilan; tutup: () => void 
 
 export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
   const [jejakAktif, setJejakAktif] = useState<KunciJejak | null>(null);
+  const [simulasiAktif, setSimulasiAktif] = useState<HasilSimulasi>(simulasi);
+  const [sedangHitung, setSedangHitung] = useState(false);
+  const [pesanMesin, setPesanMesin] = useState<string>("tersedia kalkulasi mesin engine");
+
   const [asumsi, setAsumsi] = useState<FormAsumsi>({
     golongan_tarif: simulasi.asumsi.golongan_tarif,
     daya_va: String(simulasi.asumsi.daya_va),
@@ -211,55 +215,95 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       judul: "Penghematan per tahun",
       rumus: "penghematan = E_AC × SCR × tarif",
       masukan: [
-        ["E_AC tahun pertama", kwh(simulasi.e_ac_kwh_yr1)],
-        ["SCR", persen(simulasi.scr)],
-        ["Tarif", rupiah(simulasi.asumsi.tarif_rp_kwh)],
+        ["E_AC tahun pertama", kwh(simulasiAktif.e_ac_kwh_yr1)],
+        ["SCR", persen(simulasiAktif.scr)],
+        ["Tarif", rupiah(simulasiAktif.asumsi.tarif_rp_kwh)],
       ],
-      sumber: "Fixture simulasi contoh · asumsi tarif R-1/TR.",
+      sumber: "Kalkulasi simulasi · asumsi tarif R-1/TR.",
     },
     payback: {
       judul: "Waktu balik modal",
       rumus: "payback = CAPEX ÷ penghematan bersih tahunan",
       masukan: [
-        ["CAPEX", rupiah(simulasi.capex_idr)],
-        ["Penghematan tahun pertama", rupiah(simulasi.savings_idr_yr1)],
-        ["Umur sistem", `${simulasi.asumsi.umur_tahun} tahun`],
+        ["CAPEX", rupiah(simulasiAktif.capex_idr)],
+        ["Penghematan tahun pertama", rupiah(simulasiAktif.savings_idr_yr1)],
+        ["Umur sistem", `${simulasiAktif.asumsi.umur_tahun} tahun`],
       ],
-      sumber: `Fixture simulasi contoh · ${simulasi.engine_version}.`,
+      sumber: `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     kwp: {
       judul: "Kapasitas terpasang",
       rumus: "kWp = jumlah modul × daya modul",
       masukan: [
-        ["Jumlah modul", `${simulasi.module_count} modul`],
-        ["Kapasitas hasil", kwp(simulasi.kwp)],
+        ["Jumlah modul", `${simulasiAktif.module_count} modul`],
+        ["Kapasitas hasil", kwp(simulasiAktif.kwp)],
       ],
-      sumber: "Fixture simulasi contoh dari respons POST /simulate.",
+      sumber: "Kalkulasi simulasi dari respons POST /simulate.",
     },
     energi: {
       judul: "Produksi tahun pertama",
-      rumus: simulasi.jejak?.poa.rumus ?? "POA → suhu sel → derate → E_AC",
+      rumus: simulasiAktif.jejak?.poa.rumus ?? "POA → suhu sel → derate → E_AC",
       masukan: [
-        ["POA", `${angkaDesimal(simulasi.poa_kwh_m2_yr, 1)} kWh/m²/tahun`],
-        ["Performance ratio", persen(simulasi.pr)],
-        ["Produksi AC", kwh(simulasi.e_ac_kwh_yr1)],
+        ["POA", `${angkaDesimal(simulasiAktif.poa_kwh_m2_yr, 1)} kWh/m²/tahun`],
+        ["Performance ratio", persen(simulasiAktif.pr)],
+        ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
       ],
-      sumber: simulasi.jejak?.poa.sumber ?? `Fixture simulasi contoh · ${simulasi.engine_version}.`,
+      sumber: simulasiAktif.jejak?.poa.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     karbon: {
       judul: "Emisi terhindar",
       rumus: "tCO₂e = E_AC ÷ 1.000 × faktor emisi jaringan",
       masukan: [
-        ["Produksi AC", kwh(simulasi.e_ac_kwh_yr1)],
-        ["Faktor emisi", `${angkaDesimal(simulasi.asumsi.ef_grid_tco2_mwh, 2)} tCO₂e/MWh`],
-        ["Hasil tahun pertama", ton(simulasi.co2e_ton_yr)],
+        ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
+        ["Faktor emisi", `${angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2)} tCO₂e/MWh`],
+        ["Hasil tahun pertama", ton(simulasiAktif.co2e_ton_yr)],
       ],
-      sumber: "Fixture simulasi contoh · faktor emisi Sumatera belum diverifikasi.",
+      sumber: "Kalkulasi simulasi · faktor emisi Sumatera ESDM.",
     },
-  }), [simulasi]);
+  }), [simulasiAktif]);
 
   const ubahAsumsi = (kunci: keyof FormAsumsi) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAsumsi((sebelumnya) => ({ ...sebelumnya, [kunci]: event.target.value }));
+  };
+
+  const jalankanHitungUlang = async () => {
+    setSedangHitung(true);
+    setPesanMesin("menghubungi mesin...");
+    try {
+      const payload = {
+        roof_analysis_id: analisis.roof_analysis_id,
+        asumsi: {
+          golongan_tarif: asumsi.golongan_tarif,
+          daya_va: Number(asumsi.daya_va) || simulasiAktif.asumsi.daya_va,
+          tarif_rp_kwh: Number(asumsi.tarif_rp_kwh) || simulasiAktif.asumsi.tarif_rp_kwh,
+          scr: Number(asumsi.scr) || simulasiAktif.asumsi.scr,
+          biaya_per_kwp: Number(asumsi.biaya_per_kwp) || simulasiAktif.asumsi.biaya_per_kwp,
+          diskonto: Number(asumsi.diskonto) || simulasiAktif.asumsi.diskonto,
+          eskalasi_tarif: 0.0,
+          degradasi_thn: 0.006,
+          umur_tahun: 25,
+          ef_grid_tco2_mwh: simulasiAktif.asumsi.ef_grid_tco2_mwh,
+          faktor_ekspor: 0.0,
+        },
+      };
+      const basisUrl = process.env.NEXT_PUBLIC_ENGINE_URL || "http://localhost:8000";
+      const res = await fetch(`${basisUrl}/api/v1/simulate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const dataBaru = (await res.json()) as HasilSimulasi;
+        setSimulasiAktif(dataBaru);
+        setPesanMesin("kalkulasi mesin aktif");
+      } else {
+        setPesanMesin("mesin luring (respons galat)");
+      }
+    } catch {
+      setPesanMesin("mesin luring — jalankan engine untuk hitung langsung");
+    } finally {
+      setSedangHitung(false);
+    }
   };
 
   return (
@@ -309,33 +353,33 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       <section className={s.metrix} aria-labelledby="judul-hasil">
         <div className={s.judulBagian}>
           <div>
-            <p className={s.label}>HASIL CONTOH</p>
+            <p className={s.label}>HASIL PERHITUNGAN</p>
             <h2 id="judul-hasil">Angka yang bisa diperiksa.</h2>
           </div>
-          <p className={s.versiMesin}>mesin <span className="num">{simulasi.engine_version}</span></p>
+          <p className={s.versiMesin}>mesin <span className="num">{simulasiAktif.engine_version}</span></p>
         </div>
 
         <div className={s.gridAngka}>
           <article className={s.kartuUtama}>
             <div>
               <p className={s.angkaLabel}>Hemat per tahun</p>
-              <p className={s.nilaiUtama} aria-label={`Penghematan ${rupiah(simulasi.savings_idr_yr1)} per tahun`}>
-                {rupiah(simulasi.savings_idr_yr1, true)}
+              <p className={s.nilaiUtama} aria-label={`Penghematan ${rupiah(simulasiAktif.savings_idr_yr1)} per tahun`}>
+                {rupiah(simulasiAktif.savings_idr_yr1, true)}
               </p>
               <TombolJejak kunci="hemat" buka={setJejakAktif} />
             </div>
             <div className={s.payback}>
               <p className={s.angkaLabel}>Balik modal</p>
-              <p className={s.nilaiPayback} aria-label={`Waktu balik modal ${simulasi.payback_years === null ? "tidak tercapai dalam umur sistem" : tahun(simulasi.payback_years)}`}>
-                {simulasi.payback_years === null ? "Tidak tercapai" : tahun(simulasi.payback_years)}
+              <p className={s.nilaiPayback} aria-label={`Waktu balik modal ${simulasiAktif.payback_years === null ? "tidak tercapai dalam umur sistem" : tahun(simulasiAktif.payback_years)}`}>
+                {simulasiAktif.payback_years === null ? "Tidak tercapai" : tahun(simulasiAktif.payback_years)}
               </p>
               <TombolJejak kunci="payback" buka={setJejakAktif} />
             </div>
           </article>
 
-          <KartuAngka judul="Kapasitas terpasang" nilai={kwp(simulasi.kwp)} ariaLabel={`Kapasitas terpasang ${kwp(simulasi.kwp)}`} kunci="kwp" buka={setJejakAktif} />
-          <KartuAngka judul="Produksi tahun pertama" nilai={kwh(simulasi.e_ac_kwh_yr1)} ariaLabel={`Produksi listrik ${kwh(simulasi.e_ac_kwh_yr1)} per tahun`} kunci="energi" buka={setJejakAktif} />
-          <KartuAngka judul="Emisi terhindar per tahun" nilai={ton(simulasi.co2e_ton_yr)} ariaLabel={`Emisi terhindar ${ton(simulasi.co2e_ton_yr)} per tahun`} kunci="karbon" buka={setJejakAktif} />
+          <KartuAngka judul="Kapasitas terpasang" nilai={kwp(simulasiAktif.kwp)} ariaLabel={`Kapasitas terpasang ${kwp(simulasiAktif.kwp)}`} kunci="kwp" buka={setJejakAktif} />
+          <KartuAngka judul="Produksi tahun pertama" nilai={kwh(simulasiAktif.e_ac_kwh_yr1)} ariaLabel={`Produksi listrik ${kwh(simulasiAktif.e_ac_kwh_yr1)} per tahun`} kunci="energi" buka={setJejakAktif} />
+          <KartuAngka judul="Emisi terhindar per tahun" nilai={ton(simulasiAktif.co2e_ton_yr)} ariaLabel={`Emisi terhindar ${ton(simulasiAktif.co2e_ton_yr)} per tahun`} kunci="karbon" buka={setJejakAktif} />
         </div>
       </section>
 
@@ -345,9 +389,9 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
             <p className={s.label}>PRODUKSI BULANAN</p>
             <h2 id="judul-produksi">Energi tahun pertama.</h2>
           </div>
-          <p className={s.nilaiRingkas} aria-label={`Total produksi ${kwh(simulasi.e_ac_kwh_yr1)} per tahun`}>{kwh(simulasi.e_ac_kwh_yr1)}</p>
+          <p className={s.nilaiRingkas} aria-label={`Total produksi ${kwh(simulasiAktif.e_ac_kwh_yr1)} per tahun`}>{kwh(simulasiAktif.e_ac_kwh_yr1)}</p>
         </div>
-        <GrafikBulanan bulanan={simulasi.monthly_kwh} />
+        <GrafikBulanan bulanan={simulasiAktif.monthly_kwh} />
       </section>
 
       <section className={s.kartuAsumsi} aria-labelledby="judul-asumsi">
@@ -356,9 +400,9 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
             <p className={s.label}>ASUMSI</p>
             <h2 id="judul-asumsi">Masukan yang dipakai.</h2>
           </div>
-          <p className={s.teksMeta}>Dapat diubah · belum dihitung ulang</p>
+          <p className={s.teksMeta}>Dapat diubah dan dihitung ulang</p>
         </div>
-        <form className={s.formAsumsi} onSubmit={(event) => event.preventDefault()}>
+        <form className={s.formAsumsi} onSubmit={(event) => { event.preventDefault(); void jalankanHitungUlang(); }}>
           <label>
             Golongan tarif
             <select value={asumsi.golongan_tarif} onChange={ubahAsumsi("golongan_tarif")}>
@@ -388,10 +432,20 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
           </label>
         </form>
         <div className={s.aksiAsumsi}>
-          <button className={s.tombolUtama} type="button" disabled title="mesin belum tersambung">Hitung ulang</button>
-          <span id="keterangan-hitung-ulang">mesin belum tersambung</span>
+          <button
+            className={s.tombolUtama}
+            type="button"
+            onClick={jalankanHitungUlang}
+            disabled={sedangHitung}
+            aria-busy={sedangHitung}
+            title="Hitung ulang simulasi dengan parameter yang ditentukan"
+          >
+            {sedangHitung ? "Menghitung..." : "Hitung ulang"}
+          </button>
+          <span id="keterangan-hitung-ulang">{pesanMesin}</span>
         </div>
       </section>
+
 
       <p className={s.catatanContoh}>
         Semua angka di halaman ini berasal dari fixture contoh. Angka nyata baru ditampilkan setelah mesin hitung tersambung dan sumber tarif terverifikasi.
