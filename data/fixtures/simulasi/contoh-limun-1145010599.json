@@ -1,0 +1,65 @@
+{
+  "id": "8c1f1145-limun-4011-8f92-rk1145010599",
+  "engine_version": "l3.2026.09.21+l4.2026.09.22+l5.2026.09.22",
+  "kwp": 50.05,
+  "module_count": 91,
+  "poa_kwh_m2_yr": 1450.5,
+  "e_ac_kwh_yr1": 65189.6,
+  "pr": 0.898,
+  "scr": 0.42,
+  "capex_idr": 725725000.0,
+  "savings_idr_yr1": 39555354.3504,
+  "payback_years": 24.492269883299517,
+  "npv_idr": -426083434.7072669,
+  "irr": 0.0014884509284281986,
+  "lcoe_idr_kwh": 1303.77559779085,
+  "co2e_ton_yr": 49.54,
+  "co2e_ton_25yr": 1085.1,
+  "monthly_kwh": [
+    5633.9,
+    5112.9,
+    5653.9,
+    5259.7,
+    4941.2,
+    4632.8,
+    5435.8,
+    5558.8,
+    5516.2,
+    6805.8,
+    5167.2,
+    5471.4
+  ],
+  "asumsi": {
+    "golongan_tarif": "R-1/TR",
+    "daya_va": 2200,
+    "tarif_rp_kwh": 1444.7,
+    "scr": 0.42,
+    "biaya_per_kwp": 14500000.0,
+    "opex_frac": 0.01,
+    "diskonto": 0.09,
+    "eskalasi_tarif": 0.0,
+    "degradasi_thn": 0.006,
+    "umur_tahun": 25,
+    "ef_grid_tco2_mwh": 0.76,
+    "faktor_ekspor": 0.0
+  },
+  "jejak": {
+    "poa": {
+      "rumus": "POA = DNI·cos(AOI) + POA_dif + POA_tanah",
+      "sumber": "Perez (1990) & Hay-Davies (pvlib)"
+    },
+    "suhu_sel": {
+      "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8",
+      "sumber": "IEC 61215 & Sandia SAPM"
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02,
+      "gabungan": 0.898
+    }
+  },
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka contoh simulasi skala residensial rumah tinggal warga Kandang Limun (way OSM 1145010599, roof_analysis_id 9913)."
+}

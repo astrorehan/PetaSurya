@@ -7,6 +7,7 @@ import simulasiJson from "../../../../../data/fixtures/simulasi/contoh-3f8c.json
 import analisisKampusJson from "../../../../../data/fixtures/analisis/cv-kampus-fh-unib.json";
 import bangunanKampusJson from "../../../../../data/fixtures/bangunan/kampus-fh-unib.json";
 import simulasiKampusJson from "../../../../../data/fixtures/simulasi/contoh-unib-1146141501.json";
+import simulasiLimunJson from "../../../../../data/fixtures/simulasi/contoh-limun-1145010599.json";
 import { HasilAtap, KeadaanAtap } from "../../../components/HasilAtap";
 
 const analisisCv = analisisCvJson as unknown as AnalisisAtap;
@@ -17,6 +18,7 @@ const bangunanToko = bangunanTokoJson as unknown as BangunanRingkas;
 const bangunanKampus = bangunanKampusJson as unknown as BangunanRingkas;
 const simulasi = simulasiJson as unknown as HasilSimulasi;
 const simulasiKampus = simulasiKampusJson as unknown as HasilSimulasi;
+const simulasiLimun = simulasiLimunJson as unknown as HasilSimulasi;
 
 type DataAtap = {
   bangunan: BangunanRingkas;
@@ -28,7 +30,9 @@ const DATA_CONTOH: Record<string, DataAtap> = {
   contoh: { bangunan: bangunanToko, analisis: analisisCv, simulasi },
   "3f8c-contoh": { bangunan: bangunanToko, analisis: analisisCv, simulasi },
   "991016391": { bangunan: bangunanToko, analisis: analisisCv, simulasi },
-  "1145010599": { bangunan: bangunanRumah, analisis: analisisFallback, simulasi },
+  "1145010599": { bangunan: bangunanRumah, analisis: analisisFallback, simulasi: simulasiLimun },
+  "rumah": { bangunan: bangunanRumah, analisis: analisisFallback, simulasi: simulasiLimun },
+  "limun": { bangunan: bangunanRumah, analisis: analisisFallback, simulasi: simulasiLimun },
   "1146141501": { bangunan: bangunanKampus, analisis: analisisKampus, simulasi: simulasiKampus },
   "unib": { bangunan: bangunanKampus, analisis: analisisKampus, simulasi: simulasiKampus },
   "kampus": { bangunan: bangunanKampus, analisis: analisisKampus, simulasi: simulasiKampus },

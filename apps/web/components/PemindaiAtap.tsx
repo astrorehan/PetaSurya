@@ -4,290 +4,33 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  Compass,
   Cpu,
   Crosshair,
   ExternalLink,
+  Layers,
   Pause,
   Play,
   RotateCcw,
+  Terminal,
   X,
 } from "lucide-react";
-import { kwh, kwp, m2, persen } from "@petasurya/ui";
+import { kwh, kwp, m2, persen, rupiah } from "@petasurya/ui";
 import s from "./pemindaiAtap.module.css";
 
-export type BangunanTargetPindai = {
-  id: number;
-  nama: string;
-  kategori: string;
-  koordinat: [number, number]; // [lat, lon]
-  tileUrl: string;
-  footprint_m2: number;
-  roof_area_m2: number;
-  usable_area_m2: number;
-  obstruction_frac: number;
-  tilt_deg: number;
-  azimuth_deg: number;
-  arah_label: string;
-  roof_type: string;
-  confidence: number;
-  method: "cv" | "footprint_fallback";
-  model_version: string;
-  modules_count: number;
-  kwp: number;
-  e_ac_kwh_yr1: number;
-  polygon: [number, number][];
-  bbox: [number, number, number, number]; // [x, y, w, h]
-  ridge: [number, number, number, number]; // [x1, y1, x2, y2]
-  azimuth_vec: [number, number, number, number]; // [x1, y1, x2, y2]
-  obstructions: Array<{
-    id: string;
-    label: string;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    tipe: "tandon" | "ac" | "shaft" | "pohon";
-  }>;
-  pv_modules: Array<{
-    id: number;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-  }>;
-  peringatan?: string;
-};
+import {
+  type BangunanTargetPindai,
+  type TileCitra,
+  DAFTAR_BANGUNAN,
+  TAHAP_INFO,
+} from "./pemindaiData";
 
-// Data terkalibrasi presisi untuk 3 bangunan nyata Kota Bengkulu
-const DAFTAR_BANGUNAN: BangunanTargetPindai[] = [
-  {
-    id: 991016391,
-    nama: "Toko WR Supratman (Indomaret)",
-    kategori: "Komersial / Ruko 2 Lantai",
-    koordinat: [-3.76269, 102.27168],
-    tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/133813/205543",
-    footprint_m2: 244.6,
-    roof_area_m2: 112.4,
-    usable_area_m2: 78.7,
-    obstruction_frac: 0.19,
-    tilt_deg: 22.0,
-    azimuth_deg: 285.0,
-    arah_label: "Barat-Laut (285°)",
-    roof_type: "pelana",
-    confidence: 0.81,
-    method: "cv",
-    model_version: "mobilesam-osmprompt-v3",
-    modules_count: 40,
-    kwp: 17.6,
-    e_ac_kwh_yr1: 24960,
-    polygon: [
-      [245, 162],
-      [450, 245],
-      [420, 318],
-      [190, 225],
-      [208, 180],
-      [233, 190],
-    ],
-    bbox: [180, 150, 280, 180],
-    ridge: [217, 202, 435, 281],
-    azimuth_vec: [320, 240, 290, 170],
-    obstructions: [
-      { id: "obs-1", label: "Tandon Air Utama", x: 360, y: 240, w: 26, h: 26, tipe: "tandon" },
-      { id: "obs-2", label: "Unit Kompresor AC", x: 260, y: 200, w: 24, h: 18, tipe: "ac" },
-    ],
-    pv_modules: [
-      // Baris 1
-      { id: 1, x: 230, y: 175, w: 18, h: 11 },
-      { id: 2, x: 252, y: 184, w: 18, h: 11 },
-      { id: 3, x: 274, y: 193, w: 18, h: 11 },
-      { id: 4, x: 296, y: 202, w: 18, h: 11 },
-      { id: 5, x: 318, y: 211, w: 18, h: 11 },
-      { id: 6, x: 340, y: 220, w: 18, h: 11 },
-      { id: 7, x: 362, y: 229, w: 18, h: 11 },
-      { id: 8, x: 384, y: 238, w: 18, h: 11 },
-      { id: 9, x: 406, y: 247, w: 18, h: 11 },
-      { id: 10, x: 428, y: 256, w: 18, h: 11 },
-      // Baris 2
-      { id: 11, x: 222, y: 192, w: 18, h: 11 },
-      { id: 12, x: 244, y: 201, w: 18, h: 11 },
-      { id: 13, x: 288, y: 219, w: 18, h: 11 },
-      { id: 14, x: 310, y: 228, w: 18, h: 11 },
-      { id: 15, x: 332, y: 237, w: 18, h: 11 },
-      { id: 16, x: 398, y: 264, w: 18, h: 11 },
-      { id: 17, x: 420, y: 273, w: 18, h: 11 },
-      // Baris 3
-      { id: 18, x: 214, y: 209, w: 18, h: 11 },
-      { id: 19, x: 236, y: 218, w: 18, h: 11 },
-      { id: 20, x: 258, y: 227, w: 18, h: 11 },
-      { id: 21, x: 280, y: 236, w: 18, h: 11 },
-      { id: 22, x: 302, y: 245, w: 18, h: 11 },
-      { id: 23, x: 324, y: 254, w: 18, h: 11 },
-      { id: 24, x: 390, y: 281, w: 18, h: 11 },
-      { id: 25, x: 412, y: 290, w: 18, h: 11 },
-      // Baris 4
-      { id: 26, x: 206, y: 226, w: 18, h: 11 },
-      { id: 27, x: 228, y: 235, w: 18, h: 11 },
-      { id: 28, x: 250, y: 244, w: 18, h: 11 },
-      { id: 29, x: 272, y: 253, w: 18, h: 11 },
-      { id: 30, x: 294, y: 262, w: 18, h: 11 },
-      { id: 31, x: 316, y: 271, w: 18, h: 11 },
-      { id: 32, x: 338, y: 280, w: 18, h: 11 },
-      { id: 33, x: 360, y: 289, w: 18, h: 11 },
-      { id: 34, x: 382, y: 298, w: 18, h: 11 },
-      { id: 35, x: 404, y: 307, w: 18, h: 11 },
-      // Baris 5 pelengkap
-      { id: 36, x: 240, y: 165, w: 18, h: 11 },
-      { id: 37, x: 262, y: 174, w: 18, h: 11 },
-      { id: 38, x: 284, y: 183, w: 18, h: 11 },
-      { id: 39, x: 306, y: 192, w: 18, h: 11 },
-      { id: 40, x: 328, y: 201, w: 18, h: 11 },
-    ],
-  },
-  {
-    id: 1146141501,
-    nama: "Fakultas Hukum UNIB",
-    kategori: "Kampus / Bangunan Institusi",
-    koordinat: [-3.76068, 102.26834],
-    tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/133812/205541",
-    footprint_m2: 1505.3,
-    roof_area_m2: 1280.0,
-    usable_area_m2: 1024.0,
-    obstruction_frac: 0.12,
-    tilt_deg: 15.0,
-    azimuth_deg: 165.0,
-    arah_label: "Selatan-Tenggara (165°)",
-    roof_type: "pelana (sayap ganda)",
-    confidence: 0.88,
-    method: "cv",
-    model_version: "mobilesam-osmprompt-v3",
-    modules_count: 460,
-    kwp: 202.4,
-    e_ac_kwh_yr1: 284500,
-    polygon: [
-      [190, 178],
-      [244, 348],
-      [323, 324],
-      [315, 299],
-      [450, 256],
-      [410, 132],
-      [274, 175],
-      [267, 151],
-      [255, 155],
-      [252, 144],
-      [215, 155],
-      [219, 169],
-    ],
-    bbox: [175, 120, 290, 240],
-    ridge: [230, 250, 420, 195],
-    azimuth_vec: [320, 240, 345, 310],
-    obstructions: [
-      { id: "obs-1", label: "Shaft Tangga & AC", x: 265, y: 220, w: 32, h: 22, tipe: "shaft" },
-      { id: "obs-2", label: "Unit Chiller Outdoor", x: 375, y: 210, w: 34, h: 24, tipe: "ac" },
-      { id: "obs-3", label: "Naungan Tajuk Pohon", x: 415, y: 250, w: 26, h: 26, tipe: "pohon" },
-    ],
-    pv_modules: Array.from({ length: 44 }).map((_, i) => {
-      const baris = Math.floor(i / 11);
-      const kolom = i % 11;
-      return {
-        id: i + 1,
-        x: 210 + kolom * 20 + baris * 5,
-        y: 180 + baris * 28 + kolom * 6,
-        w: 16,
-        h: 12,
-      };
-    }),
-  },
-  {
-    id: 1145010599,
-    nama: "Rumah Kandang Limun",
-    kategori: "Residensial / Rumah Warga",
-    koordinat: [-3.76166, 102.26732],
-    tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/133813/205540",
-    footprint_m2: 277.9,
-    roof_area_m2: 277.9,
-    usable_area_m2: 236.2,
-    obstruction_frac: 0.0,
-    tilt_deg: 15.0,
-    azimuth_deg: 174.2,
-    arah_label: "Selatan (174°)",
-    roof_type: "pelana",
-    confidence: 0.34,
-    method: "footprint_fallback",
-    model_version: "footprint-heuristic-v1",
-    modules_count: 108,
-    kwp: 47.5,
-    e_ac_kwh_yr1: 66800,
-    polygon: [
-      [247, 140],
-      [217, 207],
-      [287, 237],
-      [252, 318],
-      [373, 370],
-      [423, 255],
-      [375, 234],
-      [416, 139],
-      [348, 110],
-      [321, 172],
-    ],
-    bbox: [205, 100, 230, 280],
-    ridge: [270, 160, 380, 310],
-    azimuth_vec: [320, 240, 325, 315],
-    obstructions: [],
-    peringatan:
-      "Keyakinan CV rendah (< 0.45). Luas atap diperkirakan dari jejak bangunan OSM dikali 0,85. Silakan gambar ulang batas atap secara manual jika diperlukan.",
-    pv_modules: Array.from({ length: 32 }).map((_, i) => {
-      const baris = Math.floor(i / 8);
-      const kolom = i % 8;
-      return {
-        id: i + 1,
-        x: 250 + kolom * 18 + baris * 8,
-        y: 160 + baris * 28 + kolom * 10,
-        w: 15,
-        h: 11,
-      };
-    }),
-  },
-];
-
-const TAHAP_INFO = [
-  {
-    nomor: 1,
-    nama: "Akuisisi Citra",
-    subjudul: "Tile Satelit Esri z=19 & Bounding Box OSM",
-    penjelasan:
-      "Sistem mengambil tile citra satelit resolusi tinggi (~0,298 m/px) dari Esri World Imagery pada koordinat centroid bangunan. Bounding box dan titik prompt diselaraskan dari basis data relasi OpenStreetMap.",
-  },
-  {
-    nomor: 2,
-    nama: "Segmentasi AI",
-    subjudul: "Deteksi Kontur Atap via MobileSAM (ONNX)",
-    penjelasan:
-      "Model segmentasi zero-shot MobileSAM memindai citra dengan prompt centroid. Poligon kontur bidang atap dipisahkan secara otomatis dari kanopi pohon, jalan aspal, dan halaman sekitar.",
-  },
-  {
-    nomor: 3,
-    nama: "Filter Obstruksi",
-    subjudul: "Penapisan Tandon Air, AC & Sempadan Keselamatan",
-    penjelasan:
-      "Sistem mendeteksi objek penghalang di atas atap (tandon air, kompresor AC outdoor, ventilasi, dan bayangan) serta menerapkan sempadan batas tepi 0,5 meter. Area ini dieksklusi dari bidang penempatan modul.",
-  },
-  {
-    nomor: 4,
-    nama: "Bubungan & Hadap",
-    subjudul: "Deteksi Garis Ridge, Kemiringan (Tilt) & Azimut",
-    penjelasan:
-      "Algoritma Principal Component Analysis (PCA) mendeteksi sumbu utama bubungan atap. Vektor hadap azimut dan sudut kemiringan (tilt) dihitung untuk pemodelan transposisi POA pada lintang Bengkulu (-3,8° LS).",
-  },
-  {
-    nomor: 5,
-    nama: "Penataan Panel PV",
-    subjudul: "Simulasi Grid Modul Surya & Kapasitas kWp",
-    penjelasan:
-      "Modul fotovoltaik monokristalin Tier-1 disusun secara otomatis pada bidang atap layak yang tersisa. Jumlah modul maksimum, kapasitas total kWp, dan estimasi produksi energi tahun pertama siap dialirkan ke mesin tekno-ekonomi L3–L5.",
-  },
-];
+export type { BangunanTargetPindai, TileCitra };
+export { DAFTAR_BANGUNAN, TAHAP_INFO };
 
 type PemindaiAtapProps = {
   bangunanAwalId?: number;
@@ -305,6 +48,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const [tahap, setTahap] = useState(1);
   const [sedangMemindai, setSedangMemindai] = useState(false);
   const [kecepatan, setKecepatan] = useState<1 | 2>(1);
+  const [tipeModul, setTipeModul] = useState<550 | 440>(550);
 
   // Sakelar lapisan visual
   const [tampilSatelit, setTampilSatelit] = useState(true);
@@ -312,20 +56,39 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const [tampilObstruksi, setTampilObstruksi] = useState(true);
   const [tampilBubungan, setTampilBubungan] = useState(true);
   const [tampilModul, setTampilModul] = useState(true);
+  const [tampilKompas, setTampilKompas] = useState(true);
+
+  // Status interaktif hover inspeksi
+  const [obstruksiSorot, setObstruksiSorot] = useState<string | null>(null);
+  const [modulSorot, setModulSorot] = useState<number | null>(null);
 
   // Animasi posisi laser scanline
   const [scanlineY, setScanlineY] = useState(120);
 
+  // Terminal log status
+  const [tampilTerminal, setTampilTerminal] = useState(true);
+
   const bangunan = DAFTAR_BANGUNAN[indeksBangunan];
   const tahapAktif = TAHAP_INFO[tahap - 1];
+  const spekAktif = bangunan.specs[tipeModul];
+  const modulAktif = tipeModul === 550 ? bangunan.pv_modules_550 : bangunan.pv_modules_440;
+
+  // Sinkronisasi URL query param saat ganti bangunan di mode halaman
+  useEffect(() => {
+    if (mode === "halaman" && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("id", String(bangunan.id));
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [bangunan.id, mode]);
 
   // Efek animasi laser scanline saat pemindaian aktif
   useEffect(() => {
     if (!sedangMemindai) return;
 
     let arah = 1;
-    const batasAtas = 130;
-    const batasBawah = 360;
+    const batasAtas = 140;
+    const batasBawah = 350;
 
     const interval = setInterval(() => {
       setScanlineY((sebelumnya) => {
@@ -348,7 +111,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   useEffect(() => {
     if (!sedangMemindai) return;
 
-    const durasi = kecepatan === 1 ? 2600 : 1400;
+    const durasi = kecepatan === 1 ? 2800 : 1500;
     const timer = setTimeout(() => {
       setTahap((sekarang) => {
         if (sekarang < 5) return sekarang + 1;
@@ -359,6 +122,40 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
     return () => clearTimeout(timer);
   }, [sedangMemindai, tahap, kecepatan]);
+
+  // Kontrol keyboard pintasan
+  useEffect(() => {
+    const tanganiKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.key === "Escape" && mode === "modal" && onTutup) {
+        e.preventDefault();
+        onTutup();
+      } else if (e.key === " ") {
+        e.preventDefault();
+        setSedangMemindai((p) => !p);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setTahap((t) => Math.max(1, t - 1));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setTahap((t) => Math.min(5, t + 1));
+      } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
+        e.preventDefault();
+        setTahap(Number(e.key));
+        setSedangMemindai(false);
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        setTahap(1);
+        setSedangMemindai(true);
+      }
+    };
+
+    window.addEventListener("keydown", tanganiKey);
+    return () => window.removeEventListener("keydown", tanganiKey);
+  }, [mode, onTutup]);
 
   const mulaiPindaiOtomatis = useCallback(() => {
     if (tahap === 5) setTahap(1);
@@ -378,11 +175,16 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
     setIndeksBangunan(idx);
     setTahap(1);
     setSedangMemindai(false);
+    setObstruksiSorot(null);
+    setModulSorot(null);
   };
 
   const polygonString = useMemo(() => {
     return bangunan.polygon.map(([x, y]) => `${x},${y}`).join(" ");
   }, [bangunan]);
+
+  // Sudut dial kompas dan vektor hadap
+  const rotasiJarum = bangunan.azimuth_deg;
 
   const konten = (
     <div className={s.wadah}>
@@ -399,19 +201,26 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               {bangunan.method === "cv" ? (tahap === 5 ? "SELESAI (5/5)" : `TAHAP ${tahap}/5`) : "FALLBACK OSM"}
             </span>
           </div>
-          <h1 className={s.judul}>Pemindaian & Segmentasi Atap</h1>
+          <h1 id="judul-modal-pemindai" className={s.judul}>
+            Pemindaian & Segmentasi Atap
+          </h1>
           <p className={s.pengantar}>
-            Demonstrasi pipeline inferensi visual atap: deteksi kontur bangunan dari citra satelit, penapisan obstruksi,
-            ekstraksi kemiringan & orientasi, hingga simulasi penataan modul PV surya.
+            Demonstrasi pipeline inferensi visual atap: georeferensi citra satelit Esri z=19, deteksi kontur AI MobileSAM, penapisan obstruksi fisik,
+            ekstraksi sumbu bubungan & azimut, hingga simulasi susunan modul fotovoltaik.
           </p>
         </div>
 
         {mode === "modal" && onTutup ? (
-          <button className={s.tombolTutup} type="button" onClick={onTutup} aria-label="Tutup pemindai">
+          <button className={s.tombolTutup} type="button" onClick={onTutup} aria-label="Tutup pemindai (Esc)">
             <X size={18} aria-hidden="true" />
           </button>
         ) : null}
       </header>
+
+      {/* Pengumuman Aksesibilitas Screen Reader */}
+      <div className="srOnly" aria-live="polite">
+        Tahap {tahap} dari 5: {tahapAktif.nama}. {tahapAktif.subjudul}
+      </div>
 
       {/* Baris Pemilih Bangunan Target */}
       <nav className={s.barisPreset} aria-label="Pilih target bangunan untuk dipindai">
@@ -438,17 +247,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
         {/* Kolom Kiri: Kanvas Sensor & Kontrol */}
         <section className={s.kolomKanvas} aria-label="Layar visual pemindai">
           <div className={s.kotakSensor}>
-            {/* Citra Satelit Latar */}
-            {tampilSatelit ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={s.citraSatelitLatar}
-                src={bangunan.tileUrl}
-                alt={`Citra satelit ${bangunan.nama}`}
-                loading="eager"
-              />
-            ) : null}
-
             {/* Canvas Overlay Grafis Vektor */}
             <svg
               className={s.kanvasSvg}
@@ -474,18 +272,34 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 </marker>
               </defs>
 
-              {/* Latar Grid Teknis */}
+              {/* Latar Grid Teknis Millimeter */}
               <rect width="640" height="480" fill="url(#gridTeknis)" />
 
-              {/* Reticle Crosshairs Pusat */}
-              <line x1="320" y1="0" x2="320" y2="480" stroke="rgba(174, 183, 199, 0.15)" strokeDasharray="3 4" />
-              <line x1="0" y1="240" x2="640" y2="240" stroke="rgba(174, 183, 199, 0.15)" strokeDasharray="3 4" />
-              <circle cx="320" cy="240" r="60" fill="none" stroke="rgba(174, 183, 199, 0.18)" strokeDasharray="2 3" />
+              {/* Citra Satelit Latar: Seamless Multi-tile Esri z=19 (0,298 m/px) */}
+              {tampilSatelit ? (
+                <g id="satelit-tiles" opacity="0.88">
+                  {bangunan.tiles.map((t, ti) => (
+                    <image
+                      key={ti}
+                      href={t.url}
+                      x={t.x}
+                      y={t.y}
+                      width={256}
+                      height={256}
+                      preserveAspectRatio="none"
+                    />
+                  ))}
+                </g>
+              ) : null}
+
+              {/* Reticle Crosshairs Pusat Sensor */}
+              <line x1="320" y1="0" x2="320" y2="480" stroke="rgba(174, 183, 199, 0.18)" strokeDasharray="3 4" />
+              <line x1="0" y1="240" x2="640" y2="240" stroke="rgba(174, 183, 199, 0.18)" strokeDasharray="3 4" />
+              <circle cx="320" cy="240" r="60" fill="none" stroke="rgba(174, 183, 199, 0.22)" strokeDasharray="2 3" />
 
               {/* TAHAP 1: Bounding Box & Prompt Centroid OSM */}
               {tahap >= 1 ? (
                 <g id="tahap-1-bbox" opacity="0.95">
-                  {/* Bounding box garis putus-putus */}
                   <rect
                     x={bangunan.bbox[0]}
                     y={bangunan.bbox[1]}
@@ -534,8 +348,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                     strokeWidth="2.5"
                   />
                   {/* Centroid Prompt Point */}
-                  <circle cx="320" cy="240" r="7" fill="#E8920F" opacity="0.85" />
-                  <circle cx="320" cy="240" r="14" fill="none" stroke="#E8920F" strokeWidth="1.2" opacity="0.5" />
+                  <circle cx="320" cy="240" r="7" fill="#E8920F" opacity="0.9" />
+                  <circle cx="320" cy="240" r="15" fill="none" stroke="#E8920F" strokeWidth="1.2" opacity="0.6" />
                   <text
                     x={bangunan.bbox[0]}
                     y={bangunan.bbox[1] - 14}
@@ -554,7 +368,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 <g id="tahap-2-kontur">
                   <polygon
                     points={polygonString}
-                    fill="rgba(232, 144, 15, 0.24)"
+                    fill="rgba(232, 144, 15, 0.25)"
                     stroke="#E8920F"
                     strokeWidth="2.5"
                     strokeLinejoin="round"
@@ -562,7 +376,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   {/* Titik Simpul (Vertices) */}
                   {bangunan.polygon.map(([vx, vy], vi) => (
                     <g key={vi}>
-                      <circle cx={vx} cy={vy} r="4" fill="#FFFFFF" stroke="#E8920F" strokeWidth="1.5" />
+                      <circle cx={vx} cy={vy} r="3.5" fill="#FFFFFF" stroke="#E8920F" strokeWidth="1.5" />
                       <text x={vx + 6} y={vy - 4} fill="#AEB7C7" fontFamily="monospace" fontSize="8">
                         v{vi}
                       </text>
@@ -585,63 +399,66 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               {/* TAHAP 3: Obstruksi & Zona Larangan */}
               {tahap >= 3 && tampilObstruksi ? (
                 <g id="tahap-3-obstruksi">
-                  {bangunan.obstructions.map((obs) => (
-                    <g key={obs.id}>
-                      <rect
-                        x={obs.x}
-                        y={obs.y}
-                        width={obs.w}
-                        height={obs.h}
-                        fill="url(#arsirObstruksi)"
-                        stroke="#EE8460"
-                        strokeWidth="1.8"
-                        rx="2"
-                      />
-                      <rect
-                        x={obs.x}
-                        y={obs.y - 14}
-                        width={obs.label.length * 6 + 10}
-                        height="12"
-                        fill="rgba(10, 14, 28, 0.85)"
-                        rx="2"
-                      />
-                      <text
-                        x={obs.x + 3}
-                        y={obs.y - 4}
-                        fill="#EE8460"
-                        fontFamily="monospace"
-                        fontSize="8"
-                        fontWeight="600"
+                  {bangunan.obstructions.map((obs) => {
+                    const disorot = obstruksiSorot === obs.id;
+                    return (
+                      <g
+                        key={obs.id}
+                        onMouseEnter={() => setObstruksiSorot(obs.id)}
+                        onMouseLeave={() => setObstruksiSorot(null)}
+                        style={{ cursor: "pointer" }}
                       >
-                        {obs.label}
-                      </text>
-                    </g>
-                  ))}
+                        <rect
+                          x={obs.x}
+                          y={obs.y}
+                          width={obs.w}
+                          height={obs.h}
+                          fill="url(#arsirObstruksi)"
+                          stroke={disorot ? "#FFFFFF" : "#EE8460"}
+                          strokeWidth={disorot ? "2.5" : "1.8"}
+                          rx="2"
+                        />
+                        <rect
+                          x={obs.x}
+                          y={obs.y - 14}
+                          width={obs.label.length * 6 + 10}
+                          height="12"
+                          fill="rgba(10, 14, 28, 0.9)"
+                          rx="2"
+                        />
+                        <text
+                          x={obs.x + 3}
+                          y={obs.y - 4}
+                          fill={disorot ? "#FFFFFF" : "#EE8460"}
+                          fontFamily="monospace"
+                          fontSize="8"
+                          fontWeight="600"
+                        >
+                          {obs.label}
+                        </text>
+                      </g>
+                    );
+                  })}
                 </g>
               ) : null}
 
               {/* TAHAP 4: Garis Bubungan (Ridge) & Vektor Azimut / Kemiringan */}
               {tahap >= 4 && tampilBubungan ? (
                 <g id="tahap-4-orientasi">
-                  {/* Garis Bubungan Atap */}
-                  <line
-                    x1={bangunan.ridge[0]}
-                    y1={bangunan.ridge[1]}
-                    x2={bangunan.ridge[2]}
-                    y2={bangunan.ridge[3]}
-                    stroke="#FFFFFF"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1={bangunan.ridge[0]}
-                    y1={bangunan.ridge[1]}
-                    x2={bangunan.ridge[2]}
-                    y2={bangunan.ridge[3]}
-                    stroke="#E8920F"
-                    strokeWidth="1.2"
-                    strokeDasharray="4 2"
-                  />
+                  {bangunan.ridges.map(([rx1, ry1, rx2, ry2], ri) => (
+                    <g key={ri}>
+                      <line x1={rx1} y1={ry1} x2={rx2} y2={ry2} stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" />
+                      <line
+                        x1={rx1}
+                        y1={ry1}
+                        x2={rx2}
+                        y2={ry2}
+                        stroke="#E8920F"
+                        strokeWidth="1.2"
+                        strokeDasharray="4 2"
+                      />
+                    </g>
+                  ))}
 
                   {/* Vektor Arah Hadap (Azimut) */}
                   <line
@@ -670,62 +487,94 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               {/* TAHAP 5: Grid Modul Surya PV */}
               {tahap >= 5 && tampilModul ? (
                 <g id="tahap-5-pv">
-                  {bangunan.pv_modules.map((mod) => (
-                    <g key={mod.id}>
-                      {/* Sel Modul PV (Navy Sel Surya) */}
-                      <rect
-                        x={mod.x}
-                        y={mod.y}
-                        width={mod.w}
-                        height={mod.h}
-                        fill="#17204A"
-                        stroke="#AEB7C7"
-                        strokeWidth="0.8"
-                        rx="1"
-                      />
-                      {/* Busbar internal perak */}
-                      <line
-                        x1={mod.x + 3}
-                        y1={mod.y + 1}
-                        x2={mod.x + 3}
-                        y2={mod.y + mod.h - 1}
-                        stroke="#AEB7C7"
-                        strokeWidth="0.4"
-                        opacity="0.6"
-                      />
-                      <line
-                        x1={mod.x + mod.w - 3}
-                        y1={mod.y + 1}
-                        x2={mod.x + mod.w - 3}
-                        y2={mod.y + mod.h - 1}
-                        stroke="#AEB7C7"
-                        strokeWidth="0.4"
-                        opacity="0.6"
-                      />
-                    </g>
-                  ))}
+                  {modulAktif.map((mod) => {
+                    const disorot = modulSorot === mod.id;
+                    return (
+                      <g
+                        key={mod.id}
+                        onMouseEnter={() => setModulSorot(mod.id)}
+                        onMouseLeave={() => setModulSorot(null)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <rect
+                          x={mod.x}
+                          y={mod.y}
+                          width={mod.w}
+                          height={mod.h}
+                          fill={disorot ? "#2B3A77" : "#17204A"}
+                          stroke={disorot ? "#E8920F" : "#AEB7C7"}
+                          strokeWidth={disorot ? "1.5" : "0.8"}
+                          rx="1"
+                        />
+                        <line
+                          x1={mod.x + 2}
+                          y1={mod.y + 1}
+                          x2={mod.x + 2}
+                          y2={mod.y + mod.h - 1}
+                          stroke="#AEB7C7"
+                          strokeWidth="0.4"
+                          opacity="0.6"
+                        />
+                        <line
+                          x1={mod.x + mod.w - 2}
+                          y1={mod.y + 1}
+                          x2={mod.x + mod.w - 2}
+                          y2={mod.y + mod.h - 1}
+                          stroke="#AEB7C7"
+                          strokeWidth="0.4"
+                          opacity="0.6"
+                        />
+                      </g>
+                    );
+                  })}
+                </g>
+              ) : null}
+
+              {/* Mini Dial Kompas Surya di Sudut Kanan Bawah */}
+              {tampilKompas && (tahap >= 4 || tahap === 5) ? (
+                <g id="dial-kompas" transform="translate(580, 420)">
+                  <circle cx="0" cy="0" r="32" fill="rgba(10, 14, 28, 0.88)" stroke="rgba(174, 183, 199, 0.3)" strokeWidth="1" />
+                  <text x="0" y="-20" fill="#E8920F" fontFamily="monospace" fontSize="8" fontWeight="bold" textAnchor="middle">
+                    U
+                  </text>
+                  <text x="22" y="3" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
+                    T
+                  </text>
+                  <text x="0" y="24" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
+                    S
+                  </text>
+                  <text x="-22" y="3" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
+                    B
+                  </text>
+                  {/* Jarum Hadap Atap */}
+                  <g transform={`rotate(${rotasiJarum})`}>
+                    <line x1="0" y1="0" x2="0" y2="-22" stroke="#E8920F" strokeWidth="2" markerEnd="url(#panahAzimut)" />
+                    <circle cx="0" cy="0" r="2.5" fill="#E8920F" />
+                  </g>
+                  <text x="0" y="38" fill="#AEB7C7" fontFamily="monospace" fontSize="8" textAnchor="middle">
+                    {bangunan.azimuth_deg}°
+                  </text>
                 </g>
               ) : null}
 
               {/* Garis Pemindai Laser Optik (Scanline) */}
               {sedangMemindai ? (
                 <g id="laser-scanline">
-                  <line x1="80" y1={scanlineY} x2="560" y2={scanlineY} stroke="#E8920F" strokeWidth="2.5" />
+                  <line x1="60" y1={scanlineY} x2="580" y2={scanlineY} stroke="#E8920F" strokeWidth="2.5" />
                   <line
-                    x1="80"
+                    x1="60"
                     y1={scanlineY}
-                    x2="560"
+                    x2="580"
                     y2={scanlineY}
                     stroke="#FFFFFF"
                     strokeWidth="1"
                     strokeDasharray="4 2"
                   />
-                  {/* Efek sensor beam gradasi */}
                   <rect
-                    x="80"
-                    y={scanlineY - 24}
-                    width="480"
-                    height="24"
+                    x="60"
+                    y={scanlineY - 20}
+                    width="520"
+                    height="20"
                     fill="rgba(232, 144, 15, 0.12)"
                     pointerEvents="none"
                   />
@@ -742,6 +591,19 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               <span>MODEL: {bangunan.model_version}</span>
             </div>
 
+            {/* Tooltip Dinamis saat Hover Elemen Obstruksi / Modul */}
+            {obstruksiSorot ? (
+              <div className={s.tooltipKanvas}>
+                <span>OBSTRUKSI: {bangunan.obstructions.find((o) => o.id === obstruksiSorot)?.keterangan}</span>
+              </div>
+            ) : modulSorot ? (
+              <div className={s.tooltipKanvas}>
+                <span>
+                  MODUL #{modulSorot}: Mono-Si {tipeModul} Wp · String #{modulAktif.find((m) => m.id === modulSorot)?.string_id}
+                </span>
+              </div>
+            ) : null}
+
             {/* HUD Telemetri Bawah */}
             <div className={s.hudBawah}>
               <span>CITRA: ESRI WORLD IMAGERY</span>
@@ -757,18 +619,18 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             <div className={s.barisAksi}>
               <div className={s.grupPutar}>
                 {sedangMemindai ? (
-                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={jedaPindai}>
+                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={jedaPindai} title="Jeda pemindaian (Spasi)">
                     <Pause size={15} aria-hidden="true" />
                     <span>Jeda</span>
                   </button>
                 ) : (
-                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={mulaiPindaiOtomatis}>
+                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={mulaiPindaiOtomatis} title="Mulai pemindaian otomatis (Spasi)">
                     <Play size={15} aria-hidden="true" />
                     <span>{tahap === 5 ? "Pindai Ulang" : "Mulai Pemindaian"}</span>
                   </button>
                 )}
 
-                <button className={s.tombolKontrol} type="button" onClick={ulangPindai} title="Ulangi dari tahap 1">
+                <button className={s.tombolKontrol} type="button" onClick={ulangPindai} title="Ulangi dari tahap 1 (R)">
                   <RotateCcw size={14} aria-hidden="true" />
                   <span>Reset</span>
                 </button>
@@ -778,7 +640,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   type="button"
                   disabled={tahap <= 1}
                   onClick={() => setTahap((t) => Math.max(1, t - 1))}
-                  aria-label="Tahap sebelumnya"
+                  aria-label="Tahap sebelumnya (←)"
+                  title="Tahap sebelumnya (←)"
                 >
                   <ChevronLeft size={15} aria-hidden="true" />
                 </button>
@@ -788,7 +651,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   type="button"
                   disabled={tahap >= 5}
                   onClick={() => setTahap((t) => Math.min(5, t + 1))}
-                  aria-label="Tahap selanjutnya"
+                  aria-label="Tahap selanjutnya (→)"
+                  title="Tahap selanjutnya (→)"
                 >
                   <ChevronRight size={15} aria-hidden="true" />
                 </button>
@@ -825,6 +689,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                     type="button"
                     role="tab"
                     aria-selected={aktif}
+                    aria-controls="panel-telemetri-pemindai"
                     onClick={() => {
                       setTahap(step.nomor);
                       setSedangMemindai(false);
@@ -839,7 +704,10 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
             {/* Sakelar Lapisan Tampilan */}
             <div className={s.barisLapisan}>
-              <span className={s.labelLapisanJudul}>Lapisan:</span>
+              <span className={s.labelLapisanJudul}>
+                <Layers size={11} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
+                Lapisan:
+              </span>
               <label className={s.itemLapisan}>
                 <input
                   type="checkbox"
@@ -854,7 +722,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   checked={tampilKontur}
                   onChange={(e) => setTampilKontur(e.target.checked)}
                 />
-                <span>Kontur Atap</span>
+                <span>Kontur</span>
               </label>
               <label className={s.itemLapisan}>
                 <input
@@ -870,7 +738,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   checked={tampilBubungan}
                   onChange={(e) => setTampilBubungan(e.target.checked)}
                 />
-                <span>Bubungan & Vektor</span>
+                <span>Bubungan</span>
               </label>
               <label className={s.itemLapisan}>
                 <input
@@ -880,12 +748,21 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 />
                 <span>Modul PV</span>
               </label>
+              <label className={s.itemLapisan}>
+                <input
+                  type="checkbox"
+                  checked={tampilKompas}
+                  onChange={(e) => setTampilKompas(e.target.checked)}
+                />
+                <Compass size={11} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
+                <span>Kompas</span>
+              </label>
             </div>
           </div>
         </section>
 
         {/* Kolom Kanan: Panel Data Telemetri & Aksi */}
-        <aside className={s.panelTelemetri} aria-labelledby="judul-telemetri">
+        <aside id="panel-telemetri-pemindai" className={s.panelTelemetri} aria-labelledby="judul-telemetri">
           {/* Penjelasan Tahap Aktif */}
           <div className={s.kartuInfo}>
             <div className={s.labelBaris}>
@@ -905,12 +782,33 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             ) : null}
           </div>
 
+          {/* Pengubah Tipe Modul Surya untuk Demonstrasi Interaktif */}
+          <div className={s.kotakModulPilihan}>
+            <span className={s.modulPilihanLabel}>Spesifikasi Modul PV:</span>
+            <div className={s.grupPilihanModul} role="group" aria-label="Pilih daya modul PV">
+              <button
+                type="button"
+                className={`${s.tombolPilihanModul} ${tipeModul === 550 ? s.tombolPilihanModulAktif : ""}`}
+                onClick={() => setTipeModul(550)}
+              >
+                550 Wp Tier-1
+              </button>
+              <button
+                type="button"
+                className={`${s.tombolPilihanModul} ${tipeModul === 440 ? s.tombolPilihanModulAktif : ""}`}
+                onClick={() => setTipeModul(440)}
+              >
+                440 Wp Standar
+              </button>
+            </div>
+          </div>
+
           {/* Grid Metrik Data Geometri & Hasil */}
           <div className={s.gridMetrik} aria-label="Metrik teknis atap terdeteksi">
             <div className={`${s.itemMetrik} ${s.metrikUtama}`}>
               <span className={s.metrikLabel}>Kapasitas Modul PV</span>
               <span className={s.metrikNilai}>
-                {kwp(bangunan.kwp)} · {bangunan.modules_count} modul
+                {kwp(spekAktif.kwp)} · {spekAktif.count} modul
               </span>
             </div>
 
@@ -946,15 +844,47 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
             <div className={s.itemMetrik}>
               <span className={s.metrikLabel}>Estimasi Energi Thn-1</span>
-              <span className={s.metrikNilai}>{kwh(bangunan.e_ac_kwh_yr1)}</span>
+              <span className={s.metrikNilai}>{kwh(spekAktif.e_ac_kwh_yr1)}</span>
             </div>
 
             <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Skor Keyakinan (IoU)</span>
-              <span className={s.metrikNilai}>
-                {bangunan.confidence.toFixed(2)} · {bangunan.confidence >= 0.7 ? "Tinggi" : "Fallback"}
-              </span>
+              <span className={s.metrikLabel}>Estimasi Hemat Thn-1</span>
+              <span className={s.metrikNilai}>{rupiah(spekAktif.savings_idr_yr1)}</span>
             </div>
+          </div>
+
+          {/* Terminal Log Inferensi Pipeline CV */}
+          <div className={s.terminalLog}>
+            <div
+              className={s.terminalBar}
+              onClick={() => setTampilTerminal((prev) => !prev)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setTampilTerminal((prev) => !prev)}
+              aria-expanded={tampilTerminal}
+              aria-label="Alihkan tampilan terminal log pipeline CV"
+            >
+              <div className={s.terminalTitle}>
+                <div className={s.terminalTitik} />
+                <Terminal size={13} aria-hidden="true" />
+                <span>TERMINAL LOG INFERENSI CV</span>
+              </div>
+              {tampilTerminal ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+
+            {tampilTerminal ? (
+              <div className={s.terminalIsi} role="log" aria-live="polite">
+                {bangunan.cv_logs
+                  .filter((log) => log.tahap <= tahap)
+                  .map((log, li) => (
+                    <div key={li} className={s.terminalBaris}>
+                      <span className={s.terminalWaktu}>[{log.waktu}]</span>
+                      <span className={s.terminalTag}>[{log.sub}]</span>
+                      <span className={s.terminalTeks}>{log.pesan}</span>
+                    </div>
+                  ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Tombol Tindakan Menuju Laporan Lengkap */}
@@ -967,6 +897,27 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               Hasil pemindaian dapat diuji langsung dengan kalkulasi tarif, arus kas, dan emisi di L3–L5.
             </p>
           </div>
+
+          {/* Baris Panduan Pintasan Keyboard */}
+          <div className={s.barisPintasan} aria-label="Pintasan keyboard navigasi">
+            <span className={s.itemPintasan}>
+              <kbd className={s.kbd}>Spasi</kbd> Putar/Jeda
+            </span>
+            <span className={s.itemPintasan}>
+              <kbd className={s.kbd}>←</kbd> <kbd className={s.kbd}>→</kbd> Tahap
+            </span>
+            <span className={s.itemPintasan}>
+              <kbd className={s.kbd}>1–5</kbd> Lompat
+            </span>
+            <span className={s.itemPintasan}>
+              <kbd className={s.kbd}>R</kbd> Reset
+            </span>
+            {mode === "modal" ? (
+              <span className={s.itemPintasan}>
+                <kbd className={s.kbd}>Esc</kbd> Tutup
+              </span>
+            ) : null}
+          </div>
         </aside>
       </div>
     </div>
@@ -974,7 +925,17 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
   if (mode === "modal") {
     return (
-      <div className={s.wadahModal} role="dialog" aria-modal="true" aria-labelledby="judul-telemetri">
+      <div
+        className={s.wadahModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="judul-modal-pemindai"
+        onClick={(e) => {
+          if (e.target === e.currentTarget && onTutup) {
+            onTutup();
+          }
+        }}
+      >
         <div className={s.kartuModal}>{konten}</div>
       </div>
     );
