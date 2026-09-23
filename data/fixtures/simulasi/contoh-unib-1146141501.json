@@ -1,0 +1,65 @@
+{
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka contoh simulasi skala institusi / kampus Fakultas Hukum UNIB (way OSM 1146141501).",
+  "id": "7b9e1146-unib-4011-8f92-fh1146141501",
+  "engine_version": "l3.2026.09.14+l4.2026.09.20+l5.2026.09.21",
+  "kwp": 202.4,
+  "module_count": 460,
+  "poa_kwh_m2_yr": 1684.2,
+  "e_ac_kwh_yr1": 284500.0,
+  "pr": 0.835,
+  "scr": 0.85,
+  "capex_idr": 2428800000.0,
+  "savings_idr_yr1": 348512500.0,
+  "payback_years": 7.2,
+  "npv_idr": 1254300000.0,
+  "irr": 0.142,
+  "lcoe_idr_kwh": 785.4,
+  "co2e_ton_yr": 216.2,
+  "co2e_ton_25yr": 5040.5,
+  "monthly_kwh": [
+    23800.0,
+    22400.0,
+    24600.0,
+    23900.0,
+    22800.0,
+    21900.0,
+    22500.0,
+    24100.0,
+    24900.0,
+    25400.0,
+    24300.0,
+    23900.0
+  ],
+  "asumsi": {
+    "golongan_tarif": "B-2/TR",
+    "daya_va": 197000,
+    "tarif_rp_kwh": 1444.7,
+    "scr": 0.85,
+    "biaya_per_kwp": 12000000.0,
+    "opex_frac": 0.01,
+    "diskonto": 0.09,
+    "eskalasi_tarif": 0.0,
+    "degradasi_thn": 0.006,
+    "umur_tahun": 25,
+    "ef_grid_tco2_mwh": 0.76,
+    "faktor_ekspor": 0.0
+  },
+  "jejak": {
+    "poa": {
+      "rumus": "HDKR transposisi GHI/DNI/DHI → POA pada kemiringan 15° azimut 165°",
+      "sumber": "NASA POWER hourly 2024 Kota Bengkulu (-3.7607, 102.2683)"
+    },
+    "suhu_sel": {
+      "rumus": "T_sel = T_amb + (POA / 1000) × (T_NOCT - 20) / 0.8",
+      "sumber": "Model NOCT 45 °C komersial mono-Si"
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.97,
+      "ketersediaan": 0.02,
+      "gabungan": 0.835
+    }
+  }
+}

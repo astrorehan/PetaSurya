@@ -28,6 +28,7 @@ export function Header() {
         </form>
 
         <nav className={s.nav} aria-label="Navigasi utama">
+          <Link href="/pindai">Pemindaian Atap</Link>
           <Link href="/metodologi">Metodologi</Link>
           <Link href="/sumber-data">Sumber data</Link>
         </nav>

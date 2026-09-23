@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Crosshair, Scan } from "lucide-react";
 import type { BangunanRingkas } from "@petasurya/contracts";
 import { m2 } from "@petasurya/ui";
 import { Peta, type BangunanPeta } from "./Peta";
+import { PemindaiAtap } from "./PemindaiAtap";
 import s from "./beranda.module.css";
 
 function namaBangunan(item: BangunanRingkas) {
@@ -19,20 +21,48 @@ function cocokDengan(item: BangunanRingkas, query: string) {
   return teks.includes(query.trim().toLowerCase());
 }
 
-function RingkasanBangunan({ item }: { item: BangunanRingkas }) {
+function RingkasanBangunan({
+  item,
+  onBukaPindai,
+}: {
+  item: BangunanRingkas;
+  onBukaPindai: (id: number) => void;
+}) {
   return (
     <div className={s.ringkasanBangunan}>
-      <div>
-        <strong>{namaBangunan(item)}</strong>
-        <span className="num">{item.source_ref}</span>
+      <Link href={`/atap/${item.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <div>
+          <strong>{namaBangunan(item)}</strong>
+          <span className="num">{item.source_ref}</span>
+        </div>
+        <span>{m2(item.footprint_m2)} · {item.building_tag ?? "tag tidak tersedia"}</span>
+      </Link>
+      <div className={s.itemAksiBaris}>
+        <button
+          className={s.tombolPindaiKecil}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onBukaPindai(item.id);
+          }}
+          title="Buka simulasi pemindaian atap visual"
+        >
+          <Crosshair size={13} aria-hidden="true" />
+          <span>Pindai Atap (Demo)</span>
+        </button>
+        <Link href={`/atap/${item.id}`} className={s.tombolPindaiKecil}>
+          <span>Lihat Hasil →</span>
+        </Link>
       </div>
-      <span>{m2(item.footprint_m2)} · {item.building_tag ?? "tag tidak tersedia"}</span>
     </div>
   );
 }
 
 export function BerandaInteraktif({ bangunan, query }: { bangunan: BangunanRingkas[]; query: string }) {
   const router = useRouter();
+  const [idModalPindai, setIdModalPindai] = useState<number | null>(null);
+
   const hasil = useMemo(
     () => query.trim() ? bangunan.filter((item) => cocokDengan(item, query)) : bangunan,
     [bangunan, query],
@@ -50,7 +80,7 @@ export function BerandaInteraktif({ bangunan, query }: { bangunan: BangunanRingk
           <p className={s.label}>PETA POTENSI PLTS ATAP</p>
           <h1 id="judul-beranda" className={s.judul}>Cari satu lokasi.</h1>
           <p className={s.pengantar}>
-            Pencarian ini masih lokal pada tiga fixture Kota Bengkulu. Hasil nyata dari geocoding menyusul.
+            Pencarian ini masih lokal pada tiga fixture Kota Bengkulu. Pilih bangunan di peta atau jalankan demonstrasi pemindaian atap.
           </p>
         </div>
       </section>
@@ -67,17 +97,34 @@ export function BerandaInteraktif({ bangunan, query }: { bangunan: BangunanRingk
               {query ? `${hasil.length} bangunan ditemukan` : "Pilih bangunan"}
             </h2>
             <p className={s.statusTeks}>
-              {query ? `Kecocokan untuk “${query}”.` : "Belum mencari? Mulai dari salah satu fixture di bawah."}
+              {query ? `Kecocokan untuk “${query}”.` : "Mulai dari salah satu fixture di bawah atau coba pemindaian langsung."}
             </p>
+          </div>
+
+          {/* Banner Demo Pemindaian Atap */}
+          <div className={s.bannerDemo}>
+            <div className={s.bannerDemoTeks}>
+              <span className={s.bannerDemoJudul}>Demo Pemindaian Atap</span>
+              <span className={s.bannerDemoSub}>Pipeline CV segmentasi atap & modul</span>
+            </div>
+            <button
+              className={s.tombolPindaiDemo}
+              type="button"
+              onClick={() => setIdModalPindai(991016391)}
+              title="Buka instrumen pemindaian atap"
+            >
+              <Scan size={14} aria-hidden="true" />
+              <span>Mulai Demo</span>
+            </button>
           </div>
 
           {hasil.length ? (
             <ul className={s.daftarBangunan} aria-label="Bangunan yang bisa dipilih">
               {hasil.map((item) => (
                 <li key={item.id}>
-                  <Link href={`/atap/${item.id}`}>
-                    <RingkasanBangunan item={item} />
-                  </Link>
+                  <div style={{ padding: "var(--sp-3)", border: "1px solid var(--line)", borderRadius: "var(--r-s)", background: "var(--surface-2)" }}>
+                    <RingkasanBangunan item={item} onBukaPindai={(id) => setIdModalPindai(id)} />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -91,6 +138,11 @@ export function BerandaInteraktif({ bangunan, query }: { bangunan: BangunanRingk
           <p className={s.statusCatatan}>Alamat umum dan geocoding belum tersambung. Jangan menganggap daftar ini mencakup seluruh Kota Bengkulu.</p>
         </aside>
       </section>
+
+      {/* Modal Pemindai Atap */}
+      {idModalPindai !== null ? (
+        <PemindaiAtap bangunanAwalId={idModalPindai} mode="modal" onTutup={() => setIdModalPindai(null)} />
+      ) : null}
     </main>
   );
 }

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import type { AnalisisAtap, BangunanRingkas, HasilSimulasi } from "@petasurya/contracts";
 import { kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
+import { Crosshair } from "lucide-react";
 import { Peta } from "./Peta";
+import { PemindaiAtap } from "./PemindaiAtap";
 import s from "./hasilAtap.module.css";
 
 const BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -196,6 +198,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
   const [simulasiAktif, setSimulasiAktif] = useState<HasilSimulasi>(simulasi);
   const [sedangHitung, setSedangHitung] = useState(false);
   const [pesanMesin, setPesanMesin] = useState<string>("tersedia kalkulasi mesin engine");
+  const [bukaPemindai, setBukaPemindai] = useState(false);
 
   const [asumsi, setAsumsi] = useState<FormAsumsi>({
     golongan_tarif: simulasi.asumsi.golongan_tarif,
@@ -334,9 +337,21 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
             </p>
           </div>
           <Peta label={`Peta ${nama}, atap tersorot`} tinggi={430} geometriSorot={geometriSorot} />
-          <p className={s.catatanPeta}>
-            {analisis.mask_geojson ? "Bidang amber menunjukkan mask atap dari fixture analisis." : "Mask citra tidak tersedia; bidang menunjukkan jejak bangunan OSM."}
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "var(--sp-2)", flexWrap: "wrap", gap: "var(--sp-2)" }}>
+            <p className={s.catatanPeta} style={{ margin: 0 }}>
+              {analisis.mask_geojson ? "Bidang amber menunjukkan mask atap dari fixture analisis." : "Mask citra tidak tersedia; bidang menunjukkan jejak bangunan OSM."}
+            </p>
+            <button
+              type="button"
+              className={s.tombolSekunder}
+              style={{ minHeight: "32px", padding: "0 var(--sp-2)", fontSize: "var(--fs-xs)", display: "inline-flex", alignItems: "center", gap: "var(--sp-1)" }}
+              onClick={() => setBukaPemindai(true)}
+              title="Inspeksi proses pemindaian visual atap ini"
+            >
+              <Crosshair size={14} aria-hidden="true" />
+              <span>Inspeksi Pemindaian Atap</span>
+            </button>
+          </div>
         </div>
 
         <aside className={`${s.kartuKeyakinan} ${rendah ? s.keyakinanRendah : ""}`} aria-labelledby="judul-keyakinan">
@@ -452,6 +467,13 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       </p>
 
       {jejakAktif ? <PanelJejak jejak={jejak[jejakAktif]} tutup={() => setJejakAktif(null)} /> : null}
+      {bukaPemindai ? (
+        <PemindaiAtap
+          bangunanAwalId={Number(id) || bangunan.id}
+          mode="modal"
+          onTutup={() => setBukaPemindai(false)}
+        />
+      ) : null}
     </main>
   );
 }

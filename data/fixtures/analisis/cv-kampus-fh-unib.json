@@ -1,0 +1,41 @@
+{
+  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka contoh analisis L2 CV untuk gedung Fakultas Hukum UNIB (way OSM 1146141501).",
+  "roof_analysis_id": 9914,
+  "building_id": 1146141501,
+  "roof_area_m2": 1280.0,
+  "usable_area_m2": 1024.0,
+  "obstruction_frac": 0.12,
+  "tilt_deg": 15.0,
+  "azimuth_deg": 165.0,
+  "roof_type": "pelana",
+  "confidence": 0.88,
+  "method": "cv",
+  "model_version": "mobilesam-osmprompt-v3",
+  "imagery": {
+    "source": "esri-world-imagery",
+    "date": "2025-07-14"
+  },
+  "mask_geojson": {
+    "type": "MultiPolygon",
+    "coordinates": [
+      [
+        [
+          [102.268099, -3.7605783],
+          [102.2682016, -3.760901],
+          [102.268351, -3.7608538],
+          [102.2683363, -3.7608075],
+          [102.2685927, -3.7607264],
+          [102.2685174, -3.7604895],
+          [102.2682591, -3.7605712],
+          [102.268245, -3.760527],
+          [102.2682227, -3.7605341],
+          [102.2682157, -3.760512],
+          [102.2681455, -3.7605343],
+          [102.2681539, -3.760561],
+          [102.268099, -3.7605783]
+        ]
+      ]
+    ]
+  },
+  "catatan": "Struktur atap kampus sayap ganda. Sempadan 1,0 m dari tepi dan naungan pohon di sisi timur telah dikurangkan dari luas layak."
+}
