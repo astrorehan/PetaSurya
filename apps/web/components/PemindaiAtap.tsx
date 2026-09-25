@@ -275,7 +275,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               {/* Latar Grid Teknis Millimeter */}
               <rect width="640" height="480" fill="url(#gridTeknis)" />
 
-              {/* Citra Satelit Latar: Seamless Multi-tile Esri z=19 (0,298 m/px) */}
+              {/* Citra satelit latar: mosaik multi-tile Esri z=19 (0,298 m/px) */}
               {tampilSatelit ? (
                 <g id="satelit-tiles" opacity="0.88">
                   {bangunan.tiles.map((t, ti) => (

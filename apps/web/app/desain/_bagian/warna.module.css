@@ -1,0 +1,263 @@
+/* ---------- 2.1 tumpukan permukaan, dua tema berdampingan ---------- */
+
+.duaTema {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+@container (min-width: 600px) {
+  .duaTema {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* data-theme pada .tema: token di dalamnya mengikuti tema pelat, bukan tema halaman. */
+.tema {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-m);
+  background: var(--paper);
+}
+
+.temaNama {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-3) 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.lapis {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--sp-3);
+}
+
+.lapis .lapis {
+  margin-top: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+}
+
+.lapisNama {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--sp-2);
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink);
+}
+
+.lapisPeran {
+  margin: 0;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.hex {
+  font: var(--tipe-data);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* ---------- 2.2 tabel kontras ---------- */
+
+/* Kotak warna membawa garis --line-2 dari temanya sendiri: tinta terang tetap terlihat di halaman gelap. */
+.contoh {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+
+.hexSel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---------- 2.3 peran warna ---------- */
+
+.peran {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+.peranBaris {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.pasangan {
+  display: flex;
+  grid-row: span 3;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.pasangan span {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+}
+
+.peranNama,
+.peranPakai,
+.peranBukan {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.peranNama {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--sp-2);
+}
+
+.peranNama b {
+  font: 600 var(--fs-m) / 1.35 var(--f-ui);
+  color: var(--ink);
+}
+
+.peranNama code {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.peranPakai {
+  font: var(--tipe-kecil);
+  color: var(--ink);
+}
+
+.peranBukan {
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.bukanLabel {
+  margin-right: var(--sp-1);
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+@container (min-width: 760px) {
+  .peranBaris {
+    grid-template-columns: 2.75rem 10rem minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--sp-4);
+  }
+
+  .pasangan {
+    grid-row: auto;
+    align-self: center;
+    padding-top: 0;
+  }
+
+  .peranNama,
+  .peranPakai,
+  .peranBukan {
+    grid-column: auto;
+  }
+
+  .peranNama {
+    display: grid;
+    gap: 0;
+  }
+}
+
+/* ---------- 2.4 merek, 2.5 garis ---------- */
+
+.merek {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.merek li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  font: var(--tipe-kecil);
+}
+
+.merek .contoh {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-s);
+}
+
+.garis {
+  display: grid;
+  gap: var(--sp-5);
+}
+
+.garis > div {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 2px var(--sp-3);
+  font: var(--tipe-kecil);
+}
+
+.garisContoh {
+  grid-row: span 2;
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+
+.garisPakai {
+  color: var(--ink-2);
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.contohAksen {
+  display: grid;
+  justify-items: start;
+  gap: var(--sp-2);
+}
+
+.angkaTinta {
+  margin: 0;
+  font: var(--tipe-angka);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.labelWarna {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--daun);
+}
+
+.teksMerah {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--merah);
+}

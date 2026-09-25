@@ -1,0 +1,219 @@
+/* ---------- 8.1 matriks keadaan ---------- */
+
+/* Kolom diselaraskan lintas baris lewat subgrid; lebar mengikuti isi agar
+   tombol tidak ditarik melebar, dan panggung menggulir bila tidak muat. */
+.matriks {
+  display: grid;
+  grid-template-columns: 14rem repeat(3, max-content) minmax(0, 1fr);
+  column-gap: var(--sp-6);
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Jalur terakhir kosong: garis baris menerus sampai tepi panggung. */
+@container (max-width: 520px) {
+  .matriks {
+    grid-template-columns: 8.5rem repeat(3, max-content) minmax(0, 1fr);
+    column-gap: var(--sp-4);
+  }
+}
+
+.kepalaMatriks,
+.barisMatriks {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.kepalaMatriks {
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line-2);
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.barisMatriks {
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.barisMatriks:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.keadaan {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font: var(--tipe-kecil);
+}
+
+.keadaanNama {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.keadaanCatatan {
+  color: var(--ink-2);
+}
+
+/* Nama token tidak dipatah di tanda hubung. */
+.keadaanCatatan code {
+  white-space: nowrap;
+}
+
+/* ---------- 8.2 anatomi ---------- */
+
+/* Pelat anatomi = wadah ukuran sendiri: skala gambar mengikuti lebar pelat,
+   bukan lebar bagian. */
+.anatomi {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  padding: var(--sp-10) 0 var(--sp-6) var(--sp-8);
+  container-type: inline-size;
+}
+
+.tombolUkur {
+  --skala: 1.5;
+  position: relative;
+}
+
+@container (min-width: 400px) {
+  .tombolUkur {
+    --skala: 2;
+  }
+}
+
+.besar {
+  zoom: var(--skala);
+}
+
+.skalaGambar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font: 500 var(--fs-xs) / 1 var(--f-mono);
+  color: var(--ink-2);
+}
+
+.skalaKecil {
+  display: none;
+}
+
+@container (max-width: 399px) {
+  .skalaBesar {
+    display: none;
+  }
+
+  .skalaKecil {
+    display: inline;
+  }
+}
+
+/* Label tinggi mengikuti --kontrol-h: 36 dengan penunjuk halus, 44 di layar sentuh. */
+.tinggiHalus {
+  display: contents;
+}
+
+.tinggiSentuh {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .tinggiHalus {
+    display: none;
+  }
+
+  .tinggiSentuh {
+    display: contents;
+  }
+}
+
+/* ---------- 8.3 tautan dan lencana ---------- */
+
+.tautanLencana {
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.kalimat {
+  margin: 0;
+  font: var(--tipe-prosa);
+  color: var(--ink);
+}
+
+.lencanaDaftar {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--sp-3) var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lencanaDaftar > li {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.lencanaDaftar > li > :first-child {
+  justify-self: start;
+}
+
+/* ---------- 8.4 kolom isian ---------- */
+
+.kolomKisi {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--sp-6) var(--sp-4);
+  align-items: start;
+}
+
+/* ---------- 8.5 segmen ---------- */
+
+.segmenDaftar {
+  display: grid;
+  gap: var(--sp-5);
+  justify-items: start;
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.deretTombol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.lebarKolom {
+  max-width: 16rem;
+}
+
+.kolomMentah {
+  display: grid;
+  gap: var(--sp-2);
+  max-width: 16rem;
+  font: var(--tipe-kecil);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.masukanMentah {
+  height: var(--kontrol-h);
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-s);
+  background: var(--surface);
+  font: var(--tipe-ui);
+  color: var(--ink);
+}

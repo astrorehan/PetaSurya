@@ -1,0 +1,195 @@
+/* ---------- 7.1 kosakata ikon ---------- */
+
+.kosakata {
+  display: grid;
+  gap: 0 var(--sp-8);
+}
+
+@container (min-width: 720px) {
+  .kosakata {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ikonDaftar {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+/* Di layar sempit dua kolom menjadi satu daftar: garis atas kolom kedua tidak diulang. */
+@container (max-width: 719px) {
+  .ikonDaftar + .ikonDaftar {
+    border-top: 0;
+  }
+}
+
+.ikonBaris {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 40px;
+  padding: var(--sp-1) 0;
+  border-bottom: 1px solid var(--line);
+  font: var(--tipe-kecil);
+}
+
+.ikonUkuran {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--ink);
+}
+
+.ikonArti {
+  color: var(--ink);
+}
+
+.ikonNama {
+  font: var(--tipe-data);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+/* ---------- 7.2 kurva dan durasi ---------- */
+
+.gerakTata {
+  display: grid;
+  gap: var(--sp-8);
+  align-items: center;
+}
+
+@container (min-width: 720px) {
+  .gerakTata {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+.kurva {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.sumbu {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 1;
+}
+
+.linear {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.bantu {
+  fill: none;
+  stroke: var(--busbar);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.pegangan {
+  fill: none;
+  stroke: var(--busbar);
+  stroke-width: 1;
+}
+
+.garisKurva {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.titikKendali {
+  fill: var(--surface);
+  stroke: var(--busbar);
+  stroke-width: 1;
+}
+
+.labelSumbu {
+  font: 500 var(--fs-xs) var(--f-mono);
+  fill: var(--ink-2);
+}
+
+.demo {
+  display: grid;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.durasi {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+.durasiBaris {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+  font: var(--tipe-kecil);
+}
+
+.durasiNama {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  color: var(--ink);
+}
+
+.durasiNama .num {
+  font-size: var(--fs-xs);
+}
+
+.durasiTugas {
+  color: var(--ink-2);
+}
+
+/* Jalur = wadah ukuran agar balok bisa digeser selebar jalur dengan transform. */
+.jalur {
+  position: relative;
+  display: block;
+  height: 12px;
+  margin-top: var(--sp-2);
+  border-bottom: 1px solid var(--line-2);
+  container-type: inline-size;
+}
+
+.balok {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--ink-2);
+  transition-property: transform;
+  transition-timing-function: var(--ease-out);
+}
+
+.balok[data-ujung] {
+  transform: translateX(calc(100cqw - 12px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balok {
+    transition-property: none;
+  }
+}
+
+/* ---------- 7.3 gerak ---------- */
+
+.durasiSel {
+  white-space: nowrap;
+}

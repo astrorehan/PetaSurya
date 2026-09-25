@@ -1,0 +1,105 @@
+/* ---------- 5.1 skala spasi ---------- */
+
+.skala {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+.skalaBaris {
+  display: grid;
+  grid-template-columns: 5.5rem 3.25rem minmax(0, 1fr);
+  grid-template-areas:
+    "token px batang"
+    "pakai pakai pakai";
+  align-items: center;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--line);
+  font: var(--tipe-kecil);
+}
+
+@container (min-width: 720px) {
+  .skalaBaris {
+    grid-template-columns: 6rem 3.25rem 5rem minmax(0, 1fr);
+    grid-template-areas: "token px batang pakai";
+    gap: var(--sp-4);
+  }
+}
+
+.skalaBaris > code {
+  grid-area: token;
+}
+
+.px {
+  grid-area: px;
+  font-size: var(--fs-xs);
+  text-align: right;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.batangWadah {
+  grid-area: batang;
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+.batang {
+  display: block;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--busbar);
+}
+
+.pakai {
+  grid-area: pakai;
+  color: var(--ink-2);
+}
+
+/* ---------- 5.2 kepadatan panel ---------- */
+
+.panelUkur {
+  max-width: var(--lebar-lembar);
+}
+
+/* Celah antarkelompok digambar sebagai elemen setinggi --sp-6 agar bisa diukur. */
+.celah {
+  position: relative;
+  display: block;
+  height: var(--sp-6);
+}
+
+/* ---------- 5.3 token tata letak ---------- */
+
+.token,
+.token code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.kartuLapang {
+  padding: var(--sp-12);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-m);
+  text-align: center;
+}
+
+.kartuAngka {
+  margin: 0;
+  font: var(--tipe-angka);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.kartuLabel {
+  margin: var(--sp-2) 0 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}

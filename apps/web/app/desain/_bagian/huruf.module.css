@@ -1,0 +1,175 @@
+/* ---------- 3.1 keluarga ---------- */
+
+.keluarga {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+.keluargaBaris {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+@container (min-width: 720px) {
+  .keluargaBaris {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: baseline;
+    gap: var(--sp-8);
+  }
+}
+
+.spesimen {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Ukuran spesimen = ukuran kerja tiap keluarga, bukan ukuran pamer. */
+.spesimen[data-token="--f-display"] {
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: var(--track-title);
+}
+
+.spesimen[data-token="--f-ui"] {
+  font-size: var(--fs-xl);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.spesimen[data-token="--f-prose"] {
+  font-size: var(--fs-xl);
+  line-height: 1.35;
+}
+
+.spesimen[data-token="--f-mono"] {
+  font-size: var(--fs-l);
+  line-height: 1.4;
+}
+
+.keluargaMeta {
+  display: grid;
+  gap: 2px;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.keluargaMeta p {
+  margin: 0;
+}
+
+.keluargaNama {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---------- 3.2 skala peran ---------- */
+
+.skala {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+.skalaBaris {
+  display: grid;
+  grid-template-areas:
+    "token"
+    "contoh"
+    "spek";
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+@container (min-width: 760px) {
+  .skalaBaris {
+    grid-template-areas: "token contoh spek";
+    grid-template-columns: 10rem minmax(0, 1fr) 19rem;
+    align-items: baseline;
+    gap: var(--sp-6);
+  }
+}
+
+.skalaToken {
+  grid-area: token;
+  margin: 0;
+  font-size: var(--fs-s);
+}
+
+.skalaContoh {
+  grid-area: contoh;
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.skalaSpek {
+  grid-area: spek;
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.skalaSpek .num {
+  font-size: var(--fs-xs);
+  color: var(--ink);
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.contohJudul {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.contohLabel {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.contohH {
+  margin: 0;
+  font: var(--tipe-judul-halaman);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.contohTubuh {
+  margin: 0;
+  font: var(--tipe-tubuh);
+  color: var(--ink-2);
+}
+
+.contohBrosur {
+  display: grid;
+  gap: var(--sp-3);
+  text-align: center;
+}
+
+.brosurJudul {
+  margin: 0;
+  font: 600 var(--fs-l) / 1.3 var(--f-display);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.brosurTubuh {
+  margin: 0;
+  font: var(--tipe-tubuh);
+  color: var(--ink-2);
+}

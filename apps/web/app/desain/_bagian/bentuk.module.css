@@ -1,0 +1,213 @@
+/* ---------- 6.1 radius ---------- */
+
+.radius {
+  display: grid;
+  gap: var(--sp-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container (min-width: 640px) {
+  .radius {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.radiusButir {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.sudut {
+  display: block;
+  margin-bottom: var(--sp-2);
+  overflow: visible;
+}
+
+.sudutIsi {
+  fill: var(--surface-2);
+}
+
+.sudutBantu {
+  fill: none;
+  stroke: var(--busbar);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.sudutGaris {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1.5;
+}
+
+.sudutUkur {
+  stroke: var(--busbar);
+  stroke-width: 1;
+}
+
+.sudutPusat {
+  fill: var(--busbar);
+}
+
+.sudutLabel {
+  font: 500 var(--fs-xs) var(--f-mono);
+  fill: var(--ink-2);
+}
+
+.radiusNama {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink);
+}
+
+.radiusNama .num {
+  font-size: var(--fs-xs);
+}
+
+.radiusPakai {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+/* ---------- 6.2 elevasi ---------- */
+
+.duaTema {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+@container (min-width: 640px) {
+  .duaTema {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tema {
+  display: grid;
+  gap: var(--sp-4);
+  min-width: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-m);
+  background: var(--paper);
+}
+
+.temaNama {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.tangga {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.anak {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.ubin {
+  display: grid;
+  place-items: start;
+  height: 52px;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-m);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+/* Tingkat 0 tidak punya permukaan: tepi maya digambar putus-putus. */
+.ubin[data-tingkat="0"] {
+  border: 1px dashed var(--line-2);
+}
+
+.ubin:not([data-tingkat="0"]) {
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.ubin[data-tingkat="2"] {
+  box-shadow: var(--shadow-s);
+}
+
+.ubin[data-tingkat="3"] {
+  box-shadow: var(--shadow-m);
+}
+
+.anakTeks {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.anakNama {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---------- 6.3 lapisan ---------- */
+
+.token,
+.token code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.kelompok {
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.grup {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.kartuLuar {
+  display: grid;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-m);
+}
+
+.kartuDalam {
+  padding: var(--sp-4);
+  border-radius: var(--r-m);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-m);
+}
+
+.kartuJudul {
+  margin: 0;
+  font: var(--tipe-judul);
+  color: var(--ink);
+}
+
+.kartuIsi {
+  margin: var(--sp-1) 0 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}

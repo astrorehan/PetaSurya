@@ -1,0 +1,190 @@
+/* ---------- 4.1 anatomi ---------- */
+
+.anatomi {
+  display: grid;
+  gap: var(--sp-8);
+}
+
+@container (min-width: 820px) {
+  .anatomi {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+    align-items: center;
+  }
+}
+
+/*
+ * Penanda anatomi dipasang lewat pseudo-elemen pada anak komponen Angka
+ * (label, awalan, angka, akhiran, keterangan, jejak), mengikuti urutan DOM
+ * di packages/ui/src/komponen/Angka.tsx. content: "n" / "" = tidak dibaca.
+ */
+.anatomiAngka {
+  --_tanda: 20px;
+
+  position: relative;
+  padding: 28px 0 var(--sp-2) 36px;
+}
+
+/* [data-ukuran] menyamai spesifisitas .angka[data-ukuran="display"] di komponen. */
+.anatomiAngka > div[data-ukuran] {
+  gap: var(--sp-6);
+}
+
+.anatomiAngka > div > p:first-child,
+.anatomiAngka > div > p:nth-child(3),
+.anatomiAngka > div > button,
+.anatomiAngka p[title] {
+  position: relative;
+}
+
+.anatomiAngka > div > p:first-child::before,
+.anatomiAngka > div > p:nth-child(3)::before,
+.anatomiAngka > div > button::before,
+.anatomiAngka p[title] > span[aria-hidden] > span::before {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--_tanda);
+  height: var(--_tanda);
+  border: 1px solid var(--busbar);
+  border-radius: 50%;
+  background: var(--surface);
+  font: 600 var(--fs-xs) / 1 var(--f-mono);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+}
+
+/* Penanda kiri: label, keterangan, jejak. */
+.anatomiAngka > div > p:first-child::before,
+.anatomiAngka > div > p:nth-child(3)::before,
+.anatomiAngka > div > button::before {
+  top: 50%;
+  left: -36px;
+  translate: 0 -50%;
+}
+
+.anatomiAngka > div > button::before {
+  left: -32px;
+}
+
+/*
+ * Penanda atas: awalan, angka, akhiran. Tinggi diukur dari <p> nilai (satu
+ * baris penanda); posisi mendatar = posisi statis, yaitu tepi kiri tiap bagian.
+ */
+.anatomiAngka p[title] > span[aria-hidden] > span::before {
+  display: inline-grid;
+  top: -22px;
+}
+
+.anatomiAngka > div > p:first-child::before {
+  content: "1" / "";
+}
+
+.anatomiAngka p[title] > span[aria-hidden] > span:nth-child(1)::before {
+  content: "2" / "";
+}
+
+.anatomiAngka p[title] > span[aria-hidden] > span:nth-child(2)::before {
+  content: "3" / "";
+}
+
+.anatomiAngka p[title] > span[aria-hidden] > span:nth-child(3)::before {
+  content: "4" / "";
+}
+
+.anatomiAngka > div > p:nth-child(3)::before {
+  content: "5" / "";
+}
+
+.anatomiAngka > div > button::before {
+  content: "6" / "";
+}
+
+/* Legenda di bidang polos: kisi titik hanya di bawah gambar, tidak di bawah teks. */
+.legenda {
+  display: grid;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--surface);
+  box-shadow: 0 0 0 var(--sp-2) var(--surface);
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.legenda li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--sp-3);
+}
+
+.legenda b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---------- 4.2 fungsi format ---------- */
+
+.panggil {
+  min-width: 15rem;
+}
+
+.catatanPanggil {
+  display: block;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.tampil {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---------- 4.3 hitung ulang ---------- */
+
+.demo {
+  display: grid;
+  gap: var(--sp-5);
+  max-width: var(--lebar-lembar);
+}
+
+.demoPanel {
+  display: grid;
+  gap: var(--sp-6);
+}
+
+/* Tinggi dipesan agar kalimat status tidak menggeser panel saat muncul. */
+.status {
+  min-height: 1.45em;
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.mentah {
+  margin: 0;
+  font: 600 var(--fs-figure) / 1.1 var(--f-mono);
+  color: var(--daun);
+}
+
+.kolomCampur {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--tipe-kecil);
+  color: var(--ink);
+}
+
+.kolomCampur li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--line);
+}

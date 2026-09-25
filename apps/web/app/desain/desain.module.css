@@ -1,0 +1,462 @@
+/*
+ * Lembar referensi desain. Bahasa visualnya lembar data teknik: blok judul
+ * bergaris, bagian bernomor di bawah garis tinta, pelat bergambar "Gbr. n.m",
+ * garis ukur --busbar. Semua nilai lewat token.
+ */
+
+.lembar {
+  width: min(100% - 2 * var(--tepi), var(--lebar-isi));
+  margin: 0 auto;
+  padding: var(--sp-8) 0 var(--sp-16);
+}
+
+/* ---------- blok judul ---------- */
+
+.kepalaLembar {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-m);
+  background: var(--line-2);
+}
+
+@media (min-width: 900px) {
+  .kepalaLembar {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+}
+
+.judulBlok {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-3);
+  padding: var(--sp-6) var(--sp-5) var(--sp-8);
+  background: var(--surface);
+}
+
+.kodeLembar {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.judulLembar {
+  margin: 0;
+  font: 600 var(--fs-2xl) / 1.1 var(--f-display);
+  letter-spacing: var(--track-display);
+  color: var(--ink);
+}
+
+.pengantar {
+  margin: var(--sp-2) 0 0;
+  max-width: var(--lebar-teks);
+  font: var(--tipe-prosa);
+  color: var(--ink);
+}
+
+/* Sel blok judul: garis rambut dari celah 1 px di atas latar --line. */
+.blokJudul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--line);
+}
+
+.sel {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+}
+
+.sel[data-lebar] {
+  grid-column: 1 / -1;
+}
+
+.sel dt {
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.sel dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.merek {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  grid-column: 1 / -1;
+}
+
+.merekTeks {
+  display: grid;
+}
+
+.merekNama {
+  font: 700 var(--fs-l) / 1.2 var(--f-display);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.merekTagline {
+  font: italic 400 var(--fs-m) / 1.3 var(--f-prose);
+  color: var(--ink-2);
+}
+
+/* ---------- tata letak: daftar isi + isi ---------- */
+
+.tata {
+  display: grid;
+  gap: var(--sp-10);
+  margin-top: var(--sp-10);
+}
+
+@media (min-width: 1024px) {
+  .tata {
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.isi {
+  display: grid;
+  gap: var(--sp-16);
+  min-width: 0;
+}
+
+/* ---------- bagian ---------- */
+
+.bagian {
+  display: grid;
+  gap: var(--sp-8);
+  min-width: 0;
+  container-type: inline-size;
+  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
+}
+
+/* Header ponsel masih dua baris sampai tata letak header baru diterapkan. */
+@media (max-width: 900px) {
+  .bagian {
+    scroll-margin-top: 128px;
+  }
+}
+
+.kepalaBagian {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-2) 0;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--ink);
+}
+
+.nomorBagian {
+  font: 500 var(--fs-m) / 1 var(--f-mono);
+  color: var(--ink-2);
+}
+
+.judulBagian {
+  margin: 0;
+  font: var(--tipe-judul-halaman);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.aturan {
+  grid-column: 2;
+  margin: 0;
+  max-width: var(--lebar-teks);
+  font: var(--tipe-prosa);
+  color: var(--ink);
+}
+
+@container (max-width: 520px) {
+  .kepalaBagian {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+  }
+
+  .aturan {
+    grid-column: 1 / -1;
+    font-size: var(--fs-b);
+  }
+}
+
+/* ---------- pelat ---------- */
+
+.deret {
+  display: grid;
+  gap: var(--sp-8) var(--sp-6);
+  min-width: 0;
+}
+
+@container (min-width: 640px) {
+  .deret[data-kolom="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 720px) {
+  .deret[data-kolom="3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pelat {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-3);
+  min-width: 0;
+  margin: 0;
+}
+
+.panggung {
+  position: relative;
+  min-width: 0;
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+/* Kisi titik 8 px: alat ukur, bukan hiasan. Hanya di pelat anatomi. */
+.panggung[data-kisi] {
+  background-image: radial-gradient(circle at center, var(--line-2) 0.8px, transparent 1.2px);
+  background-size: 8px 8px;
+  background-position: -4px -4px;
+}
+
+.panggung[data-polos] {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.panggung[data-gulir] {
+  overflow-x: auto;
+}
+
+@container (max-width: 520px) {
+  .panggung:not([data-polos]) {
+    padding: var(--sp-4);
+  }
+}
+
+.keteranganPelat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px var(--sp-3);
+  max-width: var(--lebar-teks);
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.gbr {
+  font: 500 var(--fs-xs) / 1.6 var(--f-mono);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.judulPelat {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.teksPelat {
+  grid-column: 2;
+}
+
+/* ---------- Ya / Jangan ---------- */
+
+.yaJangan {
+  display: grid;
+  gap: var(--sp-8) var(--sp-6);
+  min-width: 0;
+}
+
+@container (min-width: 640px) {
+  .yaJangan {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.putusan {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--sp-3);
+  min-width: 0;
+  margin: 0;
+}
+
+.vonis {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: var(--sp-2);
+  border-bottom: 2px solid var(--daun);
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.vonisIkon {
+  color: var(--daun);
+}
+
+.putusan[data-jenis="jangan"] .vonis {
+  border-bottom-color: var(--merah);
+}
+
+.putusan[data-jenis="jangan"] .vonisIkon {
+  color: var(--merah);
+}
+
+.alasan {
+  max-width: var(--lebar-teks);
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+/* ---------- garis ukur & penanda ---------- */
+
+.ukur {
+  position: absolute;
+  z-index: 1;
+  color: var(--busbar);
+  pointer-events: none;
+}
+
+.ukur[data-arah="h"] {
+  height: 9px;
+  border-inline: 1px solid;
+}
+
+.ukur[data-arah="h"]::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 4px;
+  border-top: 1px solid;
+}
+
+.ukur[data-arah="v"] {
+  width: 9px;
+  border-block: 1px solid;
+}
+
+.ukur[data-arah="v"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 4px;
+  border-left: 1px solid;
+}
+
+.ukurLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 1px 3px;
+  background: var(--surface);
+  font: 500 var(--fs-xs) / 1 var(--f-mono);
+  color: var(--ink-2);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.ukur[data-luar] .ukurLabel {
+  background: none;
+}
+
+.ukur[data-luar="atas"] .ukurLabel {
+  top: auto;
+  bottom: 100%;
+  transform: translate(-50%, -1px);
+}
+
+.ukur[data-luar="bawah"] .ukurLabel {
+  top: 100%;
+  transform: translate(-50%, 1px);
+}
+
+.ukur[data-luar="kanan"] .ukurLabel {
+  left: 100%;
+  transform: translate(2px, -50%);
+}
+
+.ukur[data-luar="kiri"] .ukurLabel {
+  left: auto;
+  right: 100%;
+  transform: translate(-2px, -50%);
+}
+
+.penanda {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--busbar);
+  border-radius: 50%;
+  background: var(--surface);
+  font: 600 var(--fs-xs) / 1 var(--f-mono);
+  color: var(--ink);
+}
+
+/* ---------- teks bantu ---------- */
+
+.kode {
+  font-family: var(--f-mono);
+  font-size: 0.9em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.daftarAturan {
+  display: grid;
+  gap: var(--sp-2);
+  max-width: var(--lebar-teks);
+  margin: 0;
+  padding: 0 0 0 var(--sp-5);
+  font: var(--tipe-tubuh);
+  color: var(--ink);
+}
+
+.daftarAturan li::marker {
+  color: var(--ink-2);
+}
+
+/* ---------- penutup lembar ---------- */
+
+.penutup {
+  display: grid;
+  gap: var(--sp-3);
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--ink);
+}
+
+.penutup p {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}

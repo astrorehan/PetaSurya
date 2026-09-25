@@ -1,0 +1,84 @@
+.daftarIsi {
+  display: grid;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .daftarIsi {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-6));
+    max-height: calc(100dvh - var(--header-h) - var(--sp-12));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+.judul {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.daftar {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Ponsel dan tablet: dua kolom di aliran halaman, tidak menempel. */
+@media (max-width: 1023px) {
+  .daftar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--sp-4);
+  }
+}
+
+.butir {
+  display: grid;
+  grid-template-columns: 2.25ch minmax(0, 1fr);
+  gap: var(--sp-2);
+  align-items: baseline;
+  min-height: 32px;
+  padding: 6px var(--sp-3);
+  border-left: 2px solid var(--line);
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: coarse) {
+  .butir {
+    min-height: 44px;
+    align-content: center;
+  }
+}
+
+.nomor {
+  font: 500 var(--fs-xs) / 1 var(--f-mono);
+}
+
+@media (hover: hover) {
+  .butir:hover {
+    border-left-color: var(--ink-3);
+    color: var(--ink);
+  }
+}
+
+.butir:active {
+  color: var(--ink);
+}
+
+/* Tebal huruf tidak berubah: butir aktif tidak boleh menggeser baris lain. */
+.butir[aria-current] {
+  border-left-color: var(--pri);
+  color: var(--ink);
+}
+
+.butir:focus-visible {
+  border-radius: 0 var(--r-s) var(--r-s) 0;
+}

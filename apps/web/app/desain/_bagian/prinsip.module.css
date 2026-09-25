@@ -1,0 +1,50 @@
+/* Enam prinsip sebagai tabel garis rambut, bukan kartu. */
+.prinsip {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-2);
+}
+
+@container (min-width: 560px) {
+  .prinsip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--sp-6);
+  }
+}
+
+@container (min-width: 860px) {
+  .prinsip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.butir {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  align-content: start;
+  gap: var(--sp-1) 0;
+  padding: var(--sp-4) 0 var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.nomor {
+  font: 500 var(--fs-xs) / 1.9 var(--f-mono);
+  color: var(--ink-2);
+}
+
+.judul {
+  margin: 0;
+  font: var(--tipe-judul);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.isi {
+  grid-column: 2;
+  margin: 0;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+}
