@@ -1,0 +1,94 @@
+.segmen {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  padding: 0;
+  font: var(--tipe-kecil);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tersembunyi {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Rel: permukaan cekung satu tingkat di bawah opsi terpilih. */
+.rel {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--surface-2);
+}
+
+.opsi {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+}
+
+.radio {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.teks {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: calc(var(--kontrol-h) - 6px);
+  padding: 0 var(--sp-3);
+  border-radius: 3px;
+  color: var(--ink-2);
+  font: var(--tipe-ui);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .opsi:hover .teks {
+    color: var(--ink);
+  }
+}
+
+.radio:checked + .teks {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow:
+    var(--shadow-s),
+    0 0 0 1px var(--line-2);
+}
+
+.radio:focus-visible + .teks {
+  box-shadow: var(--ring);
+}
+
+@media (forced-colors: active) {
+  .radio:checked + .teks {
+    outline: 2px solid Highlight;
+  }
+}

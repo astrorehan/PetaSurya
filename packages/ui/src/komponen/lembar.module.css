@@ -1,0 +1,105 @@
+/*
+ * Lembar samping: transform untuk gerak (dimatikan --t-move saat gerak
+ * minimal), opacity untuk silang-pudar (tetap ada). visibility ditunda
+ * sampai gerak keluar selesai sehingga jalur keluar = jalur masuk.
+ */
+.lembar {
+  position: fixed;
+  z-index: var(--z-lembar);
+  top: var(--header-h);
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--lebar-lembar), 100vw);
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-m);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(100%);
+  transition:
+    transform var(--t-move) var(--ease-out),
+    opacity var(--t-base) var(--ease-out),
+    visibility 0s linear var(--t-move);
+}
+
+.lembar[data-terbuka] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    transform var(--t-move) var(--ease-out),
+    opacity var(--t-base) var(--ease-out),
+    visibility 0s;
+}
+
+.pegangan {
+  display: none;
+}
+
+.kepala {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.judulBlok {
+  min-width: 0;
+  padding-top: 6px;
+}
+
+.judul {
+  margin: 0;
+  font: var(--tipe-judul);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.judul:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+.keterangan {
+  margin: var(--sp-1) 0 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.isi {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-4);
+}
+
+/* Ponsel: lembar bawah, maksimal 85 % tinggi layar. */
+@media (max-width: 767px) {
+  .lembar {
+    top: auto;
+    left: 0;
+    width: auto;
+    max-height: min(85dvh, 640px);
+    border-top: 1px solid var(--line);
+    border-left: 0;
+    border-radius: var(--r-l) var(--r-l) 0 0;
+    transform: translateY(100%);
+  }
+
+  .pegangan {
+    display: block;
+    width: 32px;
+    height: 4px;
+    margin: var(--sp-2) auto 0;
+    border-radius: 2px;
+    background: var(--line-2);
+  }
+
+  .kepala {
+    padding-top: var(--sp-2);
+  }
+}

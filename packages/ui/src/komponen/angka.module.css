@@ -1,0 +1,193 @@
+/* Label kapital: 12 px / 600 / +0,06em. Selalu --ink-2, tidak pernah warna semantik. */
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Kunci warna 8 px: mengikat angka ke kategori grafiknya (surya = energi, daun = uang & CO₂). */
+.kunci {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--ink-3);
+}
+
+.kunci[data-aksen="surya"] {
+  background: var(--surya);
+}
+
+.kunci[data-aksen="daun"] {
+  background: var(--daun);
+}
+
+.angka {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.nilai {
+  margin: 0;
+  color: var(--ink);
+  font: var(--tipe-angka);
+  letter-spacing: var(--track-title);
+  font-variant-numeric: lining-nums;
+  overflow-wrap: anywhere;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.angka[data-ukuran="display"] .nilai {
+  font: var(--tipe-display);
+  letter-spacing: var(--track-display);
+}
+
+.angka[data-ukuran="display"] {
+  gap: var(--sp-3);
+}
+
+/* Satuan dan awalan: lebih kecil, lebih ringan, --ink-2, tracking netral. */
+.awal,
+.akhir {
+  font-size: 0.55em;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
+}
+
+.angka[data-ukuran="display"] .awal,
+.angka[data-ukuran="display"] .akhir {
+  font-size: 0.4em;
+}
+
+.awal {
+  margin-right: 0.3em;
+}
+
+.akhir {
+  margin-left: 0.3em;
+}
+
+.keterangan {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+/* Hitung ulang: angka lama tetap di tempat, meredup. Tata letak tidak melompat. */
+.angka[data-menghitung] .nilai,
+.angka[data-menghitung] .keterangan,
+.daftar[data-menghitung] dd {
+  opacity: 0.4;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- baris data --- */
+.daftar {
+  margin: 0;
+  display: grid;
+}
+
+.baris {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.baris:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.baris dt {
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.baris dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.nilaiData {
+  font: var(--tipe-data);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.catatanData {
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+/* --- tautan jejak: teks --ink-2 bergaris bawah --pri, bukan teks berwarna --- */
+.jejak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 28px;
+  margin: 0 calc(var(--sp-1) * -1);
+  padding: 0 var(--sp-1);
+  border: 0;
+  border-radius: var(--r-s);
+  background: none;
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.jejak span {
+  text-decoration: underline;
+  text-decoration-color: var(--pri);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .jejak:hover {
+    color: var(--ink);
+  }
+
+  .jejak:hover span {
+    text-decoration-thickness: 2px;
+  }
+}
+
+.jejak:active {
+  color: var(--ink);
+}
+
+@media (pointer: coarse) {
+  .jejak {
+    min-height: 44px;
+  }
+}

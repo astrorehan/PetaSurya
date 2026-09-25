@@ -1,5 +1,20 @@
-// Token desain (tokens.css), format angka, logo, dan skala peta PetaSurya.
 export { Logo } from "./Logo";
-export { kwh, kwp, m2, persen, rupiah, tahun, ton } from "./format";
-export { kontras, luminansi } from "./kontras";
+export { KATA_TERLARANG, TAGLINE } from "./bahasa";
+export { kwh, kwp, m2, pecahAngka, persen, rupiah, tahun, ton, ucapan } from "./format";
+export { kontras, luminansi, tokenTema } from "./kontras";
 export { POLA_KEYAKINAN_RENDAH, SKALA_KWP, warnaKwp } from "./skalaPeta";
+
+export { Angka, DaftarData, JejakTautan, Label, type Aksen } from "./komponen/Angka";
+export { GrafikBulanan, langkahRapi } from "./komponen/GrafikBulanan";
+export { Ikon } from "./komponen/Ikon";
+export { Keadaan, Kerangka } from "./komponen/Keadaan";
+export { Kolom } from "./komponen/Kolom";
+export { Legenda } from "./komponen/Legenda";
+export { LembarSamping } from "./komponen/LembarSamping";
+export { Lencana, type Nada } from "./komponen/Lencana";
+export { MeterKeyakinan, MeterPayback, tingkatKeyakinan, type TingkatKeyakinan } from "./komponen/Meter";
+export { Panel, Pita } from "./komponen/Panel";
+export { Segmen } from "./komponen/Segmen";
+export { Tabel } from "./komponen/Tabel";
+export { kelasTautan } from "./komponen/Tautan";
+export { Tombol, kelasTombol, type VarianTombol } from "./komponen/Tombol";

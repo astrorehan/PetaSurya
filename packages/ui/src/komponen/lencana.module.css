@@ -1,0 +1,52 @@
+.lencana {
+  --_latar: var(--surface-3);
+  --_ikon: var(--ink-2);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 22px;
+  padding: 0 var(--sp-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-s);
+  background: var(--_latar);
+  color: var(--ink);
+  font: var(--tipe-label);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.lencana[data-nada="pri"] {
+  --_latar: var(--pri-bg);
+  --_ikon: var(--pri);
+}
+
+.lencana[data-nada="surya"] {
+  --_latar: var(--surya-bg);
+  --_ikon: var(--surya);
+}
+
+.lencana[data-nada="daun"] {
+  --_latar: var(--daun-bg);
+  --_ikon: var(--daun);
+}
+
+.lencana[data-nada="merah"] {
+  --_latar: var(--merah-bg);
+  --_ikon: var(--merah);
+}
+
+/* Data contoh: garis putus-putus = sementara, belum hasil hitungan. */
+.lencana[data-contoh] {
+  background: transparent;
+  border: 1px dashed var(--ink-3);
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+}
+
+.ikon {
+  flex: none;
+  color: var(--_ikon);
+}

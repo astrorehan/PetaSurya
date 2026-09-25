@@ -1,0 +1,100 @@
+.legenda {
+  display: grid;
+  gap: var(--sp-2);
+  width: max-content;
+  max-width: 100%;
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--surface);
+  box-shadow: var(--shadow-s);
+}
+
+.judul {
+  margin: 0;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.judul span {
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.skala {
+  display: grid;
+  grid-template-columns: repeat(5, 36px);
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skala li {
+  display: grid;
+  gap: 4px;
+}
+
+.kelas {
+  height: 10px;
+}
+
+.skala li:first-child .kelas {
+  border-radius: 2px 0 0 2px;
+}
+
+.skala li:last-child .kelas {
+  border-radius: 0 2px 2px 0;
+}
+
+.batas {
+  font: var(--tipe-data);
+  font-size: var(--fs-xs);
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.lain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0;
+  padding: var(--sp-2) 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink);
+}
+
+.lain li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arsir,
+.terpilih {
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.arsir {
+  border: 1px solid var(--ink-2);
+  color: var(--ink-2);
+  background-image: var(--pola-arsir);
+}
+
+.terpilih {
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--surface);
+  background: var(--brand-surya);
+}
+
+.legenda[data-ringkas] .skala {
+  grid-template-columns: repeat(5, 28px);
+}

@@ -1,0 +1,188 @@
+/* --- balik modal --- */
+.payback {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.kepala {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.ringkas {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.ringkas b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rel {
+  position: relative;
+  height: 8px;
+  margin: 6px 0 0;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.modal,
+.untung {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.modal {
+  left: 0;
+  border-radius: 2px 0 0 2px;
+  background: var(--line-2);
+}
+
+.modal[data-penuh] {
+  border-radius: 2px;
+}
+
+/* Celah 2 px permukaan di antara dua isian (spacer lembar data grafik). */
+.untung {
+  right: 0;
+  margin-left: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--daun);
+}
+
+.penanda {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink);
+}
+
+.skala {
+  position: relative;
+  height: 16px;
+  font: var(--tipe-data);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.skala span {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+}
+
+.skala span:first-child {
+  transform: none;
+}
+
+.skala span:last-child {
+  transform: translateX(-100%);
+}
+
+.keterangan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.ikonMerah {
+  flex: none;
+  color: var(--merah);
+}
+
+.payback[data-menghitung] :is(.rel, .ringkas, .keterangan) {
+  opacity: 0.4;
+}
+
+/* --- keyakinan --- */
+.keyakinan {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.baris {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.sinyal {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.sinyal i {
+  width: 4px;
+  border-radius: 1px;
+  background: var(--line-2);
+}
+
+.sinyal i:nth-child(1) {
+  height: 6px;
+}
+
+.sinyal i:nth-child(2) {
+  height: 10px;
+}
+
+.sinyal i:nth-child(3) {
+  height: 14px;
+}
+
+.sinyal i[data-isi] {
+  background: var(--ink);
+}
+
+.keyakinan[data-tingkat="rendah"] .sinyal i[data-isi] {
+  background: var(--merah);
+}
+
+.kata {
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.kata b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.skor {
+  font-size: var(--fs-s);
+  color: var(--ink-2);
+}
+
+.alasan {
+  margin: 0;
+  padding-left: calc(14px + var(--sp-2));
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .sinyal i {
+    background: GrayText;
+  }
+
+  .sinyal i[data-isi] {
+    background: CanvasText;
+  }
+}

@@ -1,0 +1,49 @@
+.keadaan {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+  max-width: 44ch;
+}
+
+.ikon {
+  margin-top: 1px;
+  color: var(--ink-2);
+}
+
+.keadaan[data-nada="galat"] .ikon {
+  color: var(--merah);
+}
+
+.isi {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.judul {
+  margin: 0;
+  font: var(--tipe-ui);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.teks {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.kerangka {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--r-s);
+  background: var(--surface-3);
+}

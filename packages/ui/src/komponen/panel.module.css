@@ -1,0 +1,71 @@
+/*
+ * Padding tetap 16 px di semua lebar (alat kerja: 12–16 px). Panel juga
+ * wadah container query agar isinya bisa menyusun ulang menurut lebar panel.
+ */
+.panel {
+  position: relative;
+  min-width: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  container-type: inline-size;
+}
+
+/* Keyakinan rendah mewarnai seluruh panel. Teks tetap --ink/--ink-2 (≥ 4,5:1 di atas --merah-bg). */
+.panel[data-rendah] {
+  border-color: var(--merah);
+  background: var(--merah-bg);
+}
+
+.pita {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  align-items: start;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--merah);
+  border-radius: var(--r-s);
+  background: var(--surface);
+  position: relative;
+  isolation: isolate;
+}
+
+/* Arsir di lapisan bawah dengan opacity rendah: pola terbaca, teks tetap kontras. */
+.pita::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  color: var(--merah);
+  background-image: var(--pola-arsir);
+  opacity: 0.16;
+}
+
+.pitaIkon {
+  margin-top: 2px;
+  color: var(--merah);
+}
+
+.pitaIsi {
+  min-width: 0;
+}
+
+.pitaJudul {
+  margin: 0;
+  font: var(--tipe-ui);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pitaTeks {
+  margin: var(--sp-1) 0 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.pitaAksi {
+  grid-column: 2;
+  margin-top: var(--sp-2);
+}

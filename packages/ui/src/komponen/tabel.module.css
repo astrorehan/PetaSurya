@@ -1,0 +1,80 @@
+.bungkus {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.gulir[data-gulir] {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--tipe-kecil);
+  color: var(--ink);
+}
+
+.judul {
+  padding-bottom: var(--sp-2);
+  text-align: left;
+  font: var(--tipe-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.tabel th,
+.tabel td {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.tabel :is(th, td):first-child {
+  padding-left: 0;
+}
+
+.tabel :is(th, td):last-child {
+  padding-right: 0;
+}
+
+.tabel thead th {
+  padding-top: 0;
+  border-bottom-color: var(--line-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.tabel tbody th {
+  font-weight: 500;
+}
+
+/* Angka: rata kanan, mono, tabular — kolom terbaca sebagai hasil hitungan. */
+.tabel [data-angka] {
+  text-align: right;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tabel thead [data-angka] {
+  font-family: var(--f-ui);
+}
+
+.tabel tfoot :is(th, td) {
+  border-top: 1px solid var(--line-2);
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.catatan {
+  margin: 0;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}

@@ -1,0 +1,150 @@
+/*
+ * Tombol: dua gaya, satu ukuran. Tinggi mengikuti --kontrol-h (36 px, 44 px
+ * di layar sentuh). Umpan balik muncul saat ditekan (pointer-down), bukan
+ * saat dilepas; skala 0,98 hanya bila pengguna tidak meminta gerak minimal.
+ */
+.tombol {
+  --_isi: var(--surface);
+  --_tinta: var(--ink);
+  --_tepi: var(--line-2);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--kontrol-h);
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--_tepi);
+  border-radius: var(--r-s);
+  background: var(--_isi);
+  color: var(--_tinta);
+  font: var(--tipe-ui);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out),
+    transform var(--t-fast) var(--ease-out);
+}
+
+.primer {
+  --_isi: var(--pri);
+  --_tinta: var(--on-pri);
+  --_tepi: var(--pri);
+}
+
+/* Hover hanya di perangkat yang punya hover: tidak "lengket" di layar sentuh. */
+@media (hover: hover) {
+  .sekunder:hover {
+    --_isi: var(--surface-2);
+    --_tepi: var(--ink-3);
+  }
+
+  .primer:hover {
+    --_isi: var(--pri-hover);
+    --_tepi: var(--pri-hover);
+  }
+}
+
+.sekunder[data-paksa="hover"] {
+  --_isi: var(--surface-2);
+  --_tepi: var(--ink-3);
+}
+
+.primer[data-paksa="hover"] {
+  --_isi: var(--pri-hover);
+  --_tepi: var(--pri-hover);
+}
+
+.sekunder:active,
+.sekunder[data-paksa="aktif"] {
+  --_isi: var(--surface-3);
+  --_tepi: var(--ink-3);
+}
+
+.primer:active,
+.primer[data-paksa="aktif"] {
+  --_isi: var(--pri-tekan);
+  --_tepi: var(--pri-tekan);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tombol:active:not(:disabled, [aria-disabled="true"]),
+  .tombol[data-paksa="aktif"] {
+    transform: scale(0.98);
+  }
+}
+
+.tombol[data-paksa="fokus"] {
+  box-shadow: var(--ring);
+}
+
+.tombol:disabled {
+  --_isi: var(--surface-2);
+  --_tinta: var(--ink-3);
+  --_tepi: var(--line);
+  cursor: not-allowed;
+}
+
+.tombol[aria-busy="true"] {
+  cursor: progress;
+}
+
+.hanyaIkon {
+  width: var(--kontrol-h);
+  padding: 0;
+}
+
+.tersembunyi {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Indikator sibuk 16 px: busur berputar; gerak minimal → berdenyut opacity. */
+.putar {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.75px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: putar 800ms linear infinite;
+}
+
+@keyframes putar {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .putar {
+    border-right-color: currentColor;
+    animation: denyut 1200ms ease-in-out infinite alternate;
+  }
+}
+
+@keyframes denyut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (forced-colors: active) {
+  .tombol {
+    border-color: ButtonText;
+  }
+}

@@ -1,0 +1,126 @@
+/* Jalur minmax(0, 1fr): lebar bawaan <input> (±20 karakter) tidak boleh
+   menjadi lebar minimum kolom, agar kolom menyusut di kisi sempit. */
+.kolom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Label isian: kalimat biasa 13 px, bukan kapital (kapital untuk label bacaan). */
+.label {
+  font: var(--tipe-kecil);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.kotak {
+  --_tepi: var(--line-2);
+
+  display: flex;
+  align-items: center;
+  min-height: var(--kontrol-h);
+  border: 1px solid var(--_tepi);
+  border-radius: var(--r-s);
+  background: var(--surface);
+  transition: border-color var(--t-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .kotak:hover {
+    --_tepi: var(--ink-3);
+  }
+}
+
+.kotak[data-paksa="hover"] {
+  --_tepi: var(--ink-3);
+}
+
+.kotak:focus-within,
+.kotak[data-paksa="fokus"] {
+  --_tepi: var(--pri);
+  box-shadow: 0 0 0 1px var(--pri);
+}
+
+.masukan {
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--kontrol-h) - 2px);
+  padding: 0 var(--sp-3);
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: var(--tipe-ui);
+}
+
+/* Cincin fokus sudah digambar di kotak; jangan dobel di input. */
+.masukan:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+.masukan[data-angka] {
+  font: var(--tipe-data);
+  font-size: var(--fs-m);
+  font-variant-numeric: tabular-nums;
+}
+
+.masukan::placeholder {
+  color: var(--ink-3);
+}
+
+/* Safari iOS memperbesar halaman bila huruf isian < 16 px. */
+@media (pointer: coarse) {
+  .masukan,
+  .masukan[data-angka] {
+    font-size: var(--fs-b);
+  }
+}
+
+.satuan {
+  flex: none;
+  padding-right: var(--sp-3);
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.petunjuk,
+.galat {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  font: var(--tipe-kecil);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.galat {
+  color: var(--ink);
+}
+
+.galatIkon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--merah);
+}
+
+.kolom[data-galat] .kotak {
+  --_tepi: var(--merah);
+}
+
+.kolom[data-galat] .kotak:focus-within {
+  box-shadow: 0 0 0 1px var(--merah);
+}
+
+.kolom[data-mati] .kotak {
+  --_tepi: var(--line);
+  background: var(--surface-2);
+}
+
+.kolom[data-mati] .masukan,
+.kolom[data-mati] .satuan {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}

@@ -1,0 +1,32 @@
+/*
+ * Tautan teks: huruf mewarisi tinta kalimatnya, garis bawah --pri 1 px
+ * (2 px saat hover). Warna aksi ada di garis, bukan di huruf, sehingga teks
+ * tetap ≥ 4,5:1 dan tautan tetap dikenali tanpa bergantung pada warna.
+ */
+.tautan {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--pri);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .tautan:hover {
+    color: var(--ink);
+    text-decoration-thickness: 2px;
+  }
+}
+
+.tautan:active {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+}
+
+@media (forced-colors: active) {
+  .tautan {
+    color: LinkText;
+    text-decoration-color: LinkText;
+  }
+}

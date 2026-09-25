@@ -20,16 +20,22 @@ export function kontras(a: string, b: string): number {
 }
 
 /**
- * Membaca token warna dari tokens.css untuk satu tema.
- * "terang" = blok :root; "gelap" = blok :root[data-theme="dark"]
- * (identik dengan blok prefers-color-scheme, dan lebih mudah dipotong).
+ * Membaca token warna hex dari tokens.css untuk satu tema.
+ * "terang" = blok yang selektornya memuat [data-theme="light"];
+ * "gelap" = blok yang selektornya memuat [data-theme="dark"]
+ * (isinya identik dengan blok prefers-color-scheme).
  */
 export function tokenTema(css: string, tema: "terang" | "gelap"): Record<string, string> {
-  const awal =
-    tema === "terang" ? css.indexOf(":root {") : css.indexOf(':root[data-theme="dark"] {');
-  const akhir = css.indexOf("\n}", awal);
-  const blok = css.slice(awal, akhir);
+  const dicari = tema === "terang" ? '[data-theme="light"]' : '[data-theme="dark"]';
   const hasil: Record<string, string> = {};
-  for (const m of blok.matchAll(/(--[a-z0-9-]+):\s*(#[0-9a-f]{3,6})\s*;/gi)) hasil[m[1]] = m[2];
+  // Blok datar "selektor { isi }"; blok @media dilewati karena isinya bersarang.
+  for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selektor = m[1]
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .split(",")
+      .map((s) => s.trim());
+    if (!selektor.includes(dicari)) continue;
+    for (const t of m[2].matchAll(/(--[a-z0-9-]+):\s*(#[0-9a-f]{3,6})\s*;/gi)) hasil[t[1]] = t[2];
+  }
   return hasil;
 }
