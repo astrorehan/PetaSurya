@@ -1,6 +1,6 @@
 .header {
   position: sticky;
-  z-index: 20;
+  z-index: var(--z-header);
   top: 0;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -8,7 +8,7 @@
 
 .headerDalam {
   width: min(100% - var(--sp-8), 1440px);
-  min-height: 64px;
+  min-height: var(--header-h);
   margin: 0 auto;
   display: grid;
   grid-template-columns: auto minmax(180px, 1fr) auto auto;
@@ -34,7 +34,7 @@
 
 .formCari {
   width: min(100%, 440px);
-  min-height: 36px;
+  min-height: var(--kontrol-h);
   justify-self: center;
   display: flex;
   align-items: center;
@@ -81,6 +81,20 @@
   text-decoration: none;
 }
 
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--kontrol-h);
+}
+
+.nav a[aria-current],
+.menuIsi a[aria-current] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pri);
+  text-underline-offset: var(--sp-1);
+}
+
 .nav a:hover,
 .footer a:hover {
   color: var(--pri);
@@ -89,26 +103,57 @@
 }
 
 .tombolTema {
-  min-height: 36px;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding: 0 var(--sp-3);
+  justify-self: end;
+}
+
+.menu {
+  display: none;
+  position: relative;
+  justify-self: end;
+}
+
+.menu summary {
+  display: grid;
+  place-items: center;
+  width: var(--kontrol-h);
+  min-height: var(--kontrol-h);
   border: 1px solid var(--line-2);
   border-radius: var(--r-s);
-  color: var(--ink-2);
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-}
-
-.tombolTema:hover {
   color: var(--ink);
-  background: var(--surface-2);
+  background: var(--surface);
+  cursor: pointer;
+  list-style: none;
 }
 
-.tombolTemaTeks {
-  font-size: var(--fs-s);
+.menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.menuIsi {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--sp-2));
+  min-width: 12rem;
+  display: grid;
+  padding: var(--sp-1);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-m);
+}
+
+.menuIsi a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  color: var(--ink);
+  font: var(--tipe-ui);
+  text-decoration: none;
+}
+
+.menuIsi a:hover {
+  background: var(--surface-2);
 }
 
 .footer {
@@ -132,9 +177,32 @@
 }
 
 .footerMeta {
-  margin-left: auto;
-  font-family: var(--f-mono);
+  margin: 0;
+  font: var(--tipe-data);
   font-size: var(--fs-xs);
+  overflow-wrap: anywhere;
+}
+
+.footerDetails {
+  margin-left: auto;
+  min-width: 0;
+}
+
+.footerDetails summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--kontrol-h);
+  cursor: pointer;
+  list-style: none;
+}
+
+.footerDetails summary::-webkit-details-marker {
+  display: none;
+}
+
+.footerDetails[open] summary svg {
+  transform: rotate(180deg);
 }
 
 .srOnly {
@@ -171,23 +239,25 @@
   }
 }
 
+@media (max-width: 700px) {
+  .headerDalam {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: var(--sp-2);
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .menu {
+    display: block;
+  }
+}
+
 @media (max-width: 560px) {
   .headerDalam,
   .footerDalam {
     width: min(100% - var(--sp-6), 1440px);
-  }
-
-  .nav {
-    gap: var(--sp-2);
-    font-size: var(--fs-xs);
-  }
-
-  .tombolTema {
-    padding: 0 var(--sp-2);
-  }
-
-  .tombolTemaTeks {
-    display: none;
   }
 
   .footerDalam {
@@ -195,7 +265,4 @@
     padding: var(--sp-3) 0;
   }
 
-  .footerMeta {
-    margin-left: auto;
-  }
 }

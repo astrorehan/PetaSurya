@@ -1,25 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AlertTriangle,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  Compass,
-  Cpu,
-  Crosshair,
-  ExternalLink,
-  Layers,
-  Pause,
-  Play,
-  RotateCcw,
-  Terminal,
-  X,
-} from "lucide-react";
-import { kwh, kwp, m2, persen, rupiah } from "@petasurya/ui";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { AlertTriangle, ChevronDown, Pause, Play, X } from "lucide-react";
+import { Angka, DaftarData, Ikon, Lencana, Segmen, Tombol, kelasTombol, kwh, kwp, m2, persen, rupiah } from "@petasurya/ui";
 import s from "./pemindaiAtap.module.css";
 
 import {
@@ -31,6 +15,16 @@ import {
 
 export type { BangunanTargetPindai, TileCitra };
 export { DAFTAR_BANGUNAN, TAHAP_INFO };
+
+const TAHAP_RINGKAS = ["Citra", "Atap", "Halangan", "Arah", "Panel"];
+
+const KUERI_SEMPIT = "(max-width: 560px)";
+const langgananSempit = (ubah: () => void) => {
+  const mq = window.matchMedia(KUERI_SEMPIT);
+  mq.addEventListener("change", ubah);
+  return () => mq.removeEventListener("change", ubah);
+};
+const cekSempit = () => window.matchMedia(KUERI_SEMPIT).matches;
 
 type PemindaiAtapProps = {
   bangunanAwalId?: number;
@@ -65,8 +59,13 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   // Animasi posisi laser scanline
   const [scanlineY, setScanlineY] = useState(120);
 
-  // Terminal log status
-  const [tampilTerminal, setTampilTerminal] = useState(true);
+  const wadahRef = useRef<HTMLDivElement>(null);
+  const Judul = mode === "halaman" ? "h1" : "h2";
+
+  // Layar sempit: pangkas kanvas 2× di sekitar pusat. Semua bbox fixture berada di 160–480 × 120–360.
+  const sempit = useSyncExternalStore(langgananSempit, cekSempit, () => false);
+  const viewBox = sempit ? "160 120 320 240" : "0 0 640 480";
+  const posisiKompas = sempit ? "translate(444, 156)" : "translate(596, 44)";
 
   const bangunan = DAFTAR_BANGUNAN[indeksBangunan];
   const tahapAktif = TAHAP_INFO[tahap - 1];
@@ -84,7 +83,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
   // Efek animasi laser scanline saat pemindaian aktif
   useEffect(() => {
-    if (!sedangMemindai) return;
+    if (!sedangMemindai || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let arah = 1;
     const batasAtas = 140;
@@ -123,25 +122,26 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
     return () => clearTimeout(timer);
   }, [sedangMemindai, tahap, kecepatan]);
 
-  // Kontrol keyboard pintasan
+  // Pintasan hanya berlaku di kanvas; isian dan kontrol mempertahankan perilaku aslinya.
   useEffect(() => {
     const tanganiKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
       if (e.key === "Escape" && mode === "modal" && onTutup) {
         e.preventDefault();
         onTutup();
-      } else if (e.key === " ") {
+        return;
+      }
+      const target = e.target;
+      if (!(target instanceof HTMLElement || target instanceof SVGElement) || !wadahRef.current?.contains(target)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || target.closest("input, textarea, select, button, a, summary, [contenteditable='true']")) return;
+
+      if (e.key === " ") {
         e.preventDefault();
+        if (tahap === 5 && !sedangMemindai) setTahap(1);
         setSedangMemindai((p) => !p);
-      } else if (e.key === "ArrowLeft") {
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         e.preventDefault();
-        setTahap((t) => Math.max(1, t - 1));
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        setTahap((t) => Math.min(5, t + 1));
+        setTahap((t) => Math.max(1, Math.min(5, t + (e.key === "ArrowLeft" ? -1 : 1))));
+        setSedangMemindai(false);
       } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
         e.preventDefault();
         setTahap(Number(e.key));
@@ -152,10 +152,39 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
         setSedangMemindai(true);
       }
     };
-
     window.addEventListener("keydown", tanganiKey);
     return () => window.removeEventListener("keydown", tanganiKey);
-  }, [mode, onTutup]);
+  }, [mode, onTutup, tahap, sedangMemindai]);
+
+  useEffect(() => {
+    if (mode !== "modal") return;
+    const pemicu = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const wadah = wadahRef.current;
+    const fokuskan = () => Array.from(wadah?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input, select, summary, [tabindex='0']") ?? [])
+      .filter((el) => el.getClientRects().length > 0);
+    fokuskan()[0]?.focus();
+    const jagaFokus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const kontrol = fokuskan();
+      const pertama = kontrol[0];
+      const terakhir = kontrol[kontrol.length - 1];
+      if (event.shiftKey && document.activeElement === pertama) {
+        event.preventDefault();
+        terakhir?.focus();
+      } else if (!event.shiftKey && document.activeElement === terakhir) {
+        event.preventDefault();
+        pertama?.focus();
+      }
+    };
+    wadah?.addEventListener("keydown", jagaFokus);
+    const gulirAwal = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      wadah?.removeEventListener("keydown", jagaFokus);
+      document.body.style.overflow = gulirAwal;
+      pemicu?.focus({ preventScroll: true });
+    };
+  }, [mode]);
 
   const mulaiPindaiOtomatis = useCallback(() => {
     if (tahap === 5) setTahap(1);
@@ -164,11 +193,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
   const jedaPindai = useCallback(() => {
     setSedangMemindai(false);
-  }, []);
-
-  const ulangPindai = useCallback(() => {
-    setTahap(1);
-    setSedangMemindai(true);
   }, []);
 
   const gantiBangunan = (idx: number) => {
@@ -187,60 +211,25 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const rotasiJarum = bangunan.azimuth_deg;
 
   const konten = (
-    <div className={s.wadah}>
-      {/* Header Instrumen */}
+    <div className={s.wadah} ref={wadahRef}>
       <header className={s.kepala}>
-        <div>
-          <div className={s.labelBaris}>
-            <span className={s.label}>INSTRUMEN CV · L2 COMPUTER VISION</span>
-            <span
-              className={`${s.lencanaStatus} ${
-                bangunan.method === "cv" ? (tahap === 5 ? s.statusSelesai : s.statusAktif) : s.statusFallback
-              }`}
-            >
-              {bangunan.method === "cv" ? (tahap === 5 ? "SELESAI (5/5)" : `TAHAP ${tahap}/5`) : "FALLBACK OSM"}
-            </span>
-          </div>
-          <h1 id="judul-modal-pemindai" className={s.judul}>
-            Pemindaian & Segmentasi Atap
-          </h1>
-          <p className={s.pengantar}>
-            Demonstrasi pipeline inferensi visual atap: georeferensi citra satelit Esri z=19, deteksi kontur AI MobileSAM, penapisan obstruksi fisik,
-            ekstraksi sumbu bubungan & azimut, hingga simulasi susunan modul fotovoltaik.
-          </p>
+        <div className={s.labelBaris}>
+          <Judul id="judul-modal-pemindai" className={s.judul}>Pindai atap</Judul>
+          <Lencana contoh>Demo</Lencana>
         </div>
-
         {mode === "modal" && onTutup ? (
-          <button className={s.tombolTutup} type="button" onClick={onTutup} aria-label="Tutup pemindai (Esc)">
-            <X size={18} aria-hidden="true" />
-          </button>
+          <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol>
         ) : null}
       </header>
 
-      {/* Pengumuman Aksesibilitas Screen Reader */}
-      <div className="srOnly" aria-live="polite">
-        Tahap {tahap} dari 5: {tahapAktif.nama}. {tahapAktif.subjudul}
-      </div>
+      <div className={s.srOnly} aria-live="polite">Tahap {tahap} dari 5: {TAHAP_RINGKAS[tahap - 1]}.</div>
 
-      {/* Baris Pemilih Bangunan Target */}
-      <nav className={s.barisPreset} aria-label="Pilih target bangunan untuk dipindai">
-        {DAFTAR_BANGUNAN.map((item, idx) => {
-          const aktif = idx === indeksBangunan;
-          return (
-            <button
-              key={item.id}
-              className={`${s.tombolPreset} ${aktif ? s.presetAktif : ""}`}
-              type="button"
-              onClick={() => gantiBangunan(idx)}
-              aria-pressed={aktif}
-            >
-              <Crosshair size={14} aria-hidden="true" />
-              <span>{item.nama}</span>
-              <span className={s.presetTag}>{item.kategori.split("/")[0]}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <label className={s.pilihBangunan}>
+        Bangunan
+        <select value={indeksBangunan} onChange={(event) => gantiBangunan(Number(event.target.value))}>
+          {DAFTAR_BANGUNAN.map((item, idx) => <option key={item.id} value={idx}>{item.nama}</option>)}
+        </select>
+      </label>
 
       {/* Grid Utama: Layar Sensor + Panel Telemetri */}
       <div className={s.gridPemindai}>
@@ -250,7 +239,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             {/* Canvas Overlay Grafis Vektor */}
             <svg
               className={s.kanvasSvg}
-              viewBox="0 0 640 480"
+              tabIndex={0}
+              viewBox={viewBox}
               role="img"
               aria-label={`Visualisasi pemindaian tahap ${tahap}: ${tahapAktif.nama}`}
             >
@@ -353,12 +343,15 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   <text
                     x={bangunan.bbox[0]}
                     y={bangunan.bbox[1] - 14}
-                    fill="#AEB7C7"
+                    fill="#E4E8F0"
+                    stroke="rgba(10, 14, 28, 0.9)"
+                    strokeWidth="3"
+                    paintOrder="stroke"
                     fontFamily="monospace"
                     fontSize="10"
                     fontWeight="600"
                   >
-                    OSM BBOX: {m2(bangunan.footprint_m2)} · WAY/{bangunan.id}
+                    JEJAK BANGUNAN {m2(bangunan.footprint_m2)}
                   </text>
                 </g>
               ) : null}
@@ -375,24 +368,24 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   />
                   {/* Titik Simpul (Vertices) */}
                   {bangunan.polygon.map(([vx, vy], vi) => (
-                    <g key={vi}>
-                      <circle cx={vx} cy={vy} r="3.5" fill="#FFFFFF" stroke="#E8920F" strokeWidth="1.5" />
-                      <text x={vx + 6} y={vy - 4} fill="#AEB7C7" fontFamily="monospace" fontSize="8">
-                        v{vi}
-                      </text>
-                    </g>
+                    <circle key={vi} cx={vx} cy={vy} r="3.5" fill="#FFFFFF" stroke="#E8920F" strokeWidth="1.5" />
                   ))}
-                  <text
-                    x="320"
-                    y="245"
-                    fill="#FFFFFF"
-                    fontFamily="monospace"
-                    fontSize="11"
-                    fontWeight="600"
-                    textAnchor="middle"
-                  >
-                    LUAS ATAP: {m2(bangunan.roof_area_m2)}
-                  </text>
+                  {tahap === 2 ? (
+                    <text
+                      x="320"
+                      y="245"
+                      fill="#FFFFFF"
+                      stroke="rgba(10, 14, 28, 0.9)"
+                      strokeWidth="3"
+                      paintOrder="stroke"
+                      fontFamily="monospace"
+                      fontSize="11"
+                      fontWeight="600"
+                      textAnchor="middle"
+                    >
+                      LUAS ATAP {m2(bangunan.roof_area_m2)}
+                    </text>
+                  ) : null}
                 </g>
               ) : null}
 
@@ -418,24 +411,28 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                           strokeWidth={disorot ? "2.5" : "1.8"}
                           rx="2"
                         />
-                        <rect
-                          x={obs.x}
-                          y={obs.y - 14}
-                          width={obs.label.length * 6 + 10}
-                          height="12"
-                          fill="rgba(10, 14, 28, 0.9)"
-                          rx="2"
-                        />
-                        <text
-                          x={obs.x + 3}
-                          y={obs.y - 4}
-                          fill={disorot ? "#FFFFFF" : "#EE8460"}
-                          fontFamily="monospace"
-                          fontSize="8"
-                          fontWeight="600"
-                        >
-                          {obs.label}
-                        </text>
+                        {(tahap <= 4 || disorot) ? (
+                          <>
+                            <rect
+                              x={obs.x}
+                              y={obs.y - 16}
+                              width={obs.label.length * 6 + 8}
+                              height="14"
+                              fill="rgba(10, 14, 28, 0.9)"
+                              rx="2"
+                            />
+                            <text
+                              x={obs.x + 4}
+                              y={obs.y - 5}
+                              fill={disorot ? "#FFFFFF" : "#EE8460"}
+                              fontFamily="monospace"
+                              fontSize="10"
+                              fontWeight="600"
+                            >
+                              {obs.label}
+                            </text>
+                          </>
+                        ) : null}
                       </g>
                     );
                   })}
@@ -471,16 +468,21 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                     markerEnd="url(#panahAzimut)"
                   />
                   <circle cx={bangunan.azimuth_vec[0]} cy={bangunan.azimuth_vec[1]} r="3" fill="#E8920F" />
-                  <text
-                    x={bangunan.azimuth_vec[2] + 6}
-                    y={bangunan.azimuth_vec[3]}
-                    fill="#F2A93F"
-                    fontFamily="monospace"
-                    fontSize="10"
-                    fontWeight="600"
-                  >
-                    AZIMUT {bangunan.azimuth_deg}° · TILT {bangunan.tilt_deg}°
-                  </text>
+                  {tahap === 4 ? (
+                    <text
+                      x={bangunan.azimuth_vec[2] + 6}
+                      y={bangunan.azimuth_vec[3]}
+                      fill="#F2A93F"
+                      stroke="rgba(10, 14, 28, 0.9)"
+                      strokeWidth="3"
+                      paintOrder="stroke"
+                      fontFamily="monospace"
+                      fontSize="10"
+                      fontWeight="600"
+                    >
+                      AZIMUT {bangunan.azimuth_deg}° · MIRING {bangunan.tilt_deg}°
+                    </text>
+                  ) : null}
                 </g>
               ) : null}
 
@@ -532,7 +534,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
               {/* Mini Dial Kompas Surya di Sudut Kanan Bawah */}
               {tampilKompas && (tahap >= 4 || tahap === 5) ? (
-                <g id="dial-kompas" transform="translate(580, 420)">
+                <g id="dial-kompas" transform={posisiKompas}>
                   <circle cx="0" cy="0" r="32" fill="rgba(10, 14, 28, 0.88)" stroke="rgba(174, 183, 199, 0.3)" strokeWidth="1" />
                   <text x="0" y="-20" fill="#E8920F" fontFamily="monospace" fontSize="8" fontWeight="bold" textAnchor="middle">
                     U
@@ -582,15 +584,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               ) : null}
             </svg>
 
-            {/* HUD Telemetri Atas */}
-            <div className={s.hudAtas}>
-              <span>
-                POS: [{bangunan.koordinat[0].toFixed(5)}, {bangunan.koordinat[1].toFixed(5)}]
-              </span>
-              <span>RESOLUSI: 0,298 M/PX · Z=19</span>
-              <span>MODEL: {bangunan.model_version}</span>
-            </div>
-
             {/* Tooltip Dinamis saat Hover Elemen Obstruksi / Modul */}
             {obstruksiSorot ? (
               <div className={s.tooltipKanvas}>
@@ -604,320 +597,131 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               </div>
             ) : null}
 
-            {/* HUD Telemetri Bawah */}
             <div className={s.hudBawah}>
-              <span>CITRA: ESRI WORLD IMAGERY</span>
-              <span>
-                STATUS: {sedangMemindai ? "MEMINDAI..." : `TAHAP ${tahap}/5 · ${tahapAktif.nama.toUpperCase()}`}
-              </span>
-              <span>SKOR IoU: {bangunan.confidence.toFixed(2)}</span>
+              <span>© Esri World Imagery</span>
+              <span>Data contoh</span>
             </div>
           </div>
 
-          {/* Bar Kontrol Pemutar & Stepper */}
           <div className={s.kontrolBar}>
             <div className={s.barisAksi}>
-              <div className={s.grupPutar}>
-                {sedangMemindai ? (
-                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={jedaPindai} title="Jeda pemindaian (Spasi)">
-                    <Pause size={15} aria-hidden="true" />
-                    <span>Jeda</span>
-                  </button>
-                ) : (
-                  <button className={`${s.tombolKontrol} ${s.tombolPrimer}`} type="button" onClick={mulaiPindaiOtomatis} title="Mulai pemindaian otomatis (Spasi)">
-                    <Play size={15} aria-hidden="true" />
-                    <span>{tahap === 5 ? "Pindai Ulang" : "Mulai Pemindaian"}</span>
-                  </button>
-                )}
+              <Tombol varian="primer" ikon={sedangMemindai ? Pause : Play} onClick={sedangMemindai ? jedaPindai : mulaiPindaiOtomatis}>
+                {sedangMemindai ? "Jeda" : tahap === 5 ? "Putar ulang" : "Putar demo"}
+              </Tombol>
+              <span className={s.progres}>Tahap {tahap} / 5</span>
+            </div>
 
-                <button className={s.tombolKontrol} type="button" onClick={ulangPindai} title="Ulangi dari tahap 1 (R)">
-                  <RotateCcw size={14} aria-hidden="true" />
-                  <span>Reset</span>
-                </button>
-
+            <div className={s.stepper} role="group" aria-label="Tahap pemindaian">
+              {TAHAP_INFO.map((step) => (
                 <button
-                  className={s.tombolKontrol}
+                  key={step.nomor}
+                  className={`${s.tombolTahap} ${step.nomor === tahap ? s.tahapAktif : ""}`}
                   type="button"
-                  disabled={tahap <= 1}
-                  onClick={() => setTahap((t) => Math.max(1, t - 1))}
-                  aria-label="Tahap sebelumnya (←)"
-                  title="Tahap sebelumnya (←)"
+                  aria-pressed={step.nomor === tahap}
+                  onClick={() => { setTahap(step.nomor); setSedangMemindai(false); }}
                 >
-                  <ChevronLeft size={15} aria-hidden="true" />
+                  <span className={s.tahapNomor} aria-hidden="true">0{step.nomor}</span>
+                  <span className={s.tahapNama}>{TAHAP_RINGKAS[step.nomor - 1]}</span>
                 </button>
+              ))}
+            </div>
 
-                <button
-                  className={s.tombolKontrol}
-                  type="button"
-                  disabled={tahap >= 5}
-                  onClick={() => setTahap((t) => Math.min(5, t + 1))}
-                  aria-label="Tahap selanjutnya (→)"
-                  title="Tahap selanjutnya (→)"
-                >
-                  <ChevronRight size={15} aria-hidden="true" />
-                </button>
+            <details className={s.rincian}>
+              <summary>Tampilan & pemutaran <Ikon ikon={ChevronDown} /></summary>
+              <div className={s.barisLapisan}>
+                {[
+                  { label: "Satelit", nilai: tampilSatelit, ubah: setTampilSatelit },
+                  { label: "Kontur", nilai: tampilKontur, ubah: setTampilKontur },
+                  { label: "Penghalang", nilai: tampilObstruksi, ubah: setTampilObstruksi },
+                  { label: "Bubungan", nilai: tampilBubungan, ubah: setTampilBubungan },
+                  { label: "Panel", nilai: tampilModul, ubah: setTampilModul },
+                  { label: "Kompas", nilai: tampilKompas, ubah: setTampilKompas },
+                ].map((lapisan) => (
+                  <label key={lapisan.label} className={s.itemLapisan}>
+                    <input type="checkbox" checked={lapisan.nilai} onChange={(event) => lapisan.ubah(event.target.checked)} />
+                    {lapisan.label}
+                  </label>
+                ))}
               </div>
-
-              <div className={s.grupPutar}>
-                <span className={s.presetTag}>Kecepatan:</span>
-                <button
-                  className={`${s.tombolKontrol} ${kecepatan === 1 ? s.presetAktif : ""}`}
-                  type="button"
-                  onClick={() => setKecepatan(1)}
-                >
-                  1×
-                </button>
-                <button
-                  className={`${s.tombolKontrol} ${kecepatan === 2 ? s.presetAktif : ""}`}
-                  type="button"
-                  onClick={() => setKecepatan(2)}
-                >
-                  2×
-                </button>
-              </div>
-            </div>
-
-            {/* Stepper 5 Tahap */}
-            <div className={s.stepper} role="tablist" aria-label="Langkah-langkah pipeline pemindaian atap">
-              {TAHAP_INFO.map((step) => {
-                const aktif = step.nomor === tahap;
-                const lolos = step.nomor < tahap;
-                return (
-                  <button
-                    key={step.nomor}
-                    className={`${s.tombolTahap} ${aktif ? s.tahapAktif : ""} ${lolos ? s.tahapLolos : ""}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={aktif}
-                    aria-controls="panel-telemetri-pemindai"
-                    onClick={() => {
-                      setTahap(step.nomor);
-                      setSedangMemindai(false);
-                    }}
-                  >
-                    <span className={s.tahapNomor}>0{step.nomor}</span>
-                    <span className={s.tahapNama}>{step.nama}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Sakelar Lapisan Tampilan */}
-            <div className={s.barisLapisan}>
-              <span className={s.labelLapisanJudul}>
-                <Layers size={11} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
-                Lapisan:
-              </span>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilSatelit}
-                  onChange={(e) => setTampilSatelit(e.target.checked)}
-                />
-                <span>Satelit</span>
-              </label>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilKontur}
-                  onChange={(e) => setTampilKontur(e.target.checked)}
-                />
-                <span>Kontur</span>
-              </label>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilObstruksi}
-                  onChange={(e) => setTampilObstruksi(e.target.checked)}
-                />
-                <span>Obstruksi</span>
-              </label>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilBubungan}
-                  onChange={(e) => setTampilBubungan(e.target.checked)}
-                />
-                <span>Bubungan</span>
-              </label>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilModul}
-                  onChange={(e) => setTampilModul(e.target.checked)}
-                />
-                <span>Modul PV</span>
-              </label>
-              <label className={s.itemLapisan}>
-                <input
-                  type="checkbox"
-                  checked={tampilKompas}
-                  onChange={(e) => setTampilKompas(e.target.checked)}
-                />
-                <Compass size={11} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
-                <span>Kompas</span>
-              </label>
-            </div>
+              <Segmen
+                nama="kecepatan-demo"
+                label="Kecepatan"
+                nilai={String(kecepatan)}
+                onUbah={(nilai) => setKecepatan(Number(nilai) as 1 | 2)}
+                pilihan={[{ nilai: "1", label: "1×" }, { nilai: "2", label: "2×" }]}
+              />
+              <p className={s.bantuan}>Saat kanvas mendapat fokus: Spasi untuk putar/jeda, panah untuk pindah tahap, R untuk ulang.</p>
+            </details>
           </div>
         </section>
 
-        {/* Kolom Kanan: Panel Data Telemetri & Aksi */}
-        <aside id="panel-telemetri-pemindai" className={s.panelTelemetri} aria-labelledby="judul-telemetri">
-          {/* Penjelasan Tahap Aktif */}
-          <div className={s.kartuInfo}>
-            <div className={s.labelBaris}>
-              <p className={s.label}>TAHAP {tahap} DARI 5</p>
-              <Cpu size={14} aria-hidden="true" />
+        <aside className={s.panelTelemetri} aria-label="Hasil simulasi panel">
+          {bangunan.method === "footprint_fallback" ? (
+            <div className={s.kotakPeringatan} role="alert">
+              <Ikon ikon={AlertTriangle} />
+              <span>Keyakinan rendah. Luas atap memakai perkiraan jejak bangunan.</span>
             </div>
-            <h2 id="judul-telemetri" className={s.kartuInfoJudul}>
-              {tahapAktif.subjudul}
-            </h2>
+          ) : null}
+
+          <Angka
+            label="Kapasitas contoh"
+            nilai={kwp(spekAktif.kwp)}
+            ukuran="display"
+            aksen="surya"
+            keterangan={`${spekAktif.count} panel · ${m2(bangunan.usable_area_m2)} area pemasangan`}
+          />
+
+          <Segmen
+            label="Daya per panel"
+            nama="daya-panel-demo"
+            nilai={String(tipeModul)}
+            onUbah={(nilai) => setTipeModul(Number(nilai) as 550 | 440)}
+            pilihan={[{ nilai: "550", label: "550 Wp" }, { nilai: "440", label: "440 Wp" }]}
+          />
+
+          <Link className={kelasTombol()} href={`/atap/${bangunan.id}`} onClick={onTutup}>Lihat hasil bangunan</Link>
+
+          <details className={s.rincian}>
+            <summary>Rincian simulasi <Ikon ikon={ChevronDown} /></summary>
+            <DaftarData baris={[
+              { label: "Produksi tahun pertama", nilai: kwh(spekAktif.e_ac_kwh_yr1) },
+              { label: "Hemat tahun pertama", nilai: rupiah(spekAktif.savings_idr_yr1) },
+              { label: "Luas bangunan", nilai: m2(bangunan.footprint_m2) },
+              { label: "Luas atap", nilai: m2(bangunan.roof_area_m2) },
+              { label: "Penghalang", nilai: persen(bangunan.obstruction_frac) },
+              { label: "Kemiringan", nilai: bangunan.tilt_deg.toLocaleString("id-ID") + "°" },
+              { label: "Arah atap", nilai: bangunan.arah_label },
+            ]} />
+          </details>
+
+          <details className={s.rincian}>
+            <summary>Tentang tahap ini <Ikon ikon={ChevronDown} /></summary>
+            <h2 className={s.kartuInfoJudul}>{tahapAktif.subjudul}</h2>
             <p className={s.penjelasanTahap}>{tahapAktif.penjelasan}</p>
+            <p className={s.bantuan}>Demo memutar data contoh; analisis citra tidak dijalankan langsung.</p>
+          </details>
 
-            {bangunan.peringatan ? (
-              <div className={s.kotakPeringatan} role="alert">
-                <AlertTriangle size={16} aria-hidden="true" />
-                <span>{bangunan.peringatan}</span>
-              </div>
-            ) : null}
-          </div>
+          <details className={s.rincian}>
+            <summary>Data teknis <Ikon ikon={ChevronDown} /></summary>
+            <DaftarData baris={[
+              { label: "Keyakinan analisis", nilai: persen(bangunan.confidence) },
+              { label: "Metode", nilai: bangunan.method === "cv" ? "Analisis citra" : "Jejak bangunan" },
+              { label: "Model", nilai: bangunan.model_version },
+              { label: "Koordinat", nilai: bangunan.koordinat.map((n) => n.toLocaleString("id-ID", { maximumFractionDigits: 5 })).join("; ") },
+            ]} />
+          </details>
 
-          {/* Pengubah Tipe Modul Surya untuk Demonstrasi Interaktif */}
-          <div className={s.kotakModulPilihan}>
-            <span className={s.modulPilihanLabel}>Spesifikasi Modul PV:</span>
-            <div className={s.grupPilihanModul} role="group" aria-label="Pilih daya modul PV">
-              <button
-                type="button"
-                className={`${s.tombolPilihanModul} ${tipeModul === 550 ? s.tombolPilihanModulAktif : ""}`}
-                onClick={() => setTipeModul(550)}
-              >
-                550 Wp Tier-1
-              </button>
-              <button
-                type="button"
-                className={`${s.tombolPilihanModul} ${tipeModul === 440 ? s.tombolPilihanModulAktif : ""}`}
-                onClick={() => setTipeModul(440)}
-              >
-                440 Wp Standar
-              </button>
+          <details className={s.rincian}>
+            <summary>Log demo <Ikon ikon={ChevronDown} /></summary>
+            <div className={s.terminalIsi} role="log" aria-label="Catatan tahap demo">
+              {bangunan.cv_logs.filter((log) => log.tahap <= tahap).map((log, li) => (
+                <div key={li} className={s.terminalBaris}>
+                  <span className={s.terminalWaktu}>[{log.waktu}]</span>
+                  <span className={s.terminalTeks}>{log.pesan}</span>
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* Grid Metrik Data Geometri & Hasil */}
-          <div className={s.gridMetrik} aria-label="Metrik teknis atap terdeteksi">
-            <div className={`${s.itemMetrik} ${s.metrikUtama}`}>
-              <span className={s.metrikLabel}>Kapasitas Modul PV</span>
-              <span className={s.metrikNilai}>
-                {kwp(spekAktif.kwp)} · {spekAktif.count} modul
-              </span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Luas Jejak OSM</span>
-              <span className={s.metrikNilai}>{m2(bangunan.footprint_m2)}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Luas Atap Tersegmentasi</span>
-              <span className={s.metrikNilai}>{m2(bangunan.roof_area_m2)}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Fraksi Obstruksi</span>
-              <span className={s.metrikNilai}>{persen(bangunan.obstruction_frac)}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Luas Bersih Siap Pasang</span>
-              <span className={s.metrikNilai}>{m2(bangunan.usable_area_m2)}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Sudut Kemiringan (Tilt)</span>
-              <span className={s.metrikNilai}>{bangunan.tilt_deg.toFixed(1)}°</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Arah Hadap (Azimut)</span>
-              <span className={s.metrikNilai}>{bangunan.arah_label}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Estimasi Energi Thn-1</span>
-              <span className={s.metrikNilai}>{kwh(spekAktif.e_ac_kwh_yr1)}</span>
-            </div>
-
-            <div className={s.itemMetrik}>
-              <span className={s.metrikLabel}>Estimasi Hemat Thn-1</span>
-              <span className={s.metrikNilai}>{rupiah(spekAktif.savings_idr_yr1)}</span>
-            </div>
-          </div>
-
-          {/* Terminal Log Inferensi Pipeline CV */}
-          <div className={s.terminalLog}>
-            <div
-              className={s.terminalBar}
-              onClick={() => setTampilTerminal((prev) => !prev)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && setTampilTerminal((prev) => !prev)}
-              aria-expanded={tampilTerminal}
-              aria-label="Alihkan tampilan terminal log pipeline CV"
-            >
-              <div className={s.terminalTitle}>
-                <div className={s.terminalTitik} />
-                <Terminal size={13} aria-hidden="true" />
-                <span>TERMINAL LOG INFERENSI CV</span>
-              </div>
-              {tampilTerminal ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </div>
-
-            {tampilTerminal ? (
-              <div className={s.terminalIsi} role="log" aria-live="polite">
-                {bangunan.cv_logs
-                  .filter((log) => log.tahap <= tahap)
-                  .map((log, li) => (
-                    <div key={li} className={s.terminalBaris}>
-                      <span className={s.terminalWaktu}>[{log.waktu}]</span>
-                      <span className={s.terminalTag}>[{log.sub}]</span>
-                      <span className={s.terminalTeks}>{log.pesan}</span>
-                    </div>
-                  ))}
-              </div>
-            ) : null}
-          </div>
-
-          {/* Tombol Tindakan Menuju Laporan Lengkap */}
-          <div className={s.aksiLaporan}>
-            <Link className={s.tombolBukaLaporan} href={`/atap/${bangunan.id}`}>
-              <span>Buka Hasil Perhitungan Lengkap</span>
-              <ExternalLink size={15} aria-hidden="true" />
-            </Link>
-            <p className={s.catatanBawah}>
-              Hasil pemindaian dapat diuji langsung dengan kalkulasi tarif, arus kas, dan emisi di L3–L5.
-            </p>
-          </div>
-
-          {/* Baris Panduan Pintasan Keyboard */}
-          <div className={s.barisPintasan} aria-label="Pintasan keyboard navigasi">
-            <span className={s.itemPintasan}>
-              <kbd className={s.kbd}>Spasi</kbd> Putar/Jeda
-            </span>
-            <span className={s.itemPintasan}>
-              <kbd className={s.kbd}>←</kbd> <kbd className={s.kbd}>→</kbd> Tahap
-            </span>
-            <span className={s.itemPintasan}>
-              <kbd className={s.kbd}>1–5</kbd> Lompat
-            </span>
-            <span className={s.itemPintasan}>
-              <kbd className={s.kbd}>R</kbd> Reset
-            </span>
-            {mode === "modal" ? (
-              <span className={s.itemPintasan}>
-                <kbd className={s.kbd}>Esc</kbd> Tutup
-              </span>
-            ) : null}
-          </div>
+          </details>
         </aside>
       </div>
     </div>
@@ -941,5 +745,5 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
     );
   }
 
-  return konten;
+  return mode === "halaman" ? <main>{konten}</main> : konten;
 }

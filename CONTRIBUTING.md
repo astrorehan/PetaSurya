@@ -40,6 +40,21 @@ uv run pytest
 - **Kejujuran hasil.** Payback di atas umur sistem ditulis "lebih dari 25 tahun", bukan angka. `irr` dan `payback_years` boleh `null`.
 - **Aksesibilitas.** Kontras ≥ 4,5:1 di kedua tema, diuji atas token. Semua kontrol bisa lewat keyboard. `prefers-reduced-motion` dihormati.
 
+## Aturan wajib UX dan teks
+
+**Tidak semua elemen perlu teks. Setiap teks yang terlihat wajib membantu tindakan, keputusan, atau pemahaman hasil.** Aturan ini berlaku untuk layar baru dan perubahan layar lama; contoh penerapannya ada di `/desain#prinsip`.
+
+- Tentukan satu pertanyaan utama pengguna. Jawaban atau aksi berikutnya harus terlihat tanpa membaca paragraf pembuka.
+- Hapus teks yang hanya mengulang judul, label, ikon yang sudah jelas, atau keadaan yang sudah terlihat. Jangan menambah subjudul, deskripsi, lencana, dan petunjuk pada setiap komponen secara otomatis.
+- Gunakan hierarki, jarak, pengelompokan, bentuk, dan keadaan kontrol sebelum menambah penjelasan. Ruang kosong boleh dibiarkan kosong.
+- Tampilkan rincian sekunder lewat pengungkapan bertahap: rincian sebaris, bagian lipat, atau lembar samping. Label isian, satuan, galat, keyakinan rendah, dan penanda data contoh tetap terlihat saat relevan.
+- Ikon tanpa teks terlihat hanya untuk aksi universal, seperti tutup, cari, menu, dan tema. Nama aksesibel tetap wajib; bantuan harus dapat diakses dengan fokus dan sentuhan bila diperlukan. `title` saja bukan pengganti label.
+- Aksi domain seperti “Pindai atap”, “Ubah asumsi”, dan “Hitung ulang” wajib berlabel terlihat. Jangan menukar paragraf berlebih dengan ikon yang harus ditebak.
+- Satu tujuan memakai satu kontrol yang jelas. Hindari tautan dan tombol berulang dengan tujuan sama dalam satu baris; maksimum satu tombol primer per konteks tugas.
+- Bahasa produk menyebut kebutuhan pengguna. ID data, versi mesin, istilah internal, dan rincian implementasi masuk ke rincian teknis; batas kemampuan tetap disampaikan singkat di dekat tindakan terkait.
+
+**Syarat lolos tinjauan:** coba hapus setiap teks sekunder. Jika tugas, makna, dan aksesibilitas tetap utuh, teks itu wajib dihapus. Periksa juga urutan fokus, target sentuh, keadaan kosong/galat, dan tampilan 375/1280 px pada kedua tema. Tampilan yang lebih ringkas tetapi lebih sulit digunakan tidak lolos.
+
 ## Pesan commit
 
 `<lapisan>: <apa yang berubah>` — contoh: `l3: transposisi POA lolos pvlib`, `web: kartu hasil`, `ui: token tema gelap`, `repo: CI pytest`.

@@ -1,4 +1,23 @@
-/* Enam prinsip sebagai tabel garis rambut, bukan kartu. */
+.aturanUtama {
+  padding-left: var(--sp-4);
+  border-left: var(--sp-1) solid var(--pri);
+}
+
+.pernyataan {
+  margin: 0;
+  max-width: 24ch;
+  font: var(--tipe-angka);
+  letter-spacing: var(--track-title);
+  color: var(--ink);
+}
+
+.ujian {
+  margin: var(--sp-2) 0 0;
+  font: var(--tipe-tubuh);
+  color: var(--ink-2);
+}
+
+/* Prinsip sebagai tabel garis rambut. */
 .prinsip {
   display: grid;
   margin: 0;

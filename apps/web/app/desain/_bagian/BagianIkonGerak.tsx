@@ -2,11 +2,13 @@ import {
   ChartColumn,
   Check,
   ChevronDown,
+  ChevronRight,
   CloudOff,
   Crosshair,
   ExternalLink,
   Layers,
   MapPin,
+  Menu,
   Moon,
   Pause,
   Play,
@@ -48,6 +50,8 @@ const IKON: { ikon: LucideIcon; nama: string; arti: string }[] = [
   { ikon: Check, nama: "Check", arti: "Sesuai, tahap selesai" },
   { ikon: X, nama: "X", arti: "Tutup lembar atau dialog" },
   { ikon: ChevronDown, nama: "ChevronDown", arti: "Buka rincian di tempat" },
+  { ikon: ChevronRight, nama: "ChevronRight", arti: "Buka hasil dari baris bangunan" },
+  { ikon: Menu, nama: "Menu", arti: "Buka navigasi di ponsel" },
   { ikon: Play, nama: "Play", arti: "Putar pemindaian" },
   { ikon: Pause, nama: "Pause", arti: "Jeda pemindaian" },
   { ikon: ExternalLink, nama: "ExternalLink", arti: "Buka sumber luar di tab baru" },
@@ -170,7 +174,7 @@ export function BagianIkonGerak() {
         butir={[
           "16 px sebaris teks dan di tombol berlabel; 20 px di tombol ikon dan di keadaan kosong atau galat. Tidak ada ukuran lain.",
           "Ikon mewarisi warna teks. Warna semantik hanya untuk ikon status, mis. segitiga peringatan --merah.",
-          "Ikon tanpa label hanya di tombol ikon, dan labelnya tetap dibaca pembaca layar.",
+          "Ikon saja untuk tutup, cari, menu, dan tema, dengan nama aksesibel. Aksi domain tetap berlabel terlihat.",
         ]}
       />
 

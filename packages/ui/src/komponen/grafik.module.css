@@ -69,7 +69,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: var(--_tinggi) auto;
-  column-gap: var(--sp-2);
+  column-gap: var(--sp-3);
   padding-top: var(--sp-4);
   transition: opacity var(--t-base) var(--ease-out);
 }
@@ -166,6 +166,20 @@
   line-height: 1;
   color: var(--ink-2);
   white-space: nowrap;
+  padding: 0 2px;
+  background: var(--surface);
+}
+
+/* Batang paling tepi: label rata ke sisi batang agar tidak keluar area plot. */
+.labelLangsung[data-tepi="kiri"] {
+  left: 0;
+  transform: none;
+}
+
+.labelLangsung[data-tepi="kanan"] {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 
 .tooltip {

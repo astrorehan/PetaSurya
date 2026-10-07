@@ -6,8 +6,8 @@ export default function MemuatAtap() {
       <div className={s.skeletonKepala}>
         <span className={s.skeletonLabel} />
         <span className={s.skeletonJudul} />
-        <span className={s.skeletonTeks} />
       </div>
+      <span className={s.skeletonHasil} />
       <div className={s.skeletonGrid}>
         <span className={s.skeletonPeta} />
         <span className={s.skeletonPanel} />

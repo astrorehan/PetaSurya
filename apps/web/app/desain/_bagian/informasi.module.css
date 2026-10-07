@@ -1,0 +1,99 @@
+.contoh {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.kepala {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.judul {
+  margin: 0;
+  max-width: 30ch;
+  font: var(--tipe-judul);
+  color: var(--ink);
+}
+
+.panggung {
+  display: grid;
+  gap: var(--sp-4) var(--sp-8);
+  align-items: center;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+@container (min-width: 640px) {
+  .panggung {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+
+.hasil {
+  display: grid;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.identitas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  font: var(--tipe-ui);
+}
+
+.balikModal,
+.penjelasan,
+.catatan,
+.rincian p {
+  margin: 0;
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+}
+
+.balikModal strong {
+  margin-left: var(--sp-2);
+  font: var(--tipe-data);
+  color: var(--ink);
+}
+
+.catatan {
+  max-width: 32ch;
+  padding-left: var(--sp-4);
+  border-left: 1px solid var(--line-2);
+}
+
+.rincian {
+  border-top: 1px solid var(--line);
+  font: var(--tipe-kecil);
+}
+
+.rincian summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--kontrol-h);
+  cursor: pointer;
+  color: var(--ink);
+  list-style: none;
+}
+
+.rincian summary::-webkit-details-marker {
+  display: none;
+}
+
+.rincian[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.rincian p {
+  margin: var(--sp-2) 0;
+}

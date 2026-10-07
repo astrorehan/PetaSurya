@@ -14,25 +14,13 @@
 
 .kepalaLembar {
   display: grid;
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-m);
-  background: var(--line-2);
-}
-
-@media (min-width: 900px) {
-  .kepalaLembar {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  }
+  gap: var(--sp-5);
 }
 
 .judulBlok {
   display: grid;
   align-content: start;
   gap: var(--sp-3);
-  padding: var(--sp-6) var(--sp-5) var(--sp-8);
-  background: var(--surface);
 }
 
 .kodeLembar {
@@ -51,10 +39,34 @@
 }
 
 .pengantar {
-  margin: var(--sp-2) 0 0;
+  margin: 0;
   max-width: var(--lebar-teks);
-  font: var(--tipe-prosa);
-  color: var(--ink);
+  font: var(--tipe-tubuh);
+  color: var(--ink-2);
+}
+
+.detailReferensi {
+  min-width: 0;
+}
+
+.detailReferensi summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: fit-content;
+  min-height: var(--kontrol-h);
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+  cursor: pointer;
+  list-style: none;
+}
+
+.detailReferensi summary::-webkit-details-marker {
+  display: none;
+}
+
+.detailReferensi[open] summary svg {
+  transform: rotate(180deg);
 }
 
 /* Sel blok judul: garis rambut dari celah 1 px di atas latar --line. */
@@ -62,7 +74,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
-  margin: 0;
+  margin: var(--sp-3) 0 0;
+  border: 1px solid var(--line);
   background: var(--line);
 }
 
@@ -97,30 +110,6 @@
   overflow-wrap: anywhere;
 }
 
-.merek {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-4);
-  background: var(--surface);
-  grid-column: 1 / -1;
-}
-
-.merekTeks {
-  display: grid;
-}
-
-.merekNama {
-  font: 700 var(--fs-l) / 1.2 var(--f-display);
-  letter-spacing: var(--track-title);
-  color: var(--ink);
-}
-
-.merekTagline {
-  font: italic 400 var(--fs-m) / 1.3 var(--f-prose);
-  color: var(--ink-2);
-}
-
 /* ---------- tata letak: daftar isi + isi ---------- */
 
 .tata {
@@ -152,7 +141,7 @@
   scroll-margin-top: calc(var(--header-h) + var(--sp-4));
 }
 
-/* Header ponsel masih dua baris sampai tata letak header baru diterapkan. */
+/* Header ponsel menyediakan satu baris pencarian terpisah. */
 @media (max-width: 900px) {
   .bagian {
     scroll-margin-top: 128px;

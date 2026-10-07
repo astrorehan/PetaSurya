@@ -1,48 +1,88 @@
 "use client";
 
 import Link from "next/link";
-import { Moon, Search, Sun } from "lucide-react";
-import { Logo } from "@petasurya/ui";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useRef } from "react";
+import { Menu, Moon, Search, Sun } from "lucide-react";
+import { Ikon, Logo, Tombol } from "@petasurya/ui";
 import { useTema } from "./Tema";
 import s from "./chrome.module.css";
+
+const NAVIGASI = [
+  { href: "/pindai", label: "Pindai atap" },
+  { href: "/metodologi", label: "Metodologi" },
+  { href: "/sumber-data", label: "Sumber data" },
+];
+
+function FormCari({ query = "" }: { query?: string }) {
+  return (
+    <form className={s.formCari} role="search" action="/" method="get">
+      <Ikon ikon={Search} />
+      <label className={s.srOnly} htmlFor="cari-alamat">Cari bangunan contoh</label>
+      <input key={query} id="cari-alamat" name="q" type="search" placeholder="Cari bangunan contoh" defaultValue={query} />
+    </form>
+  );
+}
+
+function CariBangunan() {
+  const params = useSearchParams();
+  return <FormCari query={params.get("q") ?? ""} />;
+}
 
 export function Header() {
   const { terpilih, setPilihan } = useTema();
   const gelap = terpilih === "dark";
   const tujuanTema = gelap ? "light" : "dark";
+  const pathname = usePathname();
+  const menuRef = useRef<HTMLDetailsElement>(null);
+
+  const tutupMenu = () => {
+    if (menuRef.current) menuRef.current.open = false;
+  };
 
   return (
     <header className={s.header}>
       <div className={s.headerDalam}>
-        <Link className={s.merek} href="/" aria-label="PetaSurya, beranda">
+        <Link className={s.merek} href="/" aria-label="PetaSurya, beranda" onClick={tutupMenu}>
           <Logo size={32} label="" />
           <span className={s.wordmark}>PetaSurya</span>
         </Link>
 
-        <form className={s.formCari} role="search" action="/" method="get">
-          <Search size={17} aria-hidden="true" />
-          <label className={s.srOnly} htmlFor="cari-alamat">
-            Cari alamat atau bangunan
-          </label>
-          <input id="cari-alamat" name="q" placeholder="Cari alamat atau bangunan" />
-        </form>
+        <Suspense fallback={<FormCari />}><CariBangunan /></Suspense>
 
         <nav className={s.nav} aria-label="Navigasi utama">
-          <Link href="/pindai">Pemindaian Atap</Link>
-          <Link href="/metodologi">Metodologi</Link>
-          <Link href="/sumber-data">Sumber data</Link>
+          {NAVIGASI.map(({ href, label }) => (
+            <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+          ))}
         </nav>
 
-        <button
+        <details
+          ref={menuRef}
+          className={s.menu}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && menuRef.current?.open) {
+              tutupMenu();
+              menuRef.current.querySelector("summary")?.focus();
+            }
+          }}
+        >
+          <summary aria-label="Menu utama" title="Menu utama"><Ikon ikon={Menu} ukuran={20} /></summary>
+          <nav className={s.menuIsi} aria-label="Navigasi ponsel">
+            {NAVIGASI.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={tutupMenu} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+            ))}
+          </nav>
+        </details>
+
+        <Tombol
           className={s.tombolTema}
-          type="button"
+          ikon={gelap ? Sun : Moon}
+          hanyaIkon
           onClick={() => setPilihan(tujuanTema)}
-          aria-label={`Gunakan tema ${gelap ? "terang" : "gelap"}`}
           title={`Tema ${gelap ? "terang" : "gelap"}`}
         >
-          {gelap ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
-          <span className={s.tombolTemaTeks}>{gelap ? "Terang" : "Gelap"}</span>
-        </button>
+          {`Gunakan tema ${gelap ? "terang" : "gelap"}`}
+        </Tombol>
       </div>
     </header>
   );

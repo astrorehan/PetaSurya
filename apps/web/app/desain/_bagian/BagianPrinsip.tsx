@@ -1,31 +1,32 @@
 import { Bagian } from "./Lembar";
+import { DemoInformasi } from "./DemoInformasi";
 import s from "./prinsip.module.css";
 
 /* Urutan = prioritas: bila dua prinsip bertabrakan, yang lebih atas menang. */
 const PRINSIP = [
   {
-    judul: "Angka lebih dulu",
-    isi: "Hemat per tahun dan balik modal terbaca tanpa menggulir. Peta memberi konteks, bukan jawaban.",
+    judul: "Jawaban lebih dulu",
+    isi: "Hasil atau aksi berikutnya terlihat tanpa paragraf pembuka.",
+  },
+  {
+    judul: "Teks punya tugas",
+    isi: "Hapus kalimat yang tidak membantu tindakan, keputusan, atau pemahaman hasil.",
+  },
+  {
+    judul: "Rincian saat diperlukan",
+    isi: "Rumus dan sumber bisa dibuka. Satuan, galat, dan penanda contoh tetap terlihat.",
+  },
+  {
+    judul: "Ikon yang dipahami",
+    isi: "Tutup, cari, menu, tema boleh berupa ikon. Aksi domain tetap berlabel.",
   },
   {
     judul: "Jujur soal batas",
-    isi: "Balik modal di atas umur sistem ditulis dengan kata. Keyakinan rendah mewarnai seluruh panel.",
+    isi: "Data contoh dan keyakinan rendah harus dikenali sebelum pengguna mengambil keputusan.",
   },
   {
-    judul: "Setiap angka bisa ditelusuri",
-    isi: "Satuan selalu tampil. Presisi penuh saat disorot, rumus dan sumbernya satu ketukan.",
-  },
-  {
-    judul: "Instrumen ukur, bukan brosur",
-    isi: "Rapat, rata kiri, garis tipis. Padding 12–16 px; ruang kosong harus punya tugas.",
-  },
-  {
-    judul: "Dua aksen, satu arti",
-    isi: "Surya untuk energi, daun untuk uang dan CO₂. Pri hanya aksi, merah hanya peringatan.",
-  },
-  {
-    judul: "Tenang saat berubah",
-    isi: "Angka lama meredup saat dihitung ulang. Gerak hanya untuk sentuhan, keadaan, dan peta.",
+    judul: "Ruang untuk memahami",
+    isi: "Kelompokkan dengan jarak dan hierarki. Ruang kosong tidak harus diisi teks.",
   },
 ] as const;
 
@@ -34,9 +35,12 @@ export function BagianPrinsip() {
     <Bagian
       id="prinsip"
       nomor="01"
-      judul="Prinsip"
-      aturan="Enam aturan yang memutus perdebatan desain. Kalau dua aturan bertabrakan, yang lebih atas menang."
+      judul="Prinsip & UX"
     >
+      <div className={s.aturanUtama}>
+        <p className={s.pernyataan}>Tidak semua elemen perlu teks.</p>
+        <p className={s.ujian}>Jika dihapus dan pengguna tetap paham, hapus.</p>
+      </div>
       <ol className={s.prinsip}>
         {PRINSIP.map((p, i) => (
           <li key={p.judul} className={s.butir}>
@@ -46,6 +50,7 @@ export function BagianPrinsip() {
           </li>
         ))}
       </ol>
+      <DemoInformasi />
     </Bagian>
   );
 }

@@ -51,7 +51,7 @@ export function BagianKontrol() {
       <Pelat
         nomor="8.1"
         judul="Tombol, enam keadaan"
-        keterangan="Label wajib di semua tombol. Pada tombol ikon, label disembunyikan secara visual dan tetap dibaca pembaca layar."
+        keterangan="Nama aksesibel selalu wajib. Label terlihat untuk aksi domain; ikon saja untuk tutup, cari, menu, dan tema."
         gulir
       >
         <div className={k.matriks} inert>

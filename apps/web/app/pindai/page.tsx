@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { PemindaiAtap } from "../../components/PemindaiAtap";
 
 export const metadata: Metadata = {
-  title: "Demo Pemindaian Atap · PetaSurya",
+  title: "Pindai atap",
   description:
-    "Demonstrasi visual pipeline Computer Vision L2 untuk segmentasi kontur atap, penapisan obstruksi, dan penataan modul fotovoltaik surya.",
+    "Demo visual batas atap, penghalang, dan susunan panel surya pada bangunan contoh.",
 };
 
 export default async function HalamanPindai({

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Lencana, Logo, TAGLINE } from "@petasurya/ui";
+import { ChevronDown } from "lucide-react";
+import { Ikon, Lencana } from "@petasurya/ui";
 import { BagianAngka } from "./_bagian/BagianAngka";
 import { BagianBentuk } from "./_bagian/BagianBentuk";
 import { BagianHuruf } from "./_bagian/BagianHuruf";
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 const ISI: readonly ButirIsi[] = [
-  { id: "prinsip", nomor: "01", judul: "Prinsip" },
+  { id: "prinsip", nomor: "01", judul: "Prinsip & UX" },
   { id: "warna", nomor: "02", judul: "Warna" },
   { id: "huruf", nomor: "03", judul: "Huruf" },
   { id: "angka", nomor: "04", judul: "Angka" },
@@ -34,53 +35,48 @@ export default function ReferensiDesain() {
     <main className={s.lembar}>
       <header className={s.kepalaLembar}>
         <div className={s.judulBlok}>
-          <p className={s.kodeLembar}>PS-RD-01 · Lembar referensi</p>
+          <p className={s.kodeLembar}>PetaSurya · Sistem desain</p>
           <h1 className={s.judulLembar}>Referensi desain</h1>
           <p className={s.pengantar}>
-            Satu lembar yang dirujuk setiap layar PetaSurya. Token, komponen, dan aturan angka di sini dirender dari
-            kode yang sama dengan produk. Kalau layar berbeda dari lembar ini, layarnya yang diperbaiki.
+            Aturan dan komponen untuk antarmuka yang jelas, ringkas, dan mudah digunakan.
           </p>
         </div>
-        <dl className={s.blokJudul}>
-          <div className={s.merek}>
-            <Logo size={40} label="" />
-            <span className={s.merekTeks}>
-              <span className={s.merekNama}>PetaSurya</span>
-              <span className={s.merekTagline}>{TAGLINE}</span>
-            </span>
-          </div>
-          <div className={s.sel}>
-            <dt>No. lembar</dt>
-            <dd className="num">PS-RD-01</dd>
-          </div>
-          <div className={s.sel}>
-            <dt>Revisi</dt>
-            <dd>A · 25 September 2026</dd>
-          </div>
-          <div className={s.sel} data-lebar="">
-            <dt>Berlaku untuk</dt>
-            <dd>6 rute · 2 tema · 360–1.440 px</dd>
-          </div>
-          <div className={s.sel} data-lebar="">
-            <dt>Data contoh</dt>
-            <dd>
-              {toko.bangunan.nama}, <Kode>{toko.bangunan.source_ref}</Kode>
-              <Lencana contoh>Contoh</Lencana>
-            </dd>
-          </div>
-          <div className={s.sel}>
-            <dt>Token</dt>
-            <dd>
-              <Kode>packages/ui/src/tokens.css</Kode>
-            </dd>
-          </div>
-          <div className={s.sel}>
-            <dt>Komponen</dt>
-            <dd>
-              <Kode>packages/ui/src/komponen</Kode>
-            </dd>
-          </div>
-        </dl>
+        <details className={s.detailReferensi}>
+          <summary>Detail referensi <Ikon ikon={ChevronDown} /></summary>
+          <dl className={s.blokJudul}>
+            <div className={s.sel}>
+              <dt>No. lembar</dt>
+              <dd className="num">PS-RD-01</dd>
+            </div>
+            <div className={s.sel}>
+              <dt>Revisi</dt>
+              <dd>B · 30 September 2026</dd>
+            </div>
+            <div className={s.sel} data-lebar="">
+              <dt>Berlaku untuk</dt>
+              <dd>Seluruh antarmuka · 2 tema · 360–1.440 px</dd>
+            </div>
+            <div className={s.sel} data-lebar="">
+              <dt>Data contoh</dt>
+              <dd>
+                {toko.bangunan.nama}, <Kode>{toko.bangunan.source_ref}</Kode>
+                <Lencana contoh>Contoh</Lencana>
+              </dd>
+            </div>
+            <div className={s.sel}>
+              <dt>Token</dt>
+              <dd>
+                <Kode>packages/ui/src/tokens.css</Kode>
+              </dd>
+            </div>
+            <div className={s.sel}>
+              <dt>Komponen</dt>
+              <dd>
+                <Kode>packages/ui/src/komponen</Kode>
+              </dd>
+            </div>
+          </dl>
+        </details>
       </header>
 
       <div className={s.tata}>

@@ -164,7 +164,11 @@ export function GrafikBulanan({
                 >
                   <span className={s.batang} style={{ height: `${tinggi * 100}%` }}>
                     {tandai && (
-                      <span className={s.labelLangsung} aria-hidden="true">
+                      <span
+                        className={s.labelLangsung}
+                        aria-hidden="true"
+                        data-tepi={i === 0 ? "kiri" : i === data.length - 1 ? "kanan" : undefined}
+                      >
                         {angka(v)}
                       </span>
                     )}

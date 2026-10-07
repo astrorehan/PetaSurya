@@ -299,10 +299,7 @@ export function Peta({
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
     map.addControl(
-      new maplibregl.AttributionControl({
-        compact: true,
-        customAttribution: "OpenFreeMap © OpenMapTiles © OpenStreetMap",
-      }),
+      new maplibregl.AttributionControl({ compact: true }),
       "bottom-right",
     );
 
@@ -350,6 +347,8 @@ export function Peta({
       const canvas = map.getCanvas();
       canvas.tabIndex = 0;
       canvas.setAttribute("aria-label", `${label}. Gunakan tombol panah untuk menggeser peta.`);
+      // Atribusi ringkas terbuka saat muat; tutup agar tidak menutupi peta. Tombol (i) tetap membukanya.
+      container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
       siapGaya();
     });
 
@@ -378,7 +377,7 @@ export function Peta({
   }, [satelit]);
 
   const kelas = [s.peta, className].filter(Boolean).join(" ");
-  const gaya: CSSProperties = { height: `${tinggi}px` };
+  const gaya: CSSProperties = { height: `var(--tinggi-peta, ${tinggi}px)` };
 
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
@@ -410,10 +409,6 @@ export function Peta({
       <div className={s.watermark} aria-hidden="true">
         <Logo size={48} mono label="" />
       </div>
-      <figcaption className={s.keterangan}>
-        <span>{satelit ? "Citra satelit · Esri World Imagery" : "Peta jalan · OpenFreeMap"}</span>
-        <span>OpenStreetMap</span>
-      </figcaption>
     </figure>
   );
 }
