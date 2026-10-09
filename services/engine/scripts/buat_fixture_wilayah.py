@@ -72,7 +72,9 @@ def sambung_way(ways: list[dict[str, Any]]) -> list[list[list[float]]]:
     return cincin
 
 
-def anggota_dengan_geometri(relasi: dict[str, Any], tambahan: dict[int, dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+def anggota_dengan_geometri(
+    relasi: dict[str, Any], tambahan: dict[int, dict[str, Any]] | None = None
+) -> list[dict[str, Any]]:
     tambahan = tambahan or {}
     return [
         {**anggota, "geometry": tambahan[anggota["ref"]]["geometry"]}
@@ -89,7 +91,10 @@ def feature(relasi: dict[str, Any], ways: list[dict[str, Any]]) -> dict[str, Any
     if len(rings) == 1:
         geometry: dict[str, Any] = {"type": "Polygon", "coordinates": [rings[0]]}
     else:
-        geometry = {"type": "MultiPolygon", "coordinates": [[[point for point in ring]] for ring in rings]}
+        geometry = {
+            "type": "MultiPolygon",
+            "coordinates": [[[point for point in ring]] for ring in rings],
+        }
     return {
         "type": "Feature",
         "properties": {
@@ -111,7 +116,12 @@ def main() -> None:
     kota_raw = baca("kota-bengkulu.overpass.json")
     kota_relasi = next(item for item in kota_raw["elements"] if item.get("id") == ID_KOTA)
     (DIR_FIXTURE / "kota-bengkulu.geojson").write_text(
-        json.dumps(koleksi([feature(kota_relasi, anggota_dengan_geometri(kota_relasi))]), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(
+            koleksi([feature(kota_relasi, anggota_dengan_geometri(kota_relasi))]),
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
         encoding="utf-8",
     )
 
@@ -126,7 +136,12 @@ def main() -> None:
         fitur_kecamatan.append(feature(relasi, anggota_dengan_geometri(relasi, tambahan)))
 
     (DIR_FIXTURE / "kecamatan-kota-bengkulu.geojson").write_text(
-        json.dumps(koleksi(sorted(fitur_kecamatan, key=lambda item: item["properties"]["nama"])), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(
+            koleksi(sorted(fitur_kecamatan, key=lambda item: item["properties"]["nama"])),
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
         encoding="utf-8",
     )
 
