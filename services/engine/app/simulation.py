@@ -7,7 +7,6 @@ import uuid
 from functools import lru_cache
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pvlib
 from pydantic import BaseModel, ConfigDict, Field
@@ -22,10 +21,13 @@ from app.carbon import (
 from app.contracts import (
     AnalisisAtap,
     AsumsiSimulasi,
+    DerateSimulasi,
     HasilSimulasi,
     JejakDerate,
     JejakRumus,
     JejakSimulasi,
+    ModulSimulasi,
+    ParameterFisika,
 )
 from app.economics import (
     VERSION as ECONOMICS_VERSION,
@@ -37,7 +39,8 @@ from app.physics import (
     VERSION as PHYSICS_VERSION,
 )
 from app.physics import (
-    daya_dc,
+    daya_ac_noct,
+    derate_berurutan,
     hitung_poa,
 )
 
@@ -46,16 +49,25 @@ DIR_ANALISIS = DIR_ROOT / "data" / "fixtures" / "analisis"
 BERKAS_CUACA = DIR_ROOT / "data" / "fixtures" / "cuaca" / "mentah" / "nasa-power-bengkulu-2024.json"
 
 
-class ModulInput(BaseModel):
-    """Spesifikasi modul fotovoltaik."""
+class ModulInput(ModulSimulasi):
+    """Spesifikasi modul eksplisit tanpa nilai produksi bawaan."""
 
     model_config = ConfigDict(allow_inf_nan=False)
 
-    wp: float = Field(550.0, gt=0.0, description="Daya puncak modul, Wp")
-    panjang_m: float = Field(2.278, gt=0.0, description="Panjang modul, meter")
-    lebar_m: float = Field(1.134, gt=0.0, description="Lebar modul, meter")
-    gamma_p: float = Field(-0.0035, le=0.0, description="Koefisien suhu daya, 1/°C")
-    t_noct: float = Field(45.0, gt=0.0, description="Nominal Operating Cell Temperature, °C")
+
+class DerateInput(DerateSimulasi):
+    """Rugi operasional dan efisiensi inverter yang dikirim pemanggil."""
+
+    model_config = ConfigDict(allow_inf_nan=False)
+
+
+class ParameterFisikaInput(ParameterFisika):
+    """Parameter fisika wajib tanpa default modul atau rugi tersembunyi."""
+
+    model_config = ConfigDict(allow_inf_nan=False)
+
+    modul: ModulInput
+    derate: DerateInput
 
 
 class AsumsiPermintaanSimulasi(AsumsiSimulasi):
@@ -73,7 +85,7 @@ class PermintaanSimulasi(BaseModel):
 
     roof_analysis_id: int = Field(..., gt=0)
     asumsi: AsumsiPermintaanSimulasi
-    modul: ModulInput | None = None
+    parameter_fisika: ParameterFisikaInput
     usable_area_m2: float | None = Field(None, ge=0.0, description="Luas atap layak, m²")
     tilt_deg: float | None = Field(None, ge=0.0, le=90.0, description="Kemiringan atap, °")
     azimuth_deg: float | None = Field(None, ge=0.0, le=360.0, description="Azimut dari utara, °")
@@ -142,7 +154,9 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
             f"Analisis atap id {permintaan.roof_analysis_id} tidak ditemukan."
         )
 
-    modul = permintaan.modul or ModulInput()
+    parameter = permintaan.parameter_fisika
+    modul = parameter.modul
+    rugi = parameter.derate
     luas_modul = modul.panjang_m * modul.lebar_m
     module_count = int(usable_area / luas_modul)
 
@@ -168,19 +182,24 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
         solar_azimuth=posisi["azimuth"],
         tilt=tilt,
         azimuth=azimuth,
-        albedo=0.2,
+        albedo=parameter.albedo,
     )
 
-    param_suhu = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS["sapm"]["open_rack_glass_glass"]
-    suhu_sel = pvlib.temperature.sapm_cell(
-        poa_global=poa.total,
-        temp_air=cuaca["temp_air"],
-        wind_speed=cuaca["wind_speed"],
-        **param_suhu,
+    faktor = {
+        "kotoran": 1 - rugi.kotoran,
+        "mismatch": 1 - rugi.mismatch,
+        "kabel_dc": 1 - rugi.kabel_dc,
+        "efisiensi_inverter": rugi.inverter,
+        "ketersediaan": 1 - rugi.ketersediaan,
+    }
+    pac = daya_ac_noct(
+        poa.total,
+        cuaca["temp_air"],
+        kwp=kwp,
+        gamma_pdc=modul.gamma_p,
+        t_noct_c=modul.t_noct,
+        **faktor,
     )
-
-    pdc = daya_dc(poa.total, suhu_sel, kwp=kwp, gamma_pdc=modul.gamma_p)
-    pac = pvlib.inverter.pvwatts(pdc=pdc, pdc0=kwp * 1000.0)
 
     pac_series = pd.Series(pac, index=cuaca.index).fillna(0).clip(lower=0) / 1000.0
     monthly_kwh = [
@@ -191,7 +210,7 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
     poa_kwh_m2_yr = round(
         float(pd.Series(poa.total, index=cuaca.index).fillna(0).sum() / 1000.0), 1
     )
-    pr = round(e_ac_kwh_yr1 / (poa_kwh_m2_yr * kwp), 3) if (poa_kwh_m2_yr * kwp) > 0 else 0.808
+    pr = round(e_ac_kwh_yr1 / (poa_kwh_m2_yr * kwp), 3) if (poa_kwh_m2_yr * kwp) > 0 else 0.0
 
     # L4: Ekonomi
     asumsi = permintaan.asumsi
@@ -225,20 +244,16 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
 
     jejak = JejakSimulasi(
         poa=JejakRumus(
-            rumus="POA = DNI·cos(AOI) + POA_dif + POA_tanah",
-            sumber="Perez (1990) & Hay-Davies (pvlib)",
+            rumus="POA = DNI·max(cos(AOI), 0) + POA_baur + POA_tanah",
+            sumber="Hay-Davies (pvlib.irradiance.haydavies); cuaca NASA POWER Bengkulu 2024",
         ),
         suhu_sel=JejakRumus(
-            rumus="T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8",
-            sumber="IEC 61215 & Sandia SAPM",
+            rumus=f"T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = {modul.t_noct:g} °C",
+            sumber="Model NOCT, cetak biru §05; NOCT dikirim sebagai parameter modul",
         ),
         derate=JejakDerate(
-            kotoran=0.03,
-            mismatch=0.02,
-            kabel_dc=0.02,
-            inverter=0.965,
-            ketersediaan=0.02,
-            gabungan=float(np.clip(pr, 0.0, 1.0)),
+            **rugi.model_dump(),
+            gabungan=float(derate_berurutan(1.0, **faktor)),
         ),
     )
 
@@ -264,4 +279,5 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
         monthly_kwh=monthly_kwh,
         asumsi=asumsi,
         jejak=jejak,
+        parameter_fisika=parameter,
     )

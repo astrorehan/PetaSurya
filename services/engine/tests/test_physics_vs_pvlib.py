@@ -56,20 +56,31 @@ def test_deviasi_di_bawah_2_persen(
         kwp=5.0,
         albedo=0.2,
         gamma_pdc=-0.0035,
+        t_noct_c=45.0,
+        kotoran=0.97,
+        mismatch=0.98,
+        kabel_dc=0.98,
+        efisiensi_inverter=0.965,
+        ketersediaan=0.98,
     )
     lokasi = pvlib.location.Location(lat, lon, tz="Asia/Jakarta")
-    sistem = pvlib.pvsystem.PVSystem(
+    posisi = lokasi.get_solarposition(cuaca_tmy.index)
+    poa = pvlib.irradiance.get_total_irradiance(
         surface_tilt=tilt,
         surface_azimuth=azim,
-        module_parameters={"pdc0": 5000, "gamma_pdc": -0.0035},
-        inverter_parameters={"pdc0": 5000},
-        temperature_model_parameters=pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS["sapm"][
-            "open_rack_glass_glass"
-        ],
+        solar_zenith=posisi["apparent_zenith"],
+        solar_azimuth=posisi["azimuth"],
+        dni=cuaca_tmy["dni"],
+        ghi=cuaca_tmy["ghi"],
+        dhi=cuaca_tmy["dhi"],
+        dni_extra=pvlib.irradiance.get_extra_radiation(cuaca_tmy.index),
+        albedo=0.2,
+        model="haydavies",
     )
-    mc = pvlib.modelchain.ModelChain(sistem, lokasi, aoi_model="physical", spectral_model="no_loss")
-    mc.run_model(cuaca_tmy)
-    acuan = mc.results.ac.sum() / 1000
+    # Model NOCT sederhana sesuai spesifikasi, dengan asumsi yang sama seperti API.
+    suhu = cuaca_tmy["temp_air"] + poa["poa_global"] * (45.0 - 20.0) / 800.0
+    pdc = pvlib.pvsystem.pvwatts_dc(poa["poa_global"], suhu, pdc0=5000, gamma_pdc=-0.0035)
+    acuan = pdc.fillna(0).clip(lower=0).sum() * 0.97 * 0.98 * 0.98 * 0.965 * 0.98 / 1000
     deviasi = abs(kita - acuan) / acuan
     assert deviasi < 0.02, (
         f"L3 {VERSION} menyimpang {deviasi:.1%} dari pvlib "

@@ -1,6 +1,7 @@
 """Pengujian endpoint POST /api/v1/simulate terintegrasi L3-L5."""
 
 import json
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -9,6 +10,11 @@ from app.contracts import GalatApi, HasilSimulasi, KodeGalat
 from app.main import app
 
 client = TestClient(app)
+PARAMETER_CONTOH = json.loads(
+    (Path(__file__).resolve().parents[3] / "data/fixtures/parameter/fisika-contoh.json").read_text(
+        encoding="utf-8"
+    )
+)
 
 
 @pytest.fixture
@@ -16,6 +22,7 @@ def payload_simulasi():
     """Asumsi contoh pengujian, bukan nilai produksi terverifikasi."""
     return {
         "roof_analysis_id": 9912,
+        "parameter_fisika": json.loads(json.dumps(PARAMETER_CONTOH)),
         "asumsi": {
             "golongan_tarif": "R-1/TR",
             "daya_va": 2200,
@@ -41,11 +48,14 @@ def payload_simulasi():
         (("azimuth_deg",), -1),
         (("azimuth_deg",), 361),
         (("azimuth_deg",), "Infinity"),
-        (("modul", "wp"), "Infinity"),
-        (("modul", "panjang_m"), "Infinity"),
-        (("modul", "lebar_m"), "NaN"),
-        (("modul", "gamma_p"), "-Infinity"),
-        (("modul", "t_noct"), "Infinity"),
+        (("parameter_fisika", "modul", "wp"), "Infinity"),
+        (("parameter_fisika", "modul", "panjang_m"), "Infinity"),
+        (("parameter_fisika", "modul", "lebar_m"), "NaN"),
+        (("parameter_fisika", "modul", "gamma_p"), "-Infinity"),
+        (("parameter_fisika", "modul", "t_noct"), "Infinity"),
+        (("parameter_fisika", "albedo"), "Infinity"),
+        (("parameter_fisika", "derate", "kotoran"), -1),
+        (("parameter_fisika", "derate", "inverter"), 1.1),
         (("asumsi", "tarif_rp_kwh"), "Infinity"),
         (("asumsi", "biaya_per_kwp"), "Infinity"),
         (("asumsi", "ef_grid_tco2_mwh"), "Infinity"),
@@ -114,6 +124,7 @@ def test_simulate_toko_berhasil():
     """Uji simulasi sukses untuk bangunan toko WR Supratman (id 9912)."""
     payload = {
         "roof_analysis_id": 9912,
+        "parameter_fisika": PARAMETER_CONTOH,
         "asumsi": {
             "golongan_tarif": "B-1/TR",
             "daya_va": 5500,
@@ -126,12 +137,6 @@ def test_simulate_toko_berhasil():
             "umur_tahun": 25,
             "ef_grid_tco2_mwh": 0.76,
             "faktor_ekspor": 0.0,
-        },
-        "modul": {
-            "wp": 550.0,
-            "panjang_m": 2.278,
-            "lebar_m": 1.134,
-            "gamma_p": -0.0035,
         },
     }
 
@@ -161,7 +166,7 @@ def test_simulate_toko_berhasil():
     # Jejak rumus wajib ada
     assert hasil.jejak is not None
     assert "Perez" in hasil.jejak.poa.sumber or "Hay-Davies" in hasil.jejak.poa.sumber
-    assert "IEC 61215" in hasil.jejak.suhu_sel.sumber
+    assert "NOCT" in hasil.jejak.suhu_sel.sumber
 
     # Versi gabungan mesin
     assert "l3." in hasil.engine_version
@@ -173,6 +178,7 @@ def test_simulate_atap_tidak_ditemukan():
     """Uji penanganan galat jika roof_analysis_id tidak terdaftar."""
     payload = {
         "roof_analysis_id": 999999,
+        "parameter_fisika": PARAMETER_CONTOH,
         "asumsi": {
             "golongan_tarif": "R-1/TR",
             "daya_va": 2200,
@@ -194,6 +200,7 @@ def test_simulate_atap_terlalu_sempit():
     payload = {
         "roof_analysis_id": 9912,
         "usable_area_m2": 0.5,  # Terlalu kecil untuk panel 2.58 m²
+        "parameter_fisika": PARAMETER_CONTOH,
         "asumsi": {
             "golongan_tarif": "R-1/TR",
             "daya_va": 2200,

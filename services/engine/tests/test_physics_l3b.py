@@ -31,4 +31,4 @@ def test_derate_berurutan_mengalikan_semua_faktor() -> None:
 
 
 def test_version_l3_naik_dari_transposisi() -> None:
-    assert VERSION == "l3.2026.09.21"
+    assert VERSION == "l3.2026.10.09"

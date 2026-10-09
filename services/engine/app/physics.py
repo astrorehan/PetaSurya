@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pvlib
 
-VERSION = "l3.2026.09.21"
+VERSION = "l3.2026.10.09"
 
 
 @dataclass(frozen=True)
@@ -191,14 +191,21 @@ def energi_tahunan(
     kwp: float,
     albedo: float,
     gamma_pdc: float,
+    t_noct_c: float,
+    kotoran: float,
+    mismatch: float,
+    kabel_dc: float,
+    efisiensi_inverter: float,
+    ketersediaan: float,
 ) -> float:
     """Hitung energi AC tahunan dari cuaca hourly.
 
-    POA dihitung dari transposisi di atas, suhu sel memakai parameter SAPM
-    ``open_rack_glass_glass`` pvlib, daya DC memakai ``pvwatts_dc``, dan daya
-    AC memakai ``inverter.pvwatts``. Masukan cuaca wajib memiliki kolom
-    ``ghi``, ``dni``, ``dhi`` (W/m²), ``temp_air`` (°C), dan ``wind_speed``
-    (m/s) dengan indeks waktu berzona. Keluaran adalah kWh/tahun. Sumber
+    POA dihitung dari transposisi di atas, suhu sel memakai NOCT, daya DC
+    memakai ``pvwatts_dc``, dan daya AC memakai rantai derate eksplisit.
+    Faktor kotoran, mismatch, kabel dan ketersediaan adalah fraksi daya
+    tersisa; efisiensi inverter dikalikan sekali. Masukan cuaca wajib
+    memiliki kolom ``ghi``, ``dni``, ``dhi`` (W/m²) dan ``temp_air`` (°C)
+    dengan indeks waktu berzona. Keluaran adalah kWh/tahun. Sumber
     persamaan dan parameter pembanding: cetak biru PetaSurya §05 dan pvlib.
 
     Nilai ``albedo`` dan ``gamma_pdc`` wajib diberikan oleh pemanggil; belum
@@ -208,7 +215,7 @@ def energi_tahunan(
 
     if kwp <= 0:
         raise ValueError("kwp harus lebih besar dari nol")
-    kolom_wajib = {"ghi", "dni", "dhi", "temp_air", "wind_speed"}
+    kolom_wajib = {"ghi", "dni", "dhi", "temp_air"}
     kurang = kolom_wajib.difference(cuaca_tmy.columns)
     if kurang:
         raise ValueError(f"kolom cuaca kurang: {', '.join(sorted(kurang))}")
@@ -229,13 +236,49 @@ def energi_tahunan(
         azimuth=azimuth,
         albedo=albedo,
     )
-    parameter_suhu = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS["sapm"]["open_rack_glass_glass"]
-    suhu_sel = pvlib.temperature.sapm_cell(
-        poa_global=poa.total,
-        temp_air=cuaca_tmy["temp_air"],
-        wind_speed=cuaca_tmy["wind_speed"],
-        **parameter_suhu,
+    pac = daya_ac_noct(
+        poa.total,
+        cuaca_tmy["temp_air"],
+        kwp=kwp,
+        gamma_pdc=gamma_pdc,
+        t_noct_c=t_noct_c,
+        kotoran=kotoran,
+        mismatch=mismatch,
+        kabel_dc=kabel_dc,
+        efisiensi_inverter=efisiensi_inverter,
+        ketersediaan=ketersediaan,
     )
-    pdc = daya_dc(poa.total, suhu_sel, kwp=kwp, gamma_pdc=gamma_pdc)
-    pac = pvlib.inverter.pvwatts(pdc=pdc, pdc0=kwp * 1000.0)
     return float(pd.Series(pac, index=cuaca_tmy.index).fillna(0).sum() / 1000.0)
+
+
+def daya_ac_noct(
+    poa_wm2: Any,
+    temp_air_c: Any,
+    *,
+    kwp: float,
+    gamma_pdc: float,
+    t_noct_c: float,
+    kotoran: float,
+    mismatch: float,
+    kabel_dc: float,
+    efisiensi_inverter: float,
+    ketersediaan: float,
+) -> Any:
+    """Hitung daya AC (W) dari POA (W/m²), suhu (°C), NOCT dan derate.
+
+    Rantai ``NOCT → PVWatts DC → derate_berurutan`` mengikuti cetak biru
+    §05 butir 2–3. Semua faktor derate adalah fraksi daya tersisa 0–1,
+    bukan fraksi rugi. Parameter modul dan faktor wajib diberikan.
+    Model inverter memakai efisiensi konstan, tanpa kurva atau clipping;
+    efisiensi tidak dihitung lagi oleh model inverter lain.
+    """
+    suhu_sel = suhu_sel_noct(poa_wm2, temp_air_c, t_noct_c=t_noct_c)
+    pdc = daya_dc(poa_wm2, suhu_sel, kwp=kwp, gamma_pdc=gamma_pdc)
+    return derate_berurutan(
+        _non_negative(pdc),
+        kotoran=kotoran,
+        mismatch=mismatch,
+        kabel_dc=kabel_dc,
+        efisiensi_inverter=efisiensi_inverter,
+        ketersediaan=ketersediaan,
+    )
