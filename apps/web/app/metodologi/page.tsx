@@ -4,10 +4,11 @@ export const metadata = { title: "Metodologi" };
 
 const RUMUS_L3 = [
   "POA = POA_langsung + POA_baur + POA_pantul_tanah",
-  "POA_langsung = DNI × cos(AOI)",
-  "POA_baur = model Perez",
+  "POA_langsung = DNI × max(cos(AOI), 0)",
+  "POA_baur = model Hay-Davies",
   "T_sel = T_amb + (POA / 1000) × (T_NOCT − 20) / 0,8",
-  "E_AC(n) = Σ P_AC × (1 − degradasi)^(n−1)",
+  "P_AC = P_DC × (1−kotoran) × (1−mismatch) × (1−kabel_DC) × η_inverter × (1−ketersediaan)",
+  "E_AC(n) = Σ_jam P_AC / 1.000 × (1 − degradasi)^(n−1)",
 ].join("\n");
 const RUMUS_L4 = [
   "CAPEX = kWp × biaya_per_kWp",
@@ -43,7 +44,7 @@ export default function Metodologi() {
         <article className={s.rumusKartu}>
           <p className={s.label}>L3 · FISIKA</p>
           <h2>Energi AC dari matahari.</h2>
-          <p className={s.prosa}>Masukan L3 adalah iradiansi bulanan, geometri atap, kemiringan, dan azimut. Rantai ini deterministik: tidak ada AI di dalamnya.</p>
+          <p className={s.prosa}>Masukan L3 adalah cuaca per jam, geometri atap, spesifikasi modul, dan faktor rugi. Inverter memakai efisiensi konstan.</p>
           <pre className={s.blokRumus}><code>{RUMUS_L3}</code></pre>
           <p className={s.rujukan}>Rujukan: cetak biru §05 · uji pembanding terhadap pvlib, toleransi deviasi energi &lt; 2%.</p>
         </article>

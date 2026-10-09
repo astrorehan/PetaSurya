@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState, type ChangeEvent } from "react";
 import type { AnalisisAtap, BangunanRingkas, HasilSimulasi } from "@petasurya/contracts";
+import { ParameterFisika } from "@petasurya/contracts";
 import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, Tombol, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
 import { ChevronDown, Crosshair, Sigma, TriangleAlert } from "lucide-react";
 import { Peta } from "./Peta";
 import { PemindaiAtap } from "./PemindaiAtap";
+import { GalatSimulasi, hitungUlangAtap } from "../lib/api";
+import parameterFisikaJson from "../../../data/fixtures/parameter/fisika-contoh.json";
 import s from "./hasilAtap.module.css";
 
 const NAMA_BULAN = [
@@ -23,6 +26,8 @@ const NAMA_BULAN = [
   "November",
   "Desember",
 ];
+
+const PARAMETER_FISIKA_CONTOH = ParameterFisika.parse(parameterFisikaJson);
 
 type DataAtap = {
   id: string;
@@ -154,13 +159,21 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
     },
     energi: {
       judul: "Produksi tahun pertama",
-      rumus: simulasiAktif.jejak?.poa.rumus ?? "POA → suhu sel → derate → E_AC",
+      rumus: simulasiAktif.parameter_fisika
+        ? "P_AC = P_DC × (1−kotoran) × (1−mismatch) × (1−kabel) × η_inverter × (1−ketersediaan); E_AC = Σ P_AC / 1.000"
+        : simulasiAktif.jejak?.poa.rumus ?? "POA → suhu sel → derate → E_AC",
       masukan: [
         ["POA", `${angkaDesimal(simulasiAktif.poa_kwh_m2_yr, 1)} kWh/m²/tahun`],
         ["Performance ratio", persen(simulasiAktif.pr)],
         ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
+        ...(simulasiAktif.parameter_fisika && simulasiAktif.jejak ? [
+          ["NOCT modul", `${angkaDesimal(simulasiAktif.parameter_fisika.modul.t_noct)} °C`],
+          ["Faktor derate", persen(simulasiAktif.jejak.derate.gabungan)],
+        ] as [string, string][] : []),
       ],
-      sumber: simulasiAktif.jejak?.poa.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
+      sumber: simulasiAktif.parameter_fisika && simulasiAktif.jejak
+        ? `${simulasiAktif.jejak?.poa.sumber}; ${simulasiAktif.jejak?.suhu_sel.rumus}.`
+        : simulasiAktif.jejak?.poa.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     karbon: {
       judul: "Emisi terhindar",
@@ -185,36 +198,24 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
     try {
       const payload = {
         roof_analysis_id: analisis.roof_analysis_id,
+        parameter_fisika: simulasiAktif.parameter_fisika ?? PARAMETER_FISIKA_CONTOH,
         asumsi: {
+          ...simulasiAktif.asumsi,
           golongan_tarif: asumsi.golongan_tarif,
           daya_va: Number(asumsi.daya_va),
           tarif_rp_kwh: Number(asumsi.tarif_rp_kwh),
           scr: Number(asumsi.scr) / 100,
           biaya_per_kwp: Number(asumsi.biaya_per_kwp),
           diskonto: Number(asumsi.diskonto) / 100,
-          eskalasi_tarif: 0.0,
-          degradasi_thn: 0.006,
-          umur_tahun: 25,
-          ef_grid_tco2_mwh: simulasiAktif.asumsi.ef_grid_tco2_mwh,
-          faktor_ekspor: 0.0,
         },
       };
-      const basisUrl = process.env.NEXT_PUBLIC_ENGINE_URL || "http://localhost:8000";
-      const res = await fetch(`${basisUrl}/api/v1/simulate`, {
-        method: "POST",
-        signal: AbortSignal.timeout(20_000),
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const dataBaru = (await res.json()) as HasilSimulasi;
-        setSimulasiAktif(dataBaru);
-        setPesanMesin("Hasil diperbarui.");
-      } else {
-        setPesanMesin("Perhitungan gagal. Periksa masukan lalu coba lagi; hasil sebelumnya tetap tampil.");
-      }
-    } catch {
-      setPesanMesin("Mesin hitung belum terhubung. Hasil sebelumnya tetap tampil.");
+      const dataBaru = await hitungUlangAtap(payload);
+      setSimulasiAktif(dataBaru);
+      setPesanMesin("Hasil diperbarui.");
+    } catch (galat) {
+      setPesanMesin(galat instanceof GalatSimulasi
+        ? "Perhitungan gagal. Periksa masukan lalu coba lagi; hasil sebelumnya tetap tampil."
+        : "Mesin hitung belum terhubung. Hasil sebelumnya tetap tampil.");
     } finally {
       setSedangHitung(false);
     }
