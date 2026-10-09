@@ -5,7 +5,7 @@ import type { ZodType } from "zod";
 import { AnalisisAtap } from "./analisis.ts";
 import { BangunanRingkas } from "./bangunan.ts";
 import { GalatApi } from "./galat.ts";
-import { HasilSimulasi } from "./simulasi.ts";
+import { HasilSimulasi, ParameterFisika } from "./simulasi.ts";
 
 // Setiap fixture di data/fixtures harus lolos kontrak zod. Padanannya di sisi
 // Python: services/engine/tests/test_contracts.py atas berkas yang sama.
@@ -37,6 +37,27 @@ function ujiFolder(sub: string, skema: ZodType, minimal: number) {
 ujiFolder("bangunan", BangunanRingkas, 3);
 ujiFolder("analisis", AnalisisAtap, 2);
 ujiFolder("simulasi", HasilSimulasi, 1);
+ujiFolder("parameter", ParameterFisika, 1);
+
+describe("ParameterFisika", () => {
+  const contoh = bacaSemua("parameter")[0][1] as Record<string, unknown>;
+  it("mewajibkan spesifikasi modul, albedo, dan seluruh faktor derate", () => {
+    for (const kunci of ["modul", "albedo", "derate"]) {
+      expect(ParameterFisika.safeParse({ ...contoh, [kunci]: undefined }).success).toBe(false);
+    }
+    const modul = (contoh.modul as Record<string, unknown>);
+    expect(ParameterFisika.safeParse({ ...contoh, modul: { ...modul, t_noct: undefined } }).success).toBe(false);
+  });
+  it("menolak nilai non-finite dan fraksi di luar rentang", () => {
+    for (const albedo of [NaN, Infinity, -1, 1.1]) {
+      expect(ParameterFisika.safeParse({ ...contoh, albedo }).success).toBe(false);
+    }
+  });
+  it("menyimpan parameter fisika pada hasil baru tanpa menolak fixture lama", () => {
+    const hasil = bacaSemua("simulasi")[0][1] as Record<string, unknown>;
+    expect(HasilSimulasi.parse({ ...hasil, parameter_fisika: contoh }).parameter_fisika).toEqual(ParameterFisika.parse(contoh));
+  });
+});
 
 describe("fixtures/bangunan — sumber tercatat", () => {
   for (const [nama, isi] of bacaSemua("bangunan")) {

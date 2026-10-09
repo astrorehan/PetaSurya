@@ -5,10 +5,13 @@ import { GalatApi, KodeGalat } from "./galat.ts";
 import { MultiPolygonGeoJSON, PolygonGeoJSON } from "./geojson.ts";
 import {
   AsumsiSimulasi,
+  DerateSimulasi,
   HasilSimulasi,
   JejakDerate,
   JejakRumus,
   JejakSimulasi,
+  ModulSimulasi,
+  ParameterFisika,
 } from "./simulasi.ts";
 
 export * from "./analisis.ts";
@@ -23,6 +26,9 @@ export const registri: Record<string, ZodType> = {
   PolygonGeoJSON,
   MultiPolygonGeoJSON,
   AsumsiSimulasi,
+  ModulSimulasi,
+  DerateSimulasi,
+  ParameterFisika,
   JejakRumus,
   JejakDerate,
   JejakSimulasi,

@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from app.contracts import AnalisisAtap, BangunanRingkas, GalatApi, HasilSimulasi
+from app.contracts import AnalisisAtap, BangunanRingkas, GalatApi, HasilSimulasi, ParameterFisika
 
 DIR_FIXTURE = Path(__file__).resolve().parents[3] / "data" / "fixtures"
 
@@ -21,6 +21,7 @@ KASUS: list[tuple[str, type[BaseModel], int]] = [
     ("bangunan", BangunanRingkas, 3),
     ("analisis", AnalisisAtap, 2),
     ("simulasi", HasilSimulasi, 1),
+    ("parameter", ParameterFisika, 1),
 ]
 
 

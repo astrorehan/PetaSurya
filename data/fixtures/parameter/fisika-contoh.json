@@ -1,0 +1,19 @@
+{
+  "_catatan": "Parameter contoh dari cetak biru §05 dan contoh respons §04, bukan spesifikasi modul produksi terverifikasi.",
+  "_sumber_id": "contoh_cetak_biru_simulasi",
+  "modul": {
+    "wp": 550,
+    "panjang_m": 2.278,
+    "lebar_m": 1.134,
+    "gamma_p": -0.0035,
+    "t_noct": 45
+  },
+  "albedo": 0.2,
+  "derate": {
+    "kotoran": 0.03,
+    "mismatch": 0.02,
+    "kabel_dc": 0.02,
+    "inverter": 0.965,
+    "ketersediaan": 0.02
+  }
+}

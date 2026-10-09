@@ -77,6 +77,29 @@ class CitraAnalisis(BaseModel):
     """
 
 
+class DerateSimulasi(BaseModel):
+    kotoran: float = Field(..., ge=0.0, le=1.0)
+    """
+    Rugi kotoran, fraksi
+    """
+    mismatch: float = Field(..., ge=0.0, le=1.0)
+    """
+    Rugi mismatch modul, fraksi
+    """
+    kabel_dc: float = Field(..., ge=0.0, le=1.0)
+    """
+    Rugi kabel DC, fraksi
+    """
+    inverter: float = Field(..., ge=0.0, le=1.0)
+    """
+    Efisiensi inverter, fraksi (bukan rugi)
+    """
+    ketersediaan: float = Field(..., ge=0.0, le=1.0)
+    """
+    Rugi ketersediaan, fraksi
+    """
+
+
 class JejakDerate(BaseModel):
     kotoran: float = Field(..., ge=0.0, le=1.0)
     """
@@ -100,7 +123,7 @@ class JejakDerate(BaseModel):
     """
     gabungan: float = Field(..., ge=0.0, le=1.0)
     """
-    Performance ratio hasil perkalian
+    Hasil perkalian faktor derate; terpisah dari PR energi
     """
 
 
@@ -133,6 +156,29 @@ class MetodeAnalisis(StrEnum):
     manual = "manual"
 
 
+class ModulSimulasi(BaseModel):
+    wp: float = Field(..., gt=0.0)
+    """
+    Daya puncak modul, Wp
+    """
+    panjang_m: float = Field(..., gt=0.0)
+    """
+    Panjang modul, meter
+    """
+    lebar_m: float = Field(..., gt=0.0)
+    """
+    Lebar modul, meter
+    """
+    gamma_p: float = Field(..., le=0.0)
+    """
+    Koefisien suhu daya, 1/°C
+    """
+    t_noct: float = Field(..., gt=0.0)
+    """
+    Nominal Operating Cell Temperature, °C
+    """
+
+
 class CoordinateItemItemItem(RootModel[float]):
     root: float = Field(..., ge=-180.0, le=180.0)
 
@@ -161,6 +207,15 @@ class Coordinate(RootModel[list[CoordinateItem]]):
 class MultiPolygonGeoJSON(BaseModel):
     type: Literal["MultiPolygon"]
     coordinates: list[Coordinate]
+
+
+class ParameterFisika(BaseModel):
+    modul: ModulSimulasi
+    derate: DerateSimulasi
+    albedo: float = Field(..., ge=0.0, le=1.0)
+    """
+    Reflektansi permukaan tanah, fraksi
+    """
 
 
 class Coordinate1ItemItem(RootModel[float]):
@@ -357,3 +412,7 @@ class HasilSimulasi(BaseModel):
     """
     asumsi: AsumsiSimulasi
     jejak: JejakSimulasi | None = None
+    parameter_fisika: ParameterFisika | None = None
+    """
+    Masukan fisika yang dipakai untuk reproduksi hasil
+    """

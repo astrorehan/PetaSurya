@@ -30,13 +30,35 @@ export const JejakRumus = z.object({
   sumber: z.string(),
 });
 
+export const ModulSimulasi = z.object({
+  wp: z.number().positive().describe("Daya puncak modul, Wp"),
+  panjang_m: z.number().positive().describe("Panjang modul, meter"),
+  lebar_m: z.number().positive().describe("Lebar modul, meter"),
+  gamma_p: z.number().max(0).describe("Koefisien suhu daya, 1/°C"),
+  t_noct: z.number().positive().describe("Nominal Operating Cell Temperature, °C"),
+});
+
+export const DerateSimulasi = z.object({
+  kotoran: z.number().min(0).max(1).describe("Rugi kotoran, fraksi"),
+  mismatch: z.number().min(0).max(1).describe("Rugi mismatch modul, fraksi"),
+  kabel_dc: z.number().min(0).max(1).describe("Rugi kabel DC, fraksi"),
+  inverter: z.number().min(0).max(1).describe("Efisiensi inverter, fraksi (bukan rugi)"),
+  ketersediaan: z.number().min(0).max(1).describe("Rugi ketersediaan, fraksi"),
+});
+
+export const ParameterFisika = z.object({
+  modul: ModulSimulasi,
+  derate: DerateSimulasi,
+  albedo: z.number().min(0).max(1).describe("Reflektansi permukaan tanah, fraksi"),
+});
+
 export const JejakDerate = z.object({
   kotoran: z.number().min(0).max(1).describe("Rugi kotoran, fraksi"),
   mismatch: z.number().min(0).max(1).describe("Rugi mismatch modul, fraksi"),
   kabel_dc: z.number().min(0).max(1).describe("Rugi kabel DC, fraksi"),
   inverter: z.number().min(0).max(1).describe("Efisiensi inverter, fraksi (bukan rugi)"),
   ketersediaan: z.number().min(0).max(1).describe("Rugi ketersediaan, fraksi"),
-  gabungan: z.number().min(0).max(1).describe("Performance ratio hasil perkalian"),
+  gabungan: z.number().min(0).max(1).describe("Hasil perkalian faktor derate; terpisah dari PR energi"),
 });
 
 export const JejakSimulasi = z.object({
@@ -67,8 +89,10 @@ export const HasilSimulasi = z.object({
   monthly_kwh: z.array(z.number()).length(12).describe("Energi AC per bulan Jan–Des, kWh"),
   asumsi: AsumsiSimulasi,
   jejak: JejakSimulasi.optional(),
+  parameter_fisika: ParameterFisika.optional().describe("Masukan fisika yang dipakai untuk reproduksi hasil"),
 });
 
 export type AsumsiSimulasi = z.infer<typeof AsumsiSimulasi>;
 export type HasilSimulasi = z.infer<typeof HasilSimulasi>;
 export type JejakSimulasi = z.infer<typeof JejakSimulasi>;
+export type ParameterFisika = z.infer<typeof ParameterFisika>;

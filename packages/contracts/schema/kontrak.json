@@ -269,6 +269,48 @@
         "date"
       ]
     },
+    "DerateSimulasi": {
+      "type": "object",
+      "properties": {
+        "kotoran": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi kotoran, fraksi"
+        },
+        "mismatch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi mismatch modul, fraksi"
+        },
+        "kabel_dc": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi kabel DC, fraksi"
+        },
+        "inverter": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Efisiensi inverter, fraksi (bukan rugi)"
+        },
+        "ketersediaan": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rugi ketersediaan, fraksi"
+        }
+      },
+      "required": [
+        "kotoran",
+        "mismatch",
+        "kabel_dc",
+        "inverter",
+        "ketersediaan"
+      ]
+    },
     "GalatApi": {
       "type": "object",
       "properties": {
@@ -389,6 +431,10 @@
         },
         "jejak": {
           "$ref": "#/$defs/JejakSimulasi"
+        },
+        "parameter_fisika": {
+          "description": "Masukan fisika yang dipakai untuk reproduksi hasil",
+          "$ref": "#/$defs/ParameterFisika"
         }
       },
       "required": [
@@ -449,7 +495,7 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1,
-          "description": "Performance ratio hasil perkalian"
+          "description": "Hasil perkalian faktor derate; terpisah dari PR energi"
         }
       },
       "required": [
@@ -517,6 +563,43 @@
         "manual"
       ]
     },
+    "ModulSimulasi": {
+      "type": "object",
+      "properties": {
+        "wp": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Daya puncak modul, Wp"
+        },
+        "panjang_m": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Panjang modul, meter"
+        },
+        "lebar_m": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Lebar modul, meter"
+        },
+        "gamma_p": {
+          "type": "number",
+          "maximum": 0,
+          "description": "Koefisien suhu daya, 1/°C"
+        },
+        "t_noct": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Nominal Operating Cell Temperature, °C"
+        }
+      },
+      "required": [
+        "wp",
+        "panjang_m",
+        "lebar_m",
+        "gamma_p",
+        "t_noct"
+      ]
+    },
     "MultiPolygonGeoJSON": {
       "type": "object",
       "properties": {
@@ -558,6 +641,28 @@
       "required": [
         "type",
         "coordinates"
+      ]
+    },
+    "ParameterFisika": {
+      "type": "object",
+      "properties": {
+        "modul": {
+          "$ref": "#/$defs/ModulSimulasi"
+        },
+        "derate": {
+          "$ref": "#/$defs/DerateSimulasi"
+        },
+        "albedo": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Reflektansi permukaan tanah, fraksi"
+        }
+      },
+      "required": [
+        "modul",
+        "derate",
+        "albedo"
       ]
     },
     "PolygonGeoJSON": {

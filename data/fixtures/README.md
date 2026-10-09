@@ -4,7 +4,12 @@ Bangunan uji nyata di Kota Bengkulu beserta sumbernya (OSM via Overpass: respons
 URL kueri, tanggal ambil). Angka hasil simulasi yang belum keluar dari mesin diberi
 `"_catatan": "contoh"` dan ditampilkan berlabel contoh di antarmuka.
 
-Struktur: `bangunan/`, `wilayah/`, `analisis/`, `simulasi/`, `cuaca/`.
+Struktur: `bangunan/`, `wilayah/`, `analisis/`, `simulasi/`, `parameter/`, `cuaca/`.
+
+`parameter/fisika-contoh.json` berisi spesifikasi modul, NOCT, albedo, dan faktor
+rugi contoh untuk hitung ulang demo. Seluruh parameter wajib dikirim ke mesin;
+nilainya belum diverifikasi sebagai spesifikasi produksi. Entri sumbernya adalah
+`contoh_cetak_biru_simulasi` di registri sumber.
 
 ## Bangunan (`bangunan/`)
 

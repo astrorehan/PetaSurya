@@ -74,10 +74,14 @@ sumber:
     url: https://petasurya.id/metodologi
     tahun: 2026
     diambil: 2026-09-15
-    dipakai_untuk: fixture data/fixtures/simulasi dan data/fixtures/analisis selama mesin L3–L5 belum hijau
+    dipakai_untuk: fixture data/fixtures/simulasi, data/fixtures/analisis, dan parameter fisika contoh untuk hitung ulang demo
     status: belum diverifikasi
     catatan: >-
       Angka ilustrasi, bukan hasil hitungan. Di antarmuka WAJIB berlabel "contoh".
       tarif_rp_kwh 1454,3 dan ef_grid 0,76 tCO2e/MWh di dalamnya hanya menurunkan
       contoh itu sendiri; nilai resmi menunggu entri tarif PLN dan faktor emisi
       Sumatera yang diverifikasi manusia.
+      Modul 550 Wp (2,278 × 1,134 m), gamma -0,0035/°C, NOCT 45 °C,
+      albedo 0,2 dan faktor derate dari §04–§05 disimpan di
+      data/fixtures/parameter/fisika-contoh.json; hanya dikirim eksplisit
+      oleh demo, bukan default mesin atau spesifikasi produksi.
