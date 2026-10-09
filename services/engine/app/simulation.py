@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pvlib
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.carbon import (
     VERSION as CARBON_VERSION,
@@ -49,6 +49,8 @@ BERKAS_CUACA = DIR_ROOT / "data" / "fixtures" / "cuaca" / "mentah" / "nasa-power
 class ModulInput(BaseModel):
     """Spesifikasi modul fotovoltaik."""
 
+    model_config = ConfigDict(allow_inf_nan=False)
+
     wp: float = Field(550.0, gt=0.0, description="Daya puncak modul, Wp")
     panjang_m: float = Field(2.278, gt=0.0, description="Panjang modul, meter")
     lebar_m: float = Field(1.134, gt=0.0, description="Lebar modul, meter")
@@ -56,15 +58,25 @@ class ModulInput(BaseModel):
     t_noct: float = Field(45.0, gt=0.0, description="Nominal Operating Cell Temperature, °C")
 
 
+class AsumsiPermintaanSimulasi(AsumsiSimulasi):
+    """Validasi masukan mesin di atas kontrak hasil yang dihasilkan otomatis."""
+
+    model_config = ConfigDict(allow_inf_nan=False)
+
+    umur_tahun: int | None = Field(25, gt=0, le=9007199254740991)
+
+
 class PermintaanSimulasi(BaseModel):
     """Badan permintaan untuk POST /api/v1/simulate."""
 
-    roof_analysis_id: int
-    asumsi: AsumsiSimulasi
+    model_config = ConfigDict(allow_inf_nan=False)
+
+    roof_analysis_id: int = Field(..., gt=0)
+    asumsi: AsumsiPermintaanSimulasi
     modul: ModulInput | None = None
-    usable_area_m2: float | None = None
-    tilt_deg: float | None = None
-    azimuth_deg: float | None = None
+    usable_area_m2: float | None = Field(None, ge=0.0, description="Luas atap layak, m²")
+    tilt_deg: float | None = Field(None, ge=0.0, le=90.0, description="Kemiringan atap, °")
+    azimuth_deg: float | None = Field(None, ge=0.0, le=360.0, description="Azimut dari utara, °")
 
 
 class BuildingNotFoundError(Exception):

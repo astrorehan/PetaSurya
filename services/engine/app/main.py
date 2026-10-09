@@ -1,6 +1,7 @@
 """Titik masuk FastAPI. Satu service: rute, CORS, health, simulasi, geodata."""
 
 from fastapi import FastAPI, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -26,7 +27,7 @@ from app.simulation import (
     jalankan_simulasi,
 )
 
-VERSION = "engine.2026.09.22"
+VERSION = "engine.2026.10.09"
 
 app = FastAPI(title="PetaSurya engine", version=VERSION)
 
@@ -36,6 +37,21 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Kembalikan amplop kontrak tanpa menyalin nilai NaN/Infinity ke JSON."""
+    kolom = sorted({".".join(str(bagian) for bagian in galat["loc"]) for galat in exc.errors()})
+    galat = GalatApi(
+        error=Error(
+            code=KodeGalat.VALIDATION_ERROR,
+            message="Masukan tidak valid.",
+            hint=f"Periksa nilai pada: {', '.join(kolom)}.",
+            retriable=False,
+        )
+    )
+    return JSONResponse(status_code=422, content=galat.model_dump())
 
 
 @app.exception_handler(BuildingNotFoundError)

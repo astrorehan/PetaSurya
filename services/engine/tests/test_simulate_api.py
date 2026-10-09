@@ -1,11 +1,113 @@
 """Pengujian endpoint POST /api/v1/simulate terintegrasi L3-L5."""
 
+import json
+
+import pytest
 from fastapi.testclient import TestClient
 
 from app.contracts import GalatApi, HasilSimulasi, KodeGalat
 from app.main import app
 
 client = TestClient(app)
+
+
+@pytest.fixture
+def payload_simulasi():
+    """Asumsi contoh pengujian, bukan nilai produksi terverifikasi."""
+    return {
+        "roof_analysis_id": 9912,
+        "asumsi": {
+            "golongan_tarif": "R-1/TR",
+            "daya_va": 2200,
+            "tarif_rp_kwh": 1444.70,
+            "scr": 0.40,
+            "biaya_per_kwp": 15_000_000.0,
+            "ef_grid_tco2_mwh": 0.76,
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    ("jalur", "nilai"),
+    [
+        (("roof_analysis_id",), 0),
+        (("roof_analysis_id",), -1),
+        (("usable_area_m2",), -1),
+        (("usable_area_m2",), "Infinity"),
+        (("usable_area_m2",), "NaN"),
+        (("tilt_deg",), -1),
+        (("tilt_deg",), 91),
+        (("tilt_deg",), "NaN"),
+        (("azimuth_deg",), -1),
+        (("azimuth_deg",), 361),
+        (("azimuth_deg",), "Infinity"),
+        (("modul", "wp"), "Infinity"),
+        (("modul", "panjang_m"), "Infinity"),
+        (("modul", "lebar_m"), "NaN"),
+        (("modul", "gamma_p"), "-Infinity"),
+        (("modul", "t_noct"), "Infinity"),
+        (("asumsi", "tarif_rp_kwh"), "Infinity"),
+        (("asumsi", "biaya_per_kwp"), "Infinity"),
+        (("asumsi", "ef_grid_tco2_mwh"), "Infinity"),
+        (("asumsi", "umur_tahun"), 0),
+        (("asumsi", "umur_tahun"), -1),
+    ],
+)
+def test_simulate_menolak_masukan_tidak_valid_sebelum_menghitung(
+    payload_simulasi, monkeypatch, jalur, nilai
+):
+    def tidak_boleh_menghitung(permintaan):
+        pytest.fail("Masukan tidak valid masuk ke mesin hitung")
+
+    monkeypatch.setattr("app.main.jalankan_simulasi", tidak_boleh_menghitung)
+    target = payload_simulasi
+    for kunci in jalur[:-1]:
+        target = target.setdefault(kunci, {})
+    target[jalur[-1]] = nilai
+
+    response = client.post("/api/v1/simulate", json=payload_simulasi)
+
+    assert response.status_code == 422, response.text
+    galat = GalatApi.model_validate(response.json())
+    assert galat.error.code == KodeGalat.VALIDATION_ERROR
+    assert not galat.error.retriable
+    assert ".".join(jalur) in galat.error.hint
+
+
+@pytest.mark.parametrize("nilai", [float("nan"), float("inf"), float("-inf")])
+def test_simulate_menolak_non_finite_json_tanpa_galat_serialisasi(payload_simulasi, nilai):
+    payload_simulasi["usable_area_m2"] = nilai
+    response = client.post(
+        "/api/v1/simulate",
+        content=json.dumps(payload_simulasi),
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 422
+    assert GalatApi.model_validate(response.json()).error.code == KodeGalat.VALIDATION_ERROR
+
+
+@pytest.mark.parametrize("isi", ["", "{}", '{"asumsi":'])
+def test_simulate_badan_tidak_lengkap_memakai_amplop_galat(isi):
+    response = client.post(
+        "/api/v1/simulate", content=isi, headers={"Content-Type": "application/json"}
+    )
+    assert response.status_code == 422
+    assert GalatApi.model_validate(response.json()).error.code == KodeGalat.VALIDATION_ERROR
+
+
+@pytest.mark.parametrize(("tilt", "azimuth"), [(0, 0), (90, 360)])
+def test_simulate_menerima_batas_sudut_atap(payload_simulasi, tilt, azimuth):
+    payload_simulasi.update(tilt_deg=tilt, azimuth_deg=azimuth)
+    response = client.post("/api/v1/simulate", json=payload_simulasi)
+    assert response.status_code == 200, response.text
+    assert HasilSimulasi.model_validate(response.json()).e_ac_kwh_yr1 > 0
+
+
+def test_simulate_luas_nol_tetap_menghasilkan_roof_too_small(payload_simulasi):
+    payload_simulasi["usable_area_m2"] = 0
+    response = client.post("/api/v1/simulate", json=payload_simulasi)
+    assert response.status_code == 400
+    assert GalatApi.model_validate(response.json()).error.code == KodeGalat.ROOF_TOO_SMALL
 
 
 def test_simulate_toko_berhasil():
