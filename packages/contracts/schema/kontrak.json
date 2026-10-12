@@ -110,7 +110,7 @@
         "tarif_rp_kwh": {
           "type": "number",
           "exclusiveMinimum": 0,
-          "description": "Tarif berlaku, Rp/kWh"
+          "description": "Tarif yang dipakai dalam skenario, Rp/kWh"
         },
         "scr": {
           "type": "number",
@@ -533,6 +533,14 @@
         },
         "derate": {
           "$ref": "#/$defs/JejakDerate"
+        },
+        "ekonomi": {
+          "description": "Rumus dan sumber tarif serta biaya yang cocok dengan masukan",
+          "$ref": "#/$defs/JejakRumus"
+        },
+        "karbon": {
+          "description": "Sumber, tahun data dan metode faktor emisi yang dipakai",
+          "$ref": "#/$defs/JejakRumus"
         }
       },
       "required": [

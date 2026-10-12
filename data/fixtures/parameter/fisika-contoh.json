@@ -1,5 +1,5 @@
 {
-  "_catatan": "Parameter contoh dari cetak biru §05 dan contoh respons §04, bukan spesifikasi modul produksi terverifikasi.",
+  "_catatan": "Modul mengikuti lembar data Jinko F5; albedo dan derate tetap asumsi demo, bukan pengukuran kondisi atap.",
   "_sumber_id": "contoh_cetak_biru_simulasi",
   "modul": {
     "wp": 550,
@@ -15,5 +15,6 @@
     "kabel_dc": 0.02,
     "inverter": 0.965,
     "ketersediaan": 0.02
-  }
+  },
+  "_sumber_modul_id": "modul_jinko_jkm550m_72hl4_f5"
 }

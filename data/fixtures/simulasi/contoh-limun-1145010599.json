@@ -1,33 +1,33 @@
 {
   "id": "8c1f1145-limun-4011-8f92-rk1145010599",
-  "engine_version": "l3.2026.09.21+l4.2026.09.22+l5.2026.09.22",
+  "engine_version": "l3.2026.10.09+l4.2026.09.22+l5.2026.09.22",
   "kwp": 50.05,
   "module_count": 91,
   "poa_kwh_m2_yr": 1450.5,
-  "e_ac_kwh_yr1": 65189.6,
-  "pr": 0.898,
+  "e_ac_kwh_yr1": 60000.5,
+  "pr": 0.826,
   "scr": 0.42,
   "capex_idr": 725725000.0,
-  "savings_idr_yr1": 39555354.3504,
-  "payback_years": 24.492269883299517,
-  "npv_idr": -426083434.7072669,
-  "irr": 0.0014884509284281986,
-  "lcoe_idr_kwh": 1303.77559779085,
-  "co2e_ton_yr": 49.54,
-  "co2e_ton_25yr": 1085.1,
+  "savings_idr_yr1": 36406743.387,
+  "payback_years": null,
+  "npv_idr": -455609227.2145925,
+  "irr": -0.006685154802121117,
+  "lcoe_idr_kwh": 1416.5316907316837,
+  "co2e_ton_yr": 50.4,
+  "co2e_ton_25yr": 1110.47,
   "monthly_kwh": [
-    5633.9,
-    5112.9,
-    5653.9,
-    5259.7,
-    4941.2,
-    4632.8,
-    5435.8,
-    5558.8,
-    5516.2,
-    6805.8,
-    5167.2,
-    5471.4
+    5197.8,
+    4718.3,
+    5205.4,
+    4846.6,
+    4561.3,
+    4277.1,
+    4999.0,
+    5107.8,
+    5068.7,
+    6244.6,
+    4756.6,
+    5017.3
   ],
   "asumsi": {
     "golongan_tarif": "R-1/TR",
@@ -40,17 +40,17 @@
     "eskalasi_tarif": 0.0,
     "degradasi_thn": 0.006,
     "umur_tahun": 25,
-    "ef_grid_tco2_mwh": 0.76,
+    "ef_grid_tco2_mwh": 0.84,
     "faktor_ekspor": 0.0
   },
   "jejak": {
     "poa": {
-      "rumus": "POA = DNI·cos(AOI) + POA_dif + POA_tanah",
-      "sumber": "Perez (1990) & Hay-Davies (pvlib)"
+      "rumus": "POA = DNI·max(cos(AOI), 0) + POA_baur + POA_tanah",
+      "sumber": "Hay-Davies (pvlib.irradiance.haydavies); cuaca NASA POWER Bengkulu 2024"
     },
     "suhu_sel": {
-      "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8",
-      "sumber": "IEC 61215 & Sandia SAPM"
+      "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = 45 °C",
+      "sumber": "Model NOCT; Jinko JKM550M-72HL4(-V) F5-EN, 2022, halaman 2"
     },
     "derate": {
       "kotoran": 0.03,
@@ -58,8 +58,43 @@
       "kabel_dc": 0.02,
       "inverter": 0.965,
       "ketersediaan": 0.02,
-      "gabungan": 0.898
+      "gabungan": 0.8810027716
+    },
+    "ekonomi": {
+      "rumus": "Kas_n = E_n × [SCR + (1−SCR) × faktor_ekspor] × tarif_n − OPEX_n",
+      "sumber": "Tarif dasar Permen ESDM 7/2024, tidak naik sejak 2024 (rujukan kebijakan hingga September 2026). Biaya acuan IESR 2020: titik tengah Rp14–15 juta/kWp; bukan penawaran 2026. SCR, OPEX, diskonto dan degradasi adalah asumsi skenario."
+    },
+    "karbon": {
+      "rumus": "CO2_tahun1 = E_AC / 1000 × EF_grid; satuan tCO2/tahun",
+      "sumber": "Gatrik, Sumatera 2019, CM ex-ante OM/BM 0,75/0,25; komponen CO2 saja"
     }
   },
-  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka contoh simulasi skala residensial rumah tinggal warga Kandang Limun (way OSM 1145010599, roof_analysis_id 9913)."
+  "parameter_fisika": {
+    "modul": {
+      "wp": 550.0,
+      "panjang_m": 2.278,
+      "lebar_m": 1.134,
+      "gamma_p": -0.0035,
+      "t_noct": 45.0
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02
+    },
+    "albedo": 0.2
+  },
+  "_catatan": "contoh simulasi dihitung dengan mesin dari cuaca NASA POWER 2024, tarif dasar Permen 7/2024, biaya acuan IESR 2020, modul Jinko F5 dan faktor emisi Sumatera 2019. Analisis atap, daya tersambung, SCR, diskonto, OPEX, degradasi, albedo dan derate tetap asumsi demo; bukan hasil survei lapangan.",
+  "_sumber_ids": [
+    "nasa_power_hourly_bengkulu_2024",
+    "tarif_pln_permen_7_2024",
+    "kebijakan_tarif_tetap_2024_2026",
+    "biaya_per_kwp_terpasang",
+    "permen_esdm_2_2024_faktor_ekspor",
+    "ef_grid_sumatera_2019",
+    "unfccc_tool07_v7_bobot_surya",
+    "modul_jinko_jkm550m_72hl4_f5"
+  ]
 }

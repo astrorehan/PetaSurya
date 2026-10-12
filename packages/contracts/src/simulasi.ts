@@ -6,7 +6,7 @@ import { z } from "zod";
 export const AsumsiSimulasi = z.object({
   golongan_tarif: z.string().describe("Golongan tarif PLN, mis. 'R-1/TR'"),
   daya_va: z.number().int().positive().describe("Daya tersambung, VA"),
-  tarif_rp_kwh: z.number().positive().describe("Tarif berlaku, Rp/kWh"),
+  tarif_rp_kwh: z.number().positive().describe("Tarif yang dipakai dalam skenario, Rp/kWh"),
   scr: z.number().min(0).max(1).describe("Self-consumption ratio, fraksi 0–1"),
   biaya_per_kwp: z.number().positive().describe("Biaya terpasang, Rp/kWp"),
   opex_frac: z.number().min(0).max(0.1).default(0.01).describe("O&M per tahun, fraksi capex"),
@@ -65,6 +65,8 @@ export const JejakSimulasi = z.object({
   poa: JejakRumus,
   suhu_sel: JejakRumus,
   derate: JejakDerate,
+  ekonomi: JejakRumus.optional().describe("Rumus dan sumber tarif serta biaya yang cocok dengan masukan"),
+  karbon: JejakRumus.optional().describe("Sumber, tahun data dan metode faktor emisi yang dipakai"),
 });
 
 export const HasilSimulasi = z.object({

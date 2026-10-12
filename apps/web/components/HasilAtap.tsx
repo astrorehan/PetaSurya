@@ -130,23 +130,23 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
   const jejak = useMemo<Record<KunciJejak, JejakTampilan>>(() => ({
     hemat: {
       judul: "Penghematan per tahun",
-      rumus: "penghematan = E_AC × SCR × tarif",
+      rumus: "penghematan = E_AC × [SCR + (1−SCR) × faktor ekspor] × tarif",
       masukan: [
         ["E_AC tahun pertama", kwh(simulasiAktif.e_ac_kwh_yr1)],
         ["SCR", persen(simulasiAktif.scr)],
         ["Tarif", rupiah(simulasiAktif.asumsi.tarif_rp_kwh)],
       ],
-      sumber: `Kalkulasi simulasi · asumsi tarif ${simulasiAktif.asumsi.golongan_tarif}.`,
+      sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Asumsi tarif ${simulasiAktif.asumsi.golongan_tarif}.`,
     },
     payback: {
       judul: "Waktu balik modal",
-      rumus: "payback = CAPEX ÷ penghematan bersih tahunan",
+      rumus: "payback = saat arus kas bersih kumulatif mencapai CAPEX (interpolasi antar tahun)",
       masukan: [
         ["CAPEX", rupiah(simulasiAktif.capex_idr)],
         ["Penghematan tahun pertama", rupiah(simulasiAktif.savings_idr_yr1)],
         ["Umur sistem", `${simulasiAktif.asumsi.umur_tahun} tahun`],
       ],
-      sumber: `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
+      sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     kwp: {
       judul: "Kapasitas terpasang",
@@ -177,13 +177,13 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
     },
     karbon: {
       judul: "Emisi terhindar",
-      rumus: "tCO₂e = E_AC ÷ 1.000 × faktor emisi jaringan",
+      rumus: simulasiAktif.jejak?.karbon?.rumus ?? "CO₂ = E_AC ÷ 1.000 × faktor emisi jaringan",
       masukan: [
         ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
-        ["Faktor emisi", `${angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2)} tCO₂e/MWh`],
+        ["Faktor emisi CO₂", `${angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2)} tCO₂/MWh`],
         ["Hasil tahun pertama", ton(simulasiAktif.co2e_ton_yr)],
       ],
-      sumber: "Kalkulasi simulasi · faktor emisi Sumatera ESDM.",
+      sumber: simulasiAktif.jejak?.karbon?.sumber ?? "Faktor emisi masukan skenario; sumber belum tercatat.",
     },
   }), [simulasiAktif]);
 
@@ -310,6 +310,11 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
             <input required type="number" min="0" max="30" step="0.1" value={asumsi.diskonto} onChange={ubahAsumsi("diskonto")} />
           </label>
         </form>
+        <p className={s.sumberJejak}>
+          Acuan demo: tarif dasar Permen 7/2024, tidak naik sejak 2024 (rujukan hingga September 2026).
+          Biaya acuan IESR 2020: Rp14–15 juta/kWp, titik tengah Rp14,5 juta/kWp.
+          {" "}<Link href="/sumber-data">Lihat sumber dan tahun data</Link>.
+        </p>
         <div className={s.aksiAsumsi}>
           <button
             className={s.tombolUtama}

@@ -48,15 +48,17 @@ describe("Halaman Atap [id] — Integritas Pemetaan Fixture", () => {
 
   it("Fakultas Hukum UNIB (1146141501) menggunakan simulasi skala kampus", () => {
     const unib = DATA_CONTOH["1146141501"];
-    expect(unib.simulasi.kwp).toBe(202.4);
-    expect(unib.simulasi.module_count).toBe(460);
+    expect(unib.simulasi.kwp).toBe(217.8);
+    expect(unib.simulasi.module_count).toBe(396);
     expect(unib.simulasi.asumsi.golongan_tarif).toBe("B-2/TR");
   });
 
-  it("Toko WR Supratman (991016391) menggunakan simulasi komersial 14.3 kWp", () => {
+  it("Toko WR Supratman (991016391) menggunakan skenario B-1 dan modul bersumber", () => {
     const toko = DATA_CONTOH["991016391"];
-    expect(toko.simulasi.kwp).toBe(14.3);
-    expect(toko.simulasi.module_count).toBe(26);
+    expect(toko.simulasi.kwp).toBe(16.5);
+    expect(toko.simulasi.module_count).toBe(30);
+    expect(toko.simulasi.asumsi.golongan_tarif).toBe("B-1/TR");
+    expect(toko.simulasi.asumsi.tarif_rp_kwh).toBe(1100);
     expect(toko.simulasi.id).toBe("3f8c-contoh");
   });
 });

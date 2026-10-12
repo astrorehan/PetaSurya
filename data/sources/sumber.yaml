@@ -76,18 +76,17 @@ sumber:
     url: https://petasurya.id/metodologi
     tahun: 2026
     diambil: 2026-09-15
-    dipakai_untuk: fixture data/fixtures/simulasi, data/fixtures/analisis, dan parameter fisika contoh untuk hitung ulang demo
+    dipakai_untuk: contoh analisis atap dan asumsi skenario yang belum diukur
     status: belum diverifikasi
     catatan: >-
-      Angka ilustrasi, bukan hasil hitungan. Di antarmuka WAJIB berlabel "contoh".
-      tarif_rp_kwh 1454,3 dan ef_grid 0,76 tCO2e/MWh di dalamnya hanya menurunkan
-      contoh itu sendiri. Rujukan tarif dasar dan faktor emisi Sumatera
-      dicatat terpisah; periode tarif, metode emisi, dan penggantian masukan
-      demo masih harus dipenuhi sebelum contoh menjadi hasil bersumber.
-      Modul 550 Wp (2,278 × 1,134 m), gamma -0,0035/°C, NOCT 45 °C,
-      albedo 0,2 dan faktor derate dari §04–§05 disimpan di
-      data/fixtures/parameter/fisika-contoh.json; hanya dikirim eksplisit
-      oleh demo, bukan default mesin atau spesifikasi produksi.
+      Analisis atap, SCR, daya pelanggan, diskonto, OPEX, degradasi,
+      albedo 0,2 dan faktor derate dari §04–§05 tetap asumsi demo,
+      bukan hasil pengukuran; antarmuka tetap berlabel contoh.
+      Tarif awal 1454,3 dan faktor emisi 0,76 tidak lagi dipakai oleh
+      fixture hasil demo. Ketiga hasil sekarang dihitung oleh mesin
+      menggunakan tarif dasar, biaya acuan IESR, CM ex-ante Sumatera
+      dan modul Jinko dari entri sumber terpisah. Parameter fisika
+      tetap dikirim eksplisit; tidak menjadi default produksi mesin.
 
   - id: tarif_pln_permen_7_2024
     nama: Tarif dasar PLN R-1, B-1, B-2 — Permen ESDM 7/2024
@@ -166,7 +165,7 @@ sumber:
     diambil: 2026-10-12
     berlaku_mulai: "2026-10-01"
     berlaku_sampai: "2026-12-31"
-    dipakai_untuk: L4 ekonomi, tarif periode demo Oktober 2026
+    dipakai_untuk: arsip penelusuran; demo memakai tarif dasar Permen 7/2024
     status: belum diverifikasi
     catatan: >-
       Tabel atau penetapan resmi triwulan IV 2026 belum ditemukan pada
@@ -296,20 +295,59 @@ sumber:
       pabrikan terverifikasi terpisah pada modul_jinko_jkm550m_72hl4_f5.
 
   - id: biaya_per_kwp_terpasang
-    nama: Biaya PLTS atap terpasang di Bengkulu — penawaran belum tersedia
+    nama: Biaya acuan PLTS atap — IESR, April 2020
     nilai:
+      minimum: 14000000
+      maksimum: 15000000
+      acuan_demo: 14500000
     satuan: Rp/kWp terpasang
-    penerbit: PT DEO Energi
-    url: https://deoenergi.com/solar-panel/
+    penerbit: Institute for Essential Services Reform (IESR)
+    url: https://iesr.or.id/wp-content/uploads/2020/05/COMS-PUB-0024-Policy-Brief_Program-Surya-Nusantara.pdf
+    tahun: 2020
+    diambil: 2026-10-12
+    dipakai_untuk: L4 ekonomi, biaya acuan demo dan sensitivitas CAPEX
+    status: terverifikasi
+    catatan: >-
+      Policy Brief Akselerasi Pembangunan PLTS Atap Sebagai Strategi Green
+      Economic Recovery Pasca-COVID19 di Indonesia, April 2020, halaman 4.
+      Acuan umum Rp14–15 juta/kWp mencakup hardware (modul dan balance of
+      system) serta soft cost (instalasi, survei/perencanaan, interkoneksi).
+      Demo memilih titik tengah aritmetis Rp14,5 juta/kWp, bukan nilai
+      tunggal yang dikutip dari laporan atau penawaran harga tahun 2026.
+      Laporan membahas program PLTS atap skala kecil dan pengadaan besar;
+      pemakaian biaya per kWp yang sama pada rumah, toko, dan kampus adalah
+      asumsi pembanding yang dapat diubah, bukan estimasi khusus tiap lokasi.
+
+  - id: kebijakan_tarif_tetap_2024_2026
+    nama: Tarif dasar tidak naik sejak 2024 — rujukan hingga September 2026
+    nilai: {tarif_dasar_tetap: true}
+    satuan: kebijakan tarif dasar, tanpa diskon sementara
+    penerbit: Kementerian Energi dan Sumber Daya Mineral
+    url: https://www.esdm.go.id/id/media-center/arsip-berita/jaga-daya-beli-menteri-esdm-tarif-listrik-tidak-naik
     tahun: 2026
     diambil: 2026-10-12
-    dipakai_untuk: L4 ekonomi, CAPEX sesuai kapasitas dan cakupan pemasangan
-    status: belum diverifikasi
+    dipakai_untuk: L4 ekonomi, label acuan tarif dasar demo
+    status: terverifikasi
+    bukti:
+      - periode: IV 2024
+        url: https://www.esdm.go.id/en/media-center/news-archives/tarif-listrik-periode-triwulan-iv-2024-tetap
+      - periode: I 2025
+        url: https://www.esdm.go.id/id/media-center/arsip-berita/masuki-awal-tahun-2025-pemerintah-putuskan-tarif-listrik-tetap-dan-berikan-diskon-untuk-rumah-tangga
+      - periode: II 2025
+        url: https://www.esdm.go.id/id/media-center/arsip-berita/jelang-idul-fitri-menteri-bahlil-pertahankan-subsidi-tarif-listrik-tidak-naik
+      - periode: III 2025
+        url: https://www.esdm.go.id/id/media-center/arsip-berita/tarif-listrik-pln-triwulan-iii-2025-tetap-pemerintah-jaga-daya-beli-dan-daya-saing
+      - periode: IV 2025
+        url: https://www.esdm.go.id/en/media-center/news-archives/pemerintah-putuskan-tarif-listrik-triwulan-iv-2025-tetap-
+      - periode: I 2026
+        url: https://www.esdm.go.id/id/media-center/arsip-berita/jaga-stabilitas-awal-tahun-2026-pemerintah-putuskan-tarif-listrik-tidak-naik
+      - periode: II 2026
+        url: https://gatrik.esdm.go.id/berita/?category=ketenagalistrikan&slug=lebaran-tenang-tarif-listrik-triwulan-ii-2026-tidak-naik
+      - periode: III 2026
+        url: https://www.esdm.go.id/id/media-center/arsip-berita/jaga-daya-beli-menteri-esdm-tarif-listrik-tidak-naik
     catatan: >-
-      Belum ada harga terpasang dengan kapasitas DC, lokasi Bengkulu,
-      tanggal penawaran, rincian panel/inverter/mounting/instalasi,
-      pajak, pengiriman, perizinan dan SLO yang jelas. URL adalah kandidat
-      penyedia, bukan sumber nominal. Harga modul saja, paket baterai,
-      kisaran artikel, atau harga instalasi khusus kota lain tidak cukup
-      untuk mengganti biaya_per_kwp pada simulasi. Nilai tetap kosong;
-      contoh Rp14.500.000/kWp belum menjadi angka biaya terverifikasi.
+      Label demo menyatakan tarif dasar Permen 7/2024, tidak naik sejak
+      2024, dengan bukti kebijakan dibaca hingga September 2026. Tidak
+      menyatakan penetapan tarif triwulan IV 2026. Diskon sementara
+      Januari–Februari 2025 tidak mengubah tarif dasar dan tidak dimasukkan
+      dalam arus kas demo. Tarif per golongan tetap dari lampiran peraturan.

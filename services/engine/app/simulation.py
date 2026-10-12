@@ -15,7 +15,6 @@ from app.carbon import (
     VERSION as CARBON_VERSION,
 )
 from app.carbon import (
-    FaktorEmisiGrid,
     hitung_karbon,
 )
 from app.contracts import (
@@ -43,6 +42,7 @@ from app.physics import (
     derate_berurutan,
     hitung_poa,
 )
+from app.sumber import faktor_emisi, modul_demo, rujukan_biaya, rujukan_tarif
 
 DIR_ROOT = Path(__file__).resolve().parents[3]
 DIR_ANALISIS = DIR_ROOT / "data" / "fixtures" / "analisis"
@@ -229,12 +229,7 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
     )
 
     # L5: Karbon
-    ef = FaktorEmisiGrid(
-        sistem="Sumatera",
-        nilai_tco2_per_mwh=asumsi.ef_grid_tco2_mwh,
-        tahun=2023,
-        sumber_url="https://gatrik.esdm.go.id/faktor-emisi-2023",
-    )
+    ef, sumber_emisi = faktor_emisi(asumsi.ef_grid_tco2_mwh)
     hasil_karbon = hitung_karbon(
         e_ac_kwh=e_ac_kwh_yr1,
         ef_grid=ef,
@@ -249,11 +244,27 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
         ),
         suhu_sel=JejakRumus(
             rumus=f"T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = {modul.t_noct:g} °C",
-            sumber="Model NOCT, cetak biru §05; NOCT dikirim sebagai parameter modul",
+            sumber=(
+                "Model NOCT; Jinko JKM550M-72HL4(-V) F5-EN, 2022, halaman 2"
+                if modul.model_dump() == modul_demo()
+                else "Model NOCT; spesifikasi modul masukan pengguna"
+            ),
         ),
         derate=JejakDerate(
             **rugi.model_dump(),
             gabungan=float(derate_berurutan(1.0, **faktor)),
+        ),
+        ekonomi=JejakRumus(
+            rumus="Kas_n = E_n × [SCR + (1−SCR) × faktor_ekspor] × tarif_n − OPEX_n",
+            sumber=(
+                f"{rujukan_tarif(asumsi.golongan_tarif, asumsi.daya_va, asumsi.tarif_rp_kwh)}. "
+                f"{rujukan_biaya(asumsi.biaya_per_kwp)}. "
+                "SCR, OPEX, diskonto dan degradasi adalah asumsi skenario."
+            ),
+        ),
+        karbon=JejakRumus(
+            rumus="CO2_tahun1 = E_AC / 1000 × EF_grid; satuan tCO2/tahun",
+            sumber=sumber_emisi,
         ),
     )
 

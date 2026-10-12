@@ -87,7 +87,7 @@ describe("fixtures/analisis — dua jalur", () => {
 describe("fixtures/simulasi — berlabel contoh", () => {
   for (const [nama, isi] of bacaSemua("simulasi")) {
     it(`${nama} menyatakan dirinya contoh`, () => {
-      expect((isi as { _catatan?: string })._catatan).toMatch(/^contoh dari cetak biru/);
+      expect((isi as { _catatan?: string })._catatan).toMatch(/^contoh simulasi dihitung/);
     });
   }
 });

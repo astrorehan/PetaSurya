@@ -676,7 +676,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             nama="daya-panel-demo"
             nilai={String(tipeModul)}
             onUbah={(nilai) => setTipeModul(Number(nilai) as 550 | 440)}
-            pilihan={[{ nilai: "550", label: "550 Wp" }, { nilai: "440", label: "440 Wp" }]}
+              pilihan={[{ nilai: "550", label: "550 Wp" }, { nilai: "440", label: "440 Wp (ilustrasi)" }]}
           />
 
           <Link className={kelasTombol()} href={`/atap/${bangunan.id}`} onClick={onTutup}>Lihat hasil bangunan</Link>

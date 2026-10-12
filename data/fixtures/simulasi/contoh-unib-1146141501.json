@@ -1,65 +1,100 @@
 {
-  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka contoh simulasi skala institusi / kampus Fakultas Hukum UNIB (way OSM 1146141501).",
   "id": "7b9e1146-unib-4011-8f92-fh1146141501",
-  "engine_version": "l3.2026.09.14+l4.2026.09.20+l5.2026.09.21",
-  "kwp": 202.4,
-  "module_count": 460,
-  "poa_kwh_m2_yr": 1684.2,
-  "e_ac_kwh_yr1": 284500.0,
-  "pr": 0.835,
+  "engine_version": "l3.2026.10.09+l4.2026.09.22+l5.2026.09.22",
+  "kwp": 217.8,
+  "module_count": 396,
+  "poa_kwh_m2_yr": 1460.7,
+  "e_ac_kwh_yr1": 262860.9,
+  "pr": 0.826,
   "scr": 0.85,
-  "capex_idr": 2428800000.0,
-  "savings_idr_yr1": 348512500.0,
-  "payback_years": 7.2,
-  "npv_idr": 1254300000.0,
-  "irr": 0.142,
-  "lcoe_idr_kwh": 785.4,
-  "co2e_ton_yr": 216.2,
-  "co2e_ton_25yr": 5040.5,
+  "capex_idr": 3158100000.0,
+  "savings_idr_yr1": 322791870.8955,
+  "payback_years": 11.219591953422304,
+  "npv_idr": -441357570.1550808,
+  "irr": 0.07173217091921857,
+  "lcoe_idr_kwh": 1407.0481762244199,
+  "co2e_ton_yr": 220.8,
+  "co2e_ton_25yr": 4864.95,
   "monthly_kwh": [
-    23800.0,
-    22400.0,
-    24600.0,
-    23900.0,
-    22800.0,
-    21900.0,
-    22500.0,
-    24100.0,
-    24900.0,
-    25400.0,
-    24300.0,
-    23900.0
+    22701.8,
+    20634.8,
+    22770.1,
+    21278.1,
+    20018.6,
+    18782.2,
+    21981.1,
+    22416.5,
+    22202.2,
+    27375.1,
+    20809.9,
+    21890.5
   ],
   "asumsi": {
     "golongan_tarif": "B-2/TR",
     "daya_va": 197000,
     "tarif_rp_kwh": 1444.7,
     "scr": 0.85,
-    "biaya_per_kwp": 12000000.0,
+    "biaya_per_kwp": 14500000.0,
     "opex_frac": 0.01,
     "diskonto": 0.09,
     "eskalasi_tarif": 0.0,
     "degradasi_thn": 0.006,
     "umur_tahun": 25,
-    "ef_grid_tco2_mwh": 0.76,
+    "ef_grid_tco2_mwh": 0.84,
     "faktor_ekspor": 0.0
   },
   "jejak": {
     "poa": {
-      "rumus": "HDKR transposisi GHI/DNI/DHI → POA pada kemiringan 15° azimut 165°",
-      "sumber": "NASA POWER hourly 2024 Kota Bengkulu (-3.7607, 102.2683)"
+      "rumus": "POA = DNI·max(cos(AOI), 0) + POA_baur + POA_tanah",
+      "sumber": "Hay-Davies (pvlib.irradiance.haydavies); cuaca NASA POWER Bengkulu 2024"
     },
     "suhu_sel": {
-      "rumus": "T_sel = T_amb + (POA / 1000) × (T_NOCT - 20) / 0.8",
-      "sumber": "Model NOCT 45 °C komersial mono-Si"
+      "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = 45 °C",
+      "sumber": "Model NOCT; Jinko JKM550M-72HL4(-V) F5-EN, 2022, halaman 2"
     },
     "derate": {
       "kotoran": 0.03,
       "mismatch": 0.02,
       "kabel_dc": 0.02,
-      "inverter": 0.97,
+      "inverter": 0.965,
       "ketersediaan": 0.02,
-      "gabungan": 0.835
+      "gabungan": 0.8810027716
+    },
+    "ekonomi": {
+      "rumus": "Kas_n = E_n × [SCR + (1−SCR) × faktor_ekspor] × tarif_n − OPEX_n",
+      "sumber": "Tarif dasar Permen ESDM 7/2024, tidak naik sejak 2024 (rujukan kebijakan hingga September 2026). Biaya acuan IESR 2020: titik tengah Rp14–15 juta/kWp; bukan penawaran 2026. SCR, OPEX, diskonto dan degradasi adalah asumsi skenario."
+    },
+    "karbon": {
+      "rumus": "CO2_tahun1 = E_AC / 1000 × EF_grid; satuan tCO2/tahun",
+      "sumber": "Gatrik, Sumatera 2019, CM ex-ante OM/BM 0,75/0,25; komponen CO2 saja"
     }
-  }
+  },
+  "parameter_fisika": {
+    "modul": {
+      "wp": 550.0,
+      "panjang_m": 2.278,
+      "lebar_m": 1.134,
+      "gamma_p": -0.0035,
+      "t_noct": 45.0
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02
+    },
+    "albedo": 0.2
+  },
+  "_catatan": "contoh simulasi dihitung dengan mesin dari cuaca NASA POWER 2024, tarif dasar Permen 7/2024, biaya acuan IESR 2020, modul Jinko F5 dan faktor emisi Sumatera 2019. Analisis atap, daya tersambung, SCR, diskonto, OPEX, degradasi, albedo dan derate tetap asumsi demo; bukan hasil survei lapangan.",
+  "_sumber_ids": [
+    "nasa_power_hourly_bengkulu_2024",
+    "tarif_pln_permen_7_2024",
+    "kebijakan_tarif_tetap_2024_2026",
+    "biaya_per_kwp_terpasang",
+    "permen_esdm_2_2024_faktor_ekspor",
+    "ef_grid_sumatera_2019",
+    "unfccc_tool07_v7_bobot_surya",
+    "modul_jinko_jkm550m_72hl4_f5"
+  ]
 }

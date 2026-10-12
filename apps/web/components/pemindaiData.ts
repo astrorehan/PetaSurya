@@ -1,3 +1,21 @@
+import simulasiToko from "../../../data/fixtures/simulasi/contoh-3f8c.json";
+import simulasiKampus from "../../../data/fixtures/simulasi/contoh-unib-1146141501.json";
+import simulasiRumah from "../../../data/fixtures/simulasi/contoh-limun-1145010599.json";
+
+function spesifikasiDemo(simulasi: {
+  module_count: number;
+  kwp: number;
+  e_ac_kwh_yr1: number;
+  savings_idr_yr1: number;
+}) {
+  return {
+    count: simulasi.module_count,
+    kwp: simulasi.kwp,
+    e_ac_kwh_yr1: simulasi.e_ac_kwh_yr1,
+    savings_idr_yr1: simulasi.savings_idr_yr1,
+  };
+}
+
 export type TileCitra = {
   x: number;
   y: number;
@@ -140,7 +158,7 @@ export const DAFTAR_BANGUNAN: BangunanTargetPindai[] = [
       };
     }),
     specs: {
-      550: { count: 26, kwp: 14.3, e_ac_kwh_yr1: 19840, savings_idr_yr1: 12118000 },
+      550: spesifikasiDemo(simulasiToko),
       440: { count: 32, kwp: 14.08, e_ac_kwh_yr1: 19530, savings_idr_yr1: 11928000 },
     },
     cv_logs: [
@@ -253,7 +271,7 @@ export const DAFTAR_BANGUNAN: BangunanTargetPindai[] = [
       };
     }),
     specs: {
-      550: { count: 460, kwp: 202.4, e_ac_kwh_yr1: 284500, savings_idr_yr1: 348512500 },
+      550: spesifikasiDemo(simulasiKampus),
       440: { count: 520, kwp: 228.8, e_ac_kwh_yr1: 321600, savings_idr_yr1: 393998400 },
     },
     cv_logs: [
@@ -331,7 +349,7 @@ export const DAFTAR_BANGUNAN: BangunanTargetPindai[] = [
       };
     }),
     specs: {
-      550: { count: 91, kwp: 50.05, e_ac_kwh_yr1: 65190, savings_idr_yr1: 39555000 },
+      550: spesifikasiDemo(simulasiRumah),
       440: { count: 104, kwp: 45.76, e_ac_kwh_yr1: 59600, savings_idr_yr1: 36154000 },
     },
     cv_logs: [

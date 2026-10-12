@@ -19,7 +19,7 @@ class AsumsiSimulasi(BaseModel):
     """
     tarif_rp_kwh: float = Field(..., gt=0.0)
     """
-    Tarif berlaku, Rp/kWh
+    Tarif yang dipakai dalam skenario, Rp/kWh
     """
     scr: float = Field(..., ge=0.0, le=1.0)
     """
@@ -136,6 +136,14 @@ class JejakSimulasi(BaseModel):
     poa: JejakRumus
     suhu_sel: JejakRumus
     derate: JejakDerate
+    ekonomi: JejakRumus | None = None
+    """
+    Rumus dan sumber tarif serta biaya yang cocok dengan masukan
+    """
+    karbon: JejakRumus | None = None
+    """
+    Sumber, tahun data dan metode faktor emisi yang dipakai
+    """
 
 
 class KodeGalat(StrEnum):

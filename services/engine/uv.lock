@@ -408,6 +408,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "pvlib" },
+    { name = "pyyaml" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -423,6 +424,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pvlib", specifier = ">=0.11" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
 ]
 

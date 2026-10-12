@@ -58,7 +58,7 @@ def test_analisis_dua_jalur() -> None:
 def test_simulasi_berlabel_contoh() -> None:
     for b in _berkas("simulasi"):
         assert json.loads(b.read_text(encoding="utf-8"))["_catatan"].startswith(
-            "contoh dari cetak biru"
+            "contoh simulasi dihitung"
         )
 
 
