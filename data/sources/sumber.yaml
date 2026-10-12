@@ -5,7 +5,7 @@
 # Format tiap entri:
 #   - id: tarif_pln_r1_1300va          # kunci yang dirujuk kode
 #     nama: Tarif tenaga listrik R-1/TR 1.300 VA
-#     nilai:                           # kosong bila belum diverifikasi manusia
+#     nilai:                           # skalar/pemetaan; kosong bila belum bersumber
 #     satuan: Rp/kWh
 #     penerbit: PT PLN (Persero)
 #     url: https://...
@@ -14,6 +14,8 @@
 #     dipakai_untuk: L4 ekonomi, penghematan tagihan
 #     status: belum diverifikasi       # terverifikasi | belum diverifikasi
 #     catatan: ...
+# Status terverifikasi berarti nilai cocok dengan dokumen yang dirujuk.
+# Periode tarif, tahun data, metode emisi, dan revisi modul tetap membatasi pemakaian.
 
 sumber:
   - id: osm_overpass_bangunan_bengkulu
@@ -79,9 +81,235 @@ sumber:
     catatan: >-
       Angka ilustrasi, bukan hasil hitungan. Di antarmuka WAJIB berlabel "contoh".
       tarif_rp_kwh 1454,3 dan ef_grid 0,76 tCO2e/MWh di dalamnya hanya menurunkan
-      contoh itu sendiri; nilai resmi menunggu entri tarif PLN dan faktor emisi
-      Sumatera yang diverifikasi manusia.
+      contoh itu sendiri. Rujukan tarif dasar dan faktor emisi Sumatera
+      dicatat terpisah; periode tarif, metode emisi, dan penggantian masukan
+      demo masih harus dipenuhi sebelum contoh menjadi hasil bersumber.
       Modul 550 Wp (2,278 × 1,134 m), gamma -0,0035/°C, NOCT 45 °C,
       albedo 0,2 dan faktor derate dari §04–§05 disimpan di
       data/fixtures/parameter/fisika-contoh.json; hanya dikirim eksplisit
       oleh demo, bukan default mesin atau spesifikasi produksi.
+
+  - id: tarif_pln_permen_7_2024
+    nama: Tarif dasar PLN R-1, B-1, B-2 — Permen ESDM 7/2024
+    nilai:
+      r1_900va_subsidi:
+        prabayar_rp_kwh: 605
+        reguler_beban_rp_kva_bulan: 20000
+        reguler_blok:
+          - {hingga_kwh: 20, rp_kwh: 275}
+          - {hingga_kwh: 60, rp_kwh: 445}
+          - {di_atas_kwh: 60, rp_kwh: 495}
+      r1_900va_rtm_rp_kwh: 1352
+      r1_1300va_rp_kwh: 1444.70
+      r1_2200va_rp_kwh: 1444.70
+      b1_450va:
+        prabayar_rp_kwh: 535
+        reguler_beban_rp_kva_bulan: 23500
+        reguler_blok:
+          - {hingga_kwh: 30, rp_kwh: 254}
+          - {di_atas_kwh: 30, rp_kwh: 420}
+      b1_900va:
+        prabayar_rp_kwh: 630
+        reguler_beban_rp_kva_bulan: 26500
+        reguler_blok:
+          - {hingga_kwh: 108, rp_kwh: 420}
+          - {di_atas_kwh: 108, rp_kwh: 465}
+      b1_1300va_rp_kwh: 966
+      b1_2200_5500va_rp_kwh: 1100
+      b2_6600va_200kva_rp_kwh: 1444.70
+      rekening_minimum_jam_nyala: 40
+    satuan: Rp/kWh; biaya beban Rp/kVA/bulan; rekening minimum jam nyala
+    penerbit: Kementerian Energi dan Sumber Daya Mineral, salinan resmi JDIH BPK
+    url: https://peraturan.bpk.go.id/Download/353709/Permen%20ESDM%20Nomor%207%20Tahun%202024.pdf
+    tahun: 2024
+    diambil: 2026-10-12
+    dipakai_untuk: L4 ekonomi, rujukan tarif dasar dan struktur tagihan
+    status: terverifikasi
+    catatan: >-
+      Lampiran II halaman 12 dan Lampiran III halaman 13. Tarif dasar dalam
+      peraturan, bukan bukti penetapan tarif triwulan IV 2026. R-1 900 VA
+      subsidi berbeda dari 900 VA-RTM. Tarif prabayar tidak boleh diterapkan
+      sebagai tarif tunggal pelanggan reguler subsidi yang memakai blok
+      dan biaya beban. R-1 900 VA-RTM/1300/2200 VA, B-1 1300–5500 VA,
+      serta B-2 memakai rekening minimum: 40 × daya tersambung (kVA) ×
+      biaya pemakaian. Penghematan tagihan harus memperhatikan batas minimum
+      tersebut. B-1 2200–5500 VA bukan tarif B-2.
+
+  - id: kebijakan_tarif_pln_triwulan_iii_2026
+    nama: Kebijakan tarif PLN Juli–September 2026 — tarif tidak naik
+    nilai:
+      kenaikan_tarif: false
+      golongan_nonsubsidi: 13
+      golongan_subsidi: 24
+    satuan: keputusan tarif dan jumlah golongan pelanggan
+    penerbit: Kementerian Energi dan Sumber Daya Mineral
+    url: https://www.esdm.go.id/id/media-center/arsip-berita/jaga-daya-beli-menteri-esdm-tarif-listrik-tidak-naik
+    tahun: 2026
+    diambil: 2026-10-12
+    berlaku_mulai: "2026-07-01"
+    berlaku_sampai: "2026-09-30"
+    dipakai_untuk: L4 ekonomi, batas periode kebijakan tarif yang telah ditemukan
+    status: terverifikasi
+    catatan: >-
+      Siaran pers 038.Pers/04/SJI/2026 tanggal 30 Juni 2026. Pernyataan
+      tidak naik berlaku untuk triwulan III, bukan triwulan IV. Artikel
+      tidak memuat tabel nominal per golongan; nominal tarif dasar dicatat
+      terpisah pada tarif_pln_permen_7_2024.
+
+  - id: tarif_pln_triwulan_iv_2026
+    nama: Tarif PLN Oktober–Desember 2026 — penetapan belum ditemukan
+    nilai:
+    satuan: Rp/kWh per golongan dan daya
+    penerbit: PT PLN (Persero) dan Kementerian Energi dan Sumber Daya Mineral
+    url: https://web.pln.co.id/pelanggan/tarif-tenaga-listrik/tariff-adjustment
+    tahun: 2026
+    diambil: 2026-10-12
+    berlaku_mulai: "2026-10-01"
+    berlaku_sampai: "2026-12-31"
+    dipakai_untuk: L4 ekonomi, tarif periode demo Oktober 2026
+    status: belum diverifikasi
+    catatan: >-
+      Tabel atau penetapan resmi triwulan IV 2026 belum ditemukan pada
+      penelusuran 12 Oktober 2026; halaman PLN tidak berhasil diakses.
+      URL adalah lokasi publikasi yang perlu diperiksa, bukan bukti angka.
+      Jangan memperpanjang kebijakan Juli–September secara otomatis atau
+      menyebut tarif dasar Permen 7/2024 sebagai penetapan triwulan IV.
+
+  - id: permen_esdm_2_2024_faktor_ekspor
+    nama: Nilai surplus PLTS atap baru — Permen ESDM 2/2024
+    nilai: 0
+    satuan: fraksi nilai ekspor terhadap tarif konsumsi
+    penerbit: Kementerian Energi dan Sumber Daya Mineral, salinan resmi JDIH BPK
+    url: https://peraturan.bpk.go.id/Download/347764/Permen%20ESDM%20Nomor%202%20Tahun%202024.pdf
+    tahun: 2024
+    diambil: 2026-10-12
+    berlaku_mulai: "2024-01-31"
+    dipakai_untuk: L4 ekonomi, faktor_ekspor untuk pemasangan baru
+    status: terverifikasi
+    catatan: >-
+      Pasal 13 halaman 7: surplus yang masuk jaringan tidak diperhitungkan
+      dalam tagihan. Angka 0 adalah penerjemahan ketentuan itu ke model
+      penghematan, bukan tarif jual listrik yang ditetapkan peraturan.
+      Pasal 47 halaman 17–18 mempertahankan mekanisme ekspor-impor dan
+      biaya kapasitas pelanggan lama yang memenuhi ketentuan selama
+      10 tahun sejak persetujuan IUPTLU; perubahan kapasitas mengikuti
+      aturan baru. Jangan menerapkan angka 0 tanpa memeriksa status
+      pelanggan lama. Peraturan ditetapkan 29 Januari dan diundangkan
+      31 Januari 2024; Pasal 52 menetapkan berlaku sejak pengundangan.
+
+  - id: ef_grid_sumatera_2019
+    nama: Faktor emisi sistem Sumatera, data 2019 — OM, BM, dan CM
+    nilai:
+      om: 0.77
+      bm: 1.12
+      cm_ex_post_om_050_bm_050: 0.94
+      cm_ex_post_om_075_bm_025: 0.86
+      cm_ex_ante_om_050_bm_050: 0.93
+      cm_ex_ante_om_075_bm_025: 0.84
+    satuan: tCO2/MWh
+    penerbit: Direktorat Jenderal Ketenagalistrikan, Kementerian ESDM
+    url: https://gatrik.esdm.go.id/gatrik/gatrik-api//storage/migrasi/download_index/files/96d7c-nilai-fe-grk-sistem-ketenagalistrikan-tahun-2019.pdf
+    tahun: 2019
+    diambil: 2026-10-12
+    dipakai_untuk: L5 karbon, pemilihan faktor emisi untuk grid Sumatera termasuk Bengkulu
+    status: terverifikasi
+    catatan: >-
+      Halaman 6, baris 125, 463 pembangkit; cakupan mencantumkan Bengkulu.
+      Tahun 2019 adalah tahun data, bukan tahun simulasi; indeks Gatrik
+      mencatat dokumen diperbarui 2 September 2021. Indeks resmi
+      https://gatrik.esdm.go.id/download-index/faktor-emisi-pembangkit-listrik
+      pada tanggal ambil memuat enam dokumen tahun 2011–2019; ini yang
+      paling baru ditemukan di kategori tersebut, bukan klaim tidak ada
+      publikasi lebih baru di tempat lain. Tautan lama assets/uploads kini
+      mengembalikan halaman HTML; URL storage ini diperoleh dari indeks
+      resmi yang baru dan berhasil mengunduh PDF. Untuk skenario PLTS
+      dengan pendekatan CM ex-ante bobot 0,75/0,25, kolom yang sesuai adalah
+      0,84; ex-post dengan bobot sama adalah 0,86. Pemilihan pendekatan harus
+      disebutkan, bukan mengambil 0,94 dari kolom 0,5/0,5 tanpa alasan.
+      Jangan menghitung ulang kolom ex-ante dari OM/BM ex-post yang tampil.
+      Sumber menyatakan CO2, bukan inventaris semua GRK dalam CO2e.
+      Angka contoh 0,76 belum didukung baris Sumatera ini.
+
+  - id: unfccc_tool07_v7_bobot_surya
+    nama: Bobot combined margin untuk tenaga surya — UNFCCC TOOL07 v7.0
+    nilai:
+      bobot_om: 0.75
+      bobot_bm: 0.25
+    satuan: fraksi
+    penerbit: UNFCCC Clean Development Mechanism Executive Board
+    url: https://cdm.unfccc.int/methodologies/PAmethodologies/tools/am-tool-07-v7.0.pdf
+    tahun: 2018
+    diambil: 2026-10-12
+    dipakai_untuk: L5 karbon, dasar pemilihan bobot CM untuk skenario tenaga surya
+    status: terverifikasi
+    catatan: >-
+      Bagian 6.6.1, paragraf 85–86(a), halaman 28: bobot OM 0,75 dan BM
+      0,25 untuk pembangkit angin dan surya pada periode kredit pertama
+      maupun berikutnya. Ini rujukan metode CDM versi 7.0, bukan keputusan
+      sertifikasi kredit karbon PetaSurya atau faktor emisi rata-rata
+      konsumsi listrik. Bobot tidak memilih ex-ante/ex-post dengan sendirinya.
+
+  - id: modul_jinko_jkm550m_72hl4_f5
+    nama: Lembar data Jinko JKM550M-72HL4(-V), revisi F5-EN
+    nilai:
+      wp: 550
+      panjang_m: 2.278
+      lebar_m: 1.134
+      tebal_m: 0.030
+      gamma_p: -0.0035
+      t_noct: 45
+      toleransi_noct_c: 2
+    satuan: Wp STC; dimensi m; gamma_p fraksi/°C; NOCT °C
+    penerbit: Jinko Solar Co., Ltd.
+    url: https://www.jinkosolar.com/uploads/JKM550-570M-72HL4-%28V%29-F5-EN.pdf
+    tahun: 2022
+    diambil: 2026-10-12
+    dipakai_untuk: L3 fisika, rujukan modul dan konversi satuan parameter
+    status: terverifikasi
+    catatan: >-
+      Halaman 2, kolom JKM550M-72HL4/JKM550M-72HL4-V dan kondisi STC:
+      550 Wp, bukan daya 409 Wp pada kondisi NOCT. Dimensi revisi ini
+      2278 × 1134 × 30 mm. Koefisien Pmax -0,35 persen/°C dikonversi
+      menjadi -0,0035/°C; NOCT 45 ± 2 °C diukur pada irradiansi 800 W/m²,
+      suhu udara 20 °C dan angin 1 m/s. Tahun berasal dari copyright
+      2022 pada dokumen; bukan konfirmasi tahun produksi atau stok.
+      Revisi F2-EN memakai panjang 2274 mm; jangan mencampur revisi.
+      Spesifikasi contoh 550 Wp/2,278 m/1,134 m/-0,0035/45 °C cocok
+      dengan F5, tetapi sumber ini tidak memverifikasi albedo, derate,
+      atau ketersediaan varian F5 di pemasok Indonesia.
+
+  - id: pemasok_modul_jinko_f5_indonesia
+    nama: Ketersediaan Jinko revisi F5 di Indonesia — belum dikonfirmasi
+    nilai:
+    satuan: model dan revisi modul yang ditawarkan
+    penerbit: PT DEO Energi
+    url: https://deoenergi.com/solar-panel/
+    tahun: 2026
+    diambil: 2026-10-12
+    dipakai_untuk: L3 fisika, pencocokan modul katalog dengan penawaran pemasok lokal
+    status: belum diverifikasi
+    catatan: >-
+      Situs pemasok menyatakan memakai modul Jinko Solar, tetapi belum
+      ditemukan penawaran lokal yang memastikan JKM550M-72HL4(-V) revisi
+      F5 dengan panjang 2278 mm. URL ini adalah petunjuk pemasok untuk
+      pencocokan, bukan bukti ketersediaan model tersebut. Lembar data
+      pabrikan terverifikasi terpisah pada modul_jinko_jkm550m_72hl4_f5.
+
+  - id: biaya_per_kwp_terpasang
+    nama: Biaya PLTS atap terpasang di Bengkulu — penawaran belum tersedia
+    nilai:
+    satuan: Rp/kWp terpasang
+    penerbit: PT DEO Energi
+    url: https://deoenergi.com/solar-panel/
+    tahun: 2026
+    diambil: 2026-10-12
+    dipakai_untuk: L4 ekonomi, CAPEX sesuai kapasitas dan cakupan pemasangan
+    status: belum diverifikasi
+    catatan: >-
+      Belum ada harga terpasang dengan kapasitas DC, lokasi Bengkulu,
+      tanggal penawaran, rincian panel/inverter/mounting/instalasi,
+      pajak, pengiriman, perizinan dan SLO yang jelas. URL adalah kandidat
+      penyedia, bukan sumber nominal. Harga modul saja, paket baterai,
+      kisaran artikel, atau harga instalasi khusus kota lain tidak cukup
+      untuk mengganti biaya_per_kwp pada simulasi. Nilai tetap kosong;
+      contoh Rp14.500.000/kWp belum menjadi angka biaya terverifikasi.
