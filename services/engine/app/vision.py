@@ -12,15 +12,18 @@ import numpy as np
 from PIL import Image
 from pyproj import Geod
 from shapely import transform
+from shapely.affinity import translate
 from shapely.geometry import MultiPolygon, Polygon, box, mapping, shape
 from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
 
 from app.contracts import AnalisisAtap, BangunanRingkas
 
-MODEL_VERSION = "mobilesam-osmprompt-v3"
+MODEL_VERSION = "mobilesam-osm-v4"
 DIR_MODEL = Path(__file__).resolve().parents[1] / "models"
 GEOD = Geod(ellps="WGS84")
+IOU_MIN = 0.65
+SKOR_MIN = 0.45
 
 
 @dataclass(frozen=True)
@@ -76,6 +79,22 @@ def mask_ke_geometri(mask: np.ndarray) -> MultiPolygon:
     return MultiPolygon([geom]) if isinstance(geom, Polygon) else geom
 
 
+def bersihkan_mask(mask: np.ndarray) -> np.ndarray:
+    """Buang pulau di bawah 1% komponen utama; pertahankan lubang dan sayap besar."""
+    jumlah, label, statistik, _ = cv2.connectedComponentsWithStats(
+        mask.astype(np.uint8), connectivity=8
+    )
+    if jumlah <= 1:
+        return np.zeros_like(mask, dtype=np.uint8)
+    luas = statistik[1:, cv2.CC_STAT_AREA]
+    dipakai = np.r_[False, luas >= max(4, luas.max() * 0.01)]
+    return dipakai[label].astype(np.uint8)
+
+
+def _mask_layak(metrik: dict[str, float]) -> bool:
+    return metrik["confidence"] >= SKOR_MIN and metrik["iou_footprint"] >= IOU_MIN
+
+
 def keyakinan(skor_sam: float, iou: float, rasio_luas: float) -> float:
     """Heuristik 0,45 SAM + 0,35 IoU + 0,20 kesesuaian luas; belum dikalibrasi."""
     if not all(math.isfinite(n) for n in [skor_sam, iou, rasio_luas]):
@@ -85,7 +104,7 @@ def keyakinan(skor_sam: float, iou: float, rasio_luas: float) -> float:
 
 
 def nilai_mask(mask: np.ndarray, skor: float, footprint) -> dict[str, float]:
-    """IoU dan rasio luas sebelum pemotongan supaya skor tidak naik secara artifisial."""
+    """Ukur overlap dan rasio dari mask penuh, tanpa pemotongan ke footprint."""
     geom = mask_ke_geometri(mask)
     gabungan = geom.union(footprint).area
     iou = geom.intersection(footprint).area / gabungan if gabungan else 0.0
@@ -106,19 +125,26 @@ def azimut_sumbu(geom) -> float:
     return round(math.degrees(math.atan2(dx, -dy)) % 180, 1)
 
 
-def pra_proses(tile: np.ndarray) -> tuple[np.ndarray, tuple[float, float]]:
-    """SAM: sisi terpanjang 1024, normalisasi RGB, padding nol setelah normalisasi."""
+def _resize_rgb(tile: np.ndarray) -> tuple[np.ndarray, tuple[float, float]]:
+    """ResizeLongestSide SAM: bulatkan ukuran sebelum menskalakan koordinat."""
     h, w = tile.shape[:2]
-    nh, nw = round(h * 1024 / max(h, w)), round(w * 1024 / max(h, w))
+    nh, nw = int(h * 1024 / max(h, w) + 0.5), int(w * 1024 / max(h, w) + 0.5)
     rgb = np.asarray(
         Image.fromarray(tile).resize((nw, nh), Image.Resampling.BILINEAR), dtype=np.float32
     )
+    return rgb, (nw / w, nh / h)
+
+
+def pra_proses(tile: np.ndarray) -> tuple[np.ndarray, tuple[float, float]]:
+    """SAM: sisi terpanjang 1024, normalisasi RGB, padding nol setelah normalisasi."""
+    rgb, skala = _resize_rgb(tile)
+    nh, nw = rgb.shape[:2]
     rgb = (rgb - np.array([123.675, 116.28, 103.53], np.float32)) / np.array(
         [58.395, 57.12, 57.375], np.float32
     )
     tensor = np.zeros((1, 3, 1024, 1024), dtype=np.float32)
     tensor[0, :, :nh, :nw] = rgb.transpose(2, 0, 1)
-    return tensor, (nw / w, nh / h)
+    return tensor, skala
 
 
 @lru_cache(maxsize=1)
@@ -139,10 +165,10 @@ def _sesi():
     )
 
 
-def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
+def _inferensi(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
     """Kotak OSM dan centroid positif; pilih mask dengan tiga sinyal kesesuaian."""
     enc, dec = _sesi()
-    tensor, skala = pra_proses(tile)
+    rgb, skala = _resize_rgb(tile)
     pusat = footprint.centroid
     if not footprint.covers(pusat):
         pusat = footprint.representative_point()
@@ -150,8 +176,9 @@ def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
     titik = np.array([[[pusat.x, pusat.y], [xmin, ymin], [xmax, ymax]]], np.float32)
     titik *= np.array(skala, np.float32)
     masukan = enc.get_inputs()[0]
-    # Ekspor Acly menyertakan resize/normalisasi; jangan menerapkannya dua kali.
-    citra_encoder = tile.astype(np.float32) if len(masukan.shape) == 3 else tensor
+    # Ekspor Acly hanya menormalisasi dan memberi padding, tanpa resize.
+    # RGB dan titik harus berada pada skala 1024 yang sama sebelum encoder/decoder.
+    citra_encoder = rgb if len(masukan.shape) == 3 else pra_proses(tile)[0]
     emb = enc.run(None, {masukan.name: citra_encoder})[0]
     masks, skor, _ = dec.run(
         None,
@@ -170,7 +197,30 @@ def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
         pilihan.append((nilai_mask(mask, float(nilai), footprint)["confidence"], mask, nilai))
     _, mask, nilai = max(pilihan, key=lambda p: p[0])
-    return mask, float(nilai)
+    return bersihkan_mask(mask), float(nilai)
+
+
+def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
+    """Baca ROI atap dengan konteks 25%; pulihkan kanvas saat ROI kurang konsisten."""
+    h, w = tile.shape[:2]
+    xmin, ymin, xmax, ymax = footprint.bounds
+    konteks = max(16, max(xmax - xmin, ymax - ymin) * 0.25)
+    x0, y0 = max(0, math.floor(xmin - konteks)), max(0, math.floor(ymin - konteks))
+    x1, y1 = min(w, math.ceil(xmax + konteks)), min(h, math.ceil(ymax + konteks))
+    if x1 <= x0 or y1 <= y0:
+        raise ValueError("Batas bangunan berada di luar citra.")
+    lokal = translate(footprint, xoff=-x0, yoff=-y0)
+    potongan, skor = _inferensi(tile[y0:y1, x0:x1], lokal)
+    mask = np.zeros((h, w), np.uint8)
+    mask[y0:y1, x0:x1] = potongan
+    metrik = nilai_mask(mask, skor, footprint)
+    if _mask_layak(metrik) or (x0, y0, x1, y1) == (0, 0, w, h):
+        return mask, skor
+    mask_penuh, skor_penuh = _inferensi(tile, footprint)
+    metrik_penuh = nilai_mask(mask_penuh, skor_penuh, footprint)
+    if _mask_layak(metrik_penuh) or metrik_penuh["iou_footprint"] > metrik["iou_footprint"]:
+        return mask_penuh, skor_penuh
+    return mask, skor
 
 
 def analisis_dari_mask(
@@ -179,8 +229,9 @@ def analisis_dari_mask(
     """Luas mask WGS84; tilt 15° dan cadangan area 15% tetap asumsi eksplisit."""
     footprint = transform(shape(bangunan.geom.model_dump()), bingkai.ke_piksel, interleaved=False)
     metrik = nilai_mask(mask, skor, footprint)
-    geom = mask_ke_geometri(mask).intersection(footprint)
-    valid = metrik["confidence"] >= 0.45 and metrik["iou_footprint"] > 0.5 and not geom.is_empty
+    # Footprint memandu/penguji konsistensi, bukan pemotong overhang atap.
+    geom = mask_ke_geometri(mask)
+    valid = _mask_layak(metrik) and not geom.is_empty
     mask_geojson = None
     if valid:
         geom = geom.simplify(0.5, preserve_topology=True)

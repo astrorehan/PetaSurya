@@ -14,7 +14,7 @@ from app.contracts import AnalisisAtap, BangunanRingkas
 from app.imagery import ambil_citra, bingkai_bangunan, daftar_tile, muat_citra_lokal
 from app.simulation import PermintaanSimulasi, jalankan_simulasi
 from app.sumber import modul_demo
-from app.vision import analisis_dari_mask, segmentasi_atap
+from app.vision import IOU_MIN, MODEL_VERSION, SKOR_MIN, analisis_dari_mask, segmentasi_atap
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "data/fixtures"
@@ -43,7 +43,7 @@ def paket_demo(force=False) -> None:
         tujuan_a = FIXTURE / "analisis" / nama_a
         bingkai = bingkai_bangunan(b)
         ada = json.loads(tujuan_a.read_text("utf-8")) if tujuan_a.exists() else {}
-        if force or not ada.get("_evaluasi"):
+        if force or not ada.get("_evaluasi") or ada.get("model_version") != MODEL_VERSION:
             mulai = time.monotonic()
             lokal = muat_citra_lokal(b.id)
             if lokal:
@@ -64,8 +64,8 @@ def paket_demo(force=False) -> None:
                 **metrik,
                 "durasi_detik": round(time.monotonic() - mulai, 3),
                 "kalibrasi": "heuristik-belum-terkalibrasi",
-                "ambang_iou_footprint": 0.5,
-                "ambang_keyakinan": 0.45,
+                "ambang_iou_footprint": IOU_MIN,
+                "ambang_keyakinan": SKOR_MIN,
                 "sha256_citra_rgb": hashlib.sha256(citra.tobytes()).hexdigest(),
                 "sha256_mask": hashlib.sha256(mask.tobytes()).hexdigest(),
                 "bobot": {f["local"]: f["sha256"] for f in bobot["files"]},

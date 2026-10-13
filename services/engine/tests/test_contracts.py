@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 from pydantic import BaseModel, ValidationError
+from pyproj import Geod
+from shapely.geometry import shape
 
 from app.contracts import AnalisisAtap, BangunanRingkas, GalatApi, HasilSimulasi, ParameterFisika
 
@@ -53,6 +55,18 @@ def test_analisis_dua_jalur() -> None:
     assert metode["footprint_fallback"].mask_geojson is None
     assert metode["footprint_fallback"].peringatan
     assert metode["footprint_fallback"].confidence < 0.45
+
+
+def test_luas_tersimpan_sesuai_kontur_wgs84() -> None:
+    geod = Geod(ellps="WGS84")
+    for berkas in _berkas("analisis"):
+        data = json.loads(berkas.read_text(encoding="utf-8"))
+        if data["method"] != "cv":
+            continue
+        geom = shape(data["mask_geojson"])
+        luas = sum(abs(geod.geometry_area_perimeter(p)[0]) for p in geom.geoms)
+        assert data["roof_area_m2"] == pytest.approx(luas, abs=0.051), berkas.name
+        assert data["_evaluasi"]["iou_footprint"] >= data["_evaluasi"]["ambang_iou_footprint"]
 
 
 def test_simulasi_berlabel_contoh() -> None:

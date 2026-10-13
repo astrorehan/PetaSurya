@@ -42,8 +42,14 @@ dapat dibentuk ulang dari respons OSM mentah dengan
 `POST /api/v1/analyze` mengembalikan hasil tersimpan tanpa jaringan. `force: true`
 menjalankan inferensi dari citra lokal bergeoreferensi bila ada, atau mosaik Esri
 dalam memori. Kegagalan citra/model memakai `footprint_fallback` dengan peringatan.
-Mask dinilai **sebelum** dipotong ke footprint. Jalur CV membutuhkan IoU terhadap
-OSM > 0,5 dan skor heuristik ≥ 0,45. IoU ini mengukur kesesuaian dengan OSM,
+Model membaca potongan di sekitar atap dengan konteks 25%; kanvas penuh dicoba
+bila hasil potongan kurang konsisten. Ekspor Acly melakukan normalisasi/padding,
+sehingga pemanggil wajib memperbesar RGB **dan** titik ke sisi panjang 1024.
+Mask diterima tanpa dipotong ke footprint; overhang yang terbaca tetap dihitung.
+Pulau terlepas di bawah 1% komponen terbesar dibuang, lubang besar dipertahankan.
+Jalur CV membutuhkan IoU terhadap OSM ≥ 0,65 dan skor heuristik ≥ 0,45.
+Ambang ini adalah penyaring konservatif, belum divalidasi pada dataset beranotasi.
+IoU ini mengukur kesesuaian dengan OSM,
 bukan akurasi terhadap anotasi atap. Skor belum dikalibrasi. Luas mask dihitung
 pada ellipsoid WGS84; tilt 15°, cadangan area 15% dan hadap panel tetap asumsi.
 Halangan serta bayangan belum diukur. Sumbu persegi panjang minimum modulo 180°

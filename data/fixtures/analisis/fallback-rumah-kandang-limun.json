@@ -9,7 +9,7 @@
   "roof_type": "kompleks",
   "confidence": 0.44,
   "method": "footprint_fallback",
-  "model_version": "mobilesam-osmprompt-v3",
+  "model_version": "mobilesam-osm-v4",
   "imagery": {
     "source": "esri-world-imagery",
     "date": null
@@ -19,16 +19,16 @@
   "peringatan": "Mask kurang sesuai dengan batas OSM. Luas diperkirakan dari footprint × 0,85; periksa batas atap sebelum merencanakan pemasangan.",
   "_catatan": "Inferensi MobileSAM nyata; IoU dibandingkan dengan OSM, bukan anotasi atap.",
   "_evaluasi": {
-    "sam_score": 0.9617730975151062,
-    "iou_footprint": 0.41986489654094744,
-    "rasio_luas": 1.0732395052215926,
-    "confidence": 0.7651027066268109,
-    "durasi_detik": 4.843,
+    "sam_score": 0.905007004737854,
+    "iou_footprint": 0.6081779275453241,
+    "rasio_luas": 1.2153608886327656,
+    "confidence": 0.7770432490463447,
+    "durasi_detik": 9.406,
     "kalibrasi": "heuristik-belum-terkalibrasi",
-    "ambang_iou_footprint": 0.5,
+    "ambang_iou_footprint": 0.65,
     "ambang_keyakinan": 0.45,
     "sha256_citra_rgb": "0c8c7f51cfa0ed1b618c612b3afc93d8e669d40aacd9643961bb3f227a3471ce",
-    "sha256_mask": "c71b54b3bed9af6472724a183f8656e2546fda92797d7067e89d21e6a62114b8",
+    "sha256_mask": "8d92d2f34882a3b7ff0c4d1753778539ab23e57b04a37f6d555da2672a25e303",
     "bobot": {
       "mobilesam_encoder.onnx": "580f5fb648ea1062c0aabc26217aed56921985f03f0cbbd852bba81d760cc749",
       "mobilesam_decoder.onnx": "8976b90a87ba50a6a72217a5ff994f7d25ce16f2229fcc1ed259e1294c622ffe"

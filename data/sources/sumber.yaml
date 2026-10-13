@@ -34,8 +34,10 @@ sumber:
       Model asli https://github.com/ChaoningZhang/MobileSAM memakai Apache-2.0;
       metadata ekspor Acly menyebut MIT. Versi, ukuran dan SHA-256 kedua berkas
       dipatok pada services/engine/models/mobilesam.json. Bobot tidak di-commit;
-      skrip unduh_model_vision memeriksa hash. Encoder ini menyertakan
-      resize/normalisasi RGB; decoder menerima titik positif dan sudut kotak OSM.
+      skrip unduh_model_vision memeriksa hash. Menurut onnx_image_encoder.py pada
+      revisi tersebut, encoder hanya menormalisasi RGB dan memberi padding.
+      Pemanggil melakukan resize sisi panjang 1024 serta menskalakan titik;
+      decoder menerima titik positif dan sudut kotak OSM pada skala yang sama.
 
   - id: osm_bangunan_demo_unib_20261013
     nama: Enam footprint bangunan tambahan sekitar FH UNIB

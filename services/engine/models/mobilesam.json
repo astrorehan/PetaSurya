@@ -1,10 +1,16 @@
 {
-  "model_version": "mobilesam-osmprompt-v3",
+  "model_version": "mobilesam-osm-v4",
   "repository": "https://huggingface.co/Acly/MobileSAM",
   "revision": "0d3b403339b4674a82493d5e97964dd78089ddc8",
   "original": "https://github.com/ChaoningZhang/MobileSAM",
   "license_original": "Apache-2.0",
   "license_export": "MIT (metadata Acly/MobileSAM)",
+  "preprocessing": {
+    "source": "https://huggingface.co/Acly/MobileSAM/blob/0d3b403339b4674a82493d5e97964dd78089ddc8/mobile_sam_encoder_onnx/onnx_image_encoder.py",
+    "longest_side": 1024,
+    "caller": "Resize RGB dan titik ke skala yang sama; crop atap dengan konteks 25%.",
+    "encoder": "Normalisasi RGB dan padding; tanpa resize."
+  },
   "files": [
     {
       "remote": "mobile_sam_image_encoder.onnx",

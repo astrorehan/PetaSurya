@@ -2,6 +2,7 @@
 
 import numpy as np
 import pytest
+from shapely import transform
 from shapely.geometry import Polygon, box, shape
 
 from app.contracts import BangunanRingkas
@@ -9,6 +10,7 @@ from app.vision import (
     BingkaiCitra,
     analisis_dari_mask,
     azimut_sumbu,
+    bersihkan_mask,
     keyakinan,
     luas_geodesik,
     mask_ke_geometri,
@@ -69,6 +71,19 @@ def test_mask_ke_poligon_mempertahankan_lubang_dan_komponen():
     assert len(geom.geoms) == 2
 
 
+def test_pembersihan_membuang_bintik_tanpa_menghilangkan_lubang_dan_sayap():
+    mask = np.zeros((80, 100), dtype=np.uint8)
+    mask[10:50, 10:50] = 1
+    mask[20:30, 20:30] = 0
+    mask[60:70, 70:90] = 1
+    mask[65:67, 10:12] = 1
+    bersih = bersihkan_mask(mask)
+    assert bersih[65:67, 10:12].sum() == 0
+    assert bersih[20:30, 20:30].sum() == 0
+    assert bersih[60:70, 70:90].sum() == 200
+    assert bersih.sum() == 1700
+
+
 def test_iou_dihitung_sebelum_pemotongan():
     mask = np.zeros((100, 100), dtype=np.uint8)
     mask[10:90, 10:90] = 1
@@ -117,6 +132,15 @@ def test_skor_sam_tinggi_tidak_menutupi_iou_rendah(bingkai, bangunan):
     assert hasil.confidence < 0.45
 
 
+def test_kecocokan_osm_sedang_tetap_memakai_perkiraan(bingkai, bangunan):
+    mask = np.zeros((480, 640), dtype=np.uint8)
+    mask[200:290, 270:360] = 1
+    hasil, metrik = analisis_dari_mask(bangunan, bingkai, mask, 0.99)
+    assert 0.5 < metrik["iou_footprint"] < 0.65
+    assert hasil.method == "footprint_fallback"
+    assert hasil.mask_geojson is None
+
+
 def test_azimut_sumbu_persegi_panjang():
     assert azimut_sumbu(box(0, 0, 10, 50)) == pytest.approx(0)
     assert azimut_sumbu(box(0, 0, 50, 10)) == pytest.approx(90)
@@ -131,8 +155,13 @@ def test_luas_geodesik_mengikuti_lintang():
 
 
 @pytest.mark.parametrize("dimensi_encoder", [3, 4])
-def test_encoder_dan_decoder_memakai_ruang_koordinat_yang_sama(monkeypatch, dimensi_encoder):
-    """Ekspor dengan pra-proses internal menerima RGB mentah; kotak tetap diskalakan."""
+@pytest.mark.parametrize(
+    ("h", "w", "nh", "nw"), [(100, 100, 1024, 1024), (75, 100, 768, 1024), (100, 75, 1024, 768)]
+)
+def test_encoder_dan_decoder_memakai_ruang_koordinat_yang_sama(
+    monkeypatch, dimensi_encoder, h, w, nh, nw
+):
+    """Ekspor Acly menormalisasi/padding RGB, tetapi resize tetap di pemanggil."""
     from types import SimpleNamespace
 
     diterima = {}
@@ -149,24 +178,109 @@ def test_encoder_dan_decoder_memakai_ruang_koordinat_yang_sama(monkeypatch, dime
     class Decoder:
         def run(self, _, nilai):
             diterima["decoder"] = nilai
-            masks = np.full((1, 4, 100, 100), -1, np.float32)
-            masks[0, 0, 10:90, 10:90] = 1
+            masks = np.full((1, 4, h, w), -1, np.float32)
+            masks[0, 0, 10 : h - 10, 10 : w - 10] = 1
             masks[0, 1] = 1
             return masks, np.array([[0.8, 1, 0, 0]], np.float32), None
 
     monkeypatch.setattr("app.vision._sesi", lambda: (Encoder(), Decoder()))
-    tile = np.full((100, 100, 3), 128, np.uint8)
-    mask, skor = segmentasi_atap(tile, box(10, 10, 90, 90))
+    tile = np.full((h, w, 3), 128, np.uint8)
+    mask, skor = segmentasi_atap(tile, box(10, 10, w - 10, h - 10))
     assert skor == pytest.approx(0.8)
-    assert mask.sum() == 6400
+    assert mask.sum() == (h - 20) * (w - 20)
     assert diterima["encoder"].dtype == np.float32
     if dimensi_encoder == 3:
-        np.testing.assert_array_equal(diterima["encoder"], tile)
+        assert diterima["encoder"].shape == (nh, nw, 3)
+        assert np.all(diterima["encoder"] == 128)
     else:
         assert diterima["encoder"].shape == (1, 3, 1024, 1024)
         assert diterima["encoder"][0, 0, 20, 20] == pytest.approx((128 - 123.675) / 58.395)
     np.testing.assert_allclose(
-        diterima["decoder"]["point_coords"], [[[512, 512], [102.4, 102.4], [921.6, 921.6]]]
+        diterima["decoder"]["point_coords"],
+        [[[nw / 2, nh / 2], [10 * nw / w, 10 * nh / h], [(w - 10) * nw / w, (h - 10) * nh / h]]],
     )
     np.testing.assert_array_equal(diterima["decoder"]["point_labels"], [[1, 2, 3]])
-    np.testing.assert_array_equal(diterima["decoder"]["orig_im_size"], [100, 100])
+    np.testing.assert_array_equal(diterima["decoder"]["orig_im_size"], [h, w])
+
+
+def test_tepi_atap_tidak_dipotong_ke_batas_osm(bingkai, bangunan):
+    """Overhang yang diterima sebagai CV tetap dihitung walaupun melewati footprint."""
+    mask = np.zeros((480, 640), dtype=np.uint8)
+    mask[175:305, 255:385] = 1
+    hasil, metrik = analisis_dari_mask(bangunan, bingkai, mask, 0.95)
+    assert hasil.method == "cv"
+    assert metrik["iou_footprint"] > 0.8
+    assert hasil.roof_area_m2 > bangunan.footprint_m2
+    geo = transform(
+        shape(mask_ke_geometri(mask).__geo_interface__), bingkai.ke_lonlat, interleaved=False
+    )
+    assert hasil.roof_area_m2 == pytest.approx(luas_geodesik(geo), abs=0.1)
+
+
+def test_potongan_atap_kembali_ke_koordinat_kanvas(monkeypatch):
+    from types import SimpleNamespace
+
+    diterima = {}
+
+    class Encoder:
+        def get_inputs(self):
+            return [SimpleNamespace(name="input_image", shape=[None, None, 3])]
+
+        def run(self, _, nilai):
+            diterima["citra"] = nilai["input_image"]
+            return [np.zeros((1, 256, 64, 64), np.float32)]
+
+    class Decoder:
+        def run(self, _, nilai):
+            diterima["decoder"] = nilai
+            masks = np.full((1, 4, 180, 180), -1, np.float32)
+            masks[0, 0, 30:150, 30:150] = 1
+            return masks, np.array([[0.95, 0, 0, 0]], np.float32), None
+
+    monkeypatch.setattr("app.vision._sesi", lambda: (Encoder(), Decoder()))
+    tile = np.zeros((480, 640, 3), np.uint8)
+    tile[150:330, 230:410] = [10, 20, 30]
+    mask, skor = segmentasi_atap(tile, box(260, 180, 380, 300))
+    diharapkan = np.zeros((480, 640), np.uint8)
+    diharapkan[180:300, 260:380] = 1
+    np.testing.assert_array_equal(mask, diharapkan)
+    assert skor == pytest.approx(0.95)
+    np.testing.assert_array_equal(diterima["citra"][512, 512], [10, 20, 30])
+    np.testing.assert_allclose(
+        diterima["decoder"]["point_coords"],
+        [[[512, 512], [1024 / 6, 1024 / 6], [1024 * 5 / 6, 1024 * 5 / 6]]],
+    )
+    np.testing.assert_array_equal(diterima["decoder"]["orig_im_size"], [180, 180])
+
+
+def test_kanvas_penuh_dicoba_jika_potongan_tidak_menemukan_atap(monkeypatch):
+    ukuran = []
+
+    def inferensi(citra, footprint):
+        ukuran.append(citra.shape[:2])
+        mask = np.zeros(citra.shape[:2], np.uint8)
+        if citra.shape[:2] == (480, 640):
+            mask[180:300, 260:380] = 1
+        return mask, 0.95
+
+    monkeypatch.setattr("app.vision._inferensi", inferensi)
+    mask, _ = segmentasi_atap(np.zeros((480, 640, 3), np.uint8), box(260, 180, 380, 300))
+    assert ukuran == [(180, 180), (480, 640)]
+    assert mask[180:300, 260:380].sum() == 14400
+    assert mask.sum() == 14400
+
+
+def test_potongan_di_tepi_tidak_membaca_indeks_negatif(monkeypatch):
+    ukuran = []
+
+    def inferensi(citra, footprint):
+        ukuran.append(citra.shape[:2])
+        mask = np.zeros(citra.shape[:2], np.uint8)
+        mask[0:40, 0:40] = 1
+        return mask, 0.95
+
+    monkeypatch.setattr("app.vision._inferensi", inferensi)
+    mask, _ = segmentasi_atap(np.zeros((100, 100, 3), np.uint8), box(0, 0, 40, 40))
+    assert ukuran == [(56, 56)]
+    assert mask[:40, :40].sum() == 1600
+    assert mask.sum() == 1600

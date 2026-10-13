@@ -6,8 +6,7 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
   it("memuat sembilan bangunan nyata dan kedua metode analisis", () => {
     expect(DAFTAR_BANGUNAN).toHaveLength(9);
     expect(new Set(DAFTAR_BANGUNAN.map((b) => b.id)).size).toBe(9);
-    expect(DAFTAR_BANGUNAN.filter((b) => b.method === "cv")).toHaveLength(5);
-    expect(DAFTAR_BANGUNAN.filter((b) => b.method === "footprint_fallback")).toHaveLength(4);
+    expect(new Set(DAFTAR_BANGUNAN.map((b) => b.method))).toEqual(new Set(["cv", "footprint_fallback"]));
   });
   it("tidak menggambar mask atau objek rekaan pada fallback", () => {
     for (const b of DAFTAR_BANGUNAN) {
@@ -18,7 +17,7 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
         expect(b.peringatan).toBeTruthy();
       } else {
         expect(b.mask_rings.length).toBeGreaterThan(0);
-        expect(b.iou_footprint).toBeGreaterThan(0.5);
+        expect(b.iou_footprint).toBeGreaterThanOrEqual(0.65);
       }
     }
   });

@@ -52,7 +52,7 @@ export const DAFTAR_BANGUNAN: BangunanTargetPindai[] = demo.map(({ bangunan: b, 
 
 export const TAHAP_INFO = [
   { nomor: 1, nama: "Citra", subjudul: "Citra dan batas bangunan", penjelasan: "Citra Esri z=19 dipadankan dengan footprint OSM. Citra latar membutuhkan internet; hasil analisis sudah tersimpan." },
-  { nomor: 2, nama: "Segmentasi", subjudul: "Mask hasil MobileSAM", penjelasan: "Kotak dan centroid OSM memandu inferensi ONNX. IoU terhadap OSM dihitung sebelum pemotongan mask. Mask yang kurang sesuai memakai fallback." },
+  { nomor: 2, nama: "Segmentasi", subjudul: "Mask hasil MobileSAM", penjelasan: "Model membaca potongan citra di sekitar atap. Batas mengikuti mask tanpa dipotong ke OSM. Hasil yang kurang konsisten memakai perkiraan footprint." },
   { nomor: 3, nama: "Area", subjudul: "Cadangan area sebagai asumsi", penjelasan: "Luas mask dihitung pada ellipsoid WGS84. Cadangan area 15% belum diukur. Halangan dan bayangan belum dianalisis." },
   { nomor: 4, nama: "Sumbu", subjudul: "Orientasi dan kemiringan", penjelasan: "Sumbu panjang berasal dari persegi panjang minimum. Sumbu tidak menentukan arah hadap panel. Kemiringan 15° dan hadap panel tetap asumsi simulasi." },
   { nomor: 5, nama: "Potensi", subjudul: "Estimasi dari luas", penjelasan: "Luas perhitungan dibagi luas modul menghasilkan jumlah modul setara. Kapasitas pasang memerlukan batas atap yang diperiksa, penataan per bidang, jarak tepi, akses, bayangan dan pemeriksaan struktur." },
