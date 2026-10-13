@@ -12,6 +12,7 @@ from shapely import transform
 from shapely.geometry import shape
 
 from app.analyses import analisis_bangunan_terbaru, simpan_analisis
+from app.buildings import cari_bangunan, muat_katalog, temukan_area
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
@@ -61,34 +62,18 @@ def jarak_haversine_meter(lat1: float, lon1: float, lat2: float, lon2: float) ->
 
 def muat_semua_bangunan() -> list[tuple[BangunanRingkas, float, float]]:
     """Muat bangunan fixture beserta koordinat centroid (lat, lon)."""
-    hasil: list[tuple[BangunanRingkas, float, float]] = []
-    if not DIR_BANGUNAN.exists():
-        return hasil
-
-    for berkas in DIR_BANGUNAN.glob("*.json"):
-        if berkas.name.endswith(".overpass.json"):
-            continue
-        try:
-            konten = json.loads(berkas.read_text(encoding="utf-8"))
-            bangunan = BangunanRingkas.model_validate(konten)
-            ring = konten["geom"]["coordinates"][0]
-            # Hitung centroid rata-rata koordinat simpul
-            lon_c = sum(p[0] for p in ring) / len(ring)
-            lat_c = sum(p[1] for p in ring) / len(ring)
-            hasil.append((bangunan, lat_c, lon_c))
-        except Exception:
-            continue
+    hasil = []
+    for bangunan in muat_katalog():
+        pusat = shape(bangunan.geom.model_dump()).centroid
+        hasil.append((bangunan, pusat.y, pusat.x))
     return hasil
 
 
-def cari_bangunan_radius(lat: float, lon: float, radius_m: float = 200.0) -> list[BangunanRingkas]:
+def cari_bangunan_radius(
+    lat: float, lon: float, radius_m: float = 200.0, live=False
+) -> list[BangunanRingkas]:
     """Cari bangunan di dalam radius tertentu (maks 200 meter)."""
-    daftar = muat_semua_bangunan()
-    cocok: list[BangunanRingkas] = []
-    for b, lat_c, lon_c in daftar:
-        if jarak_haversine_meter(lat, lon, lat_c, lon_c) <= radius_m:
-            cocok.append(b)
-    return cocok
+    return temukan_area(lat, lon, radius_m, daring=live)
 
 
 def geocode_pencarian_lokal(q: str) -> list[HasilGeocode]:
@@ -133,7 +118,7 @@ def geocode_pencarian_lokal(q: str) -> list[HasilGeocode]:
 
         if cocok:
             nama_tampil = b.nama or f"Bangunan #{b.id}"
-            alamat = f"{nama_tampil}, Kandang Limun, Kota Bengkulu"
+            alamat = f"{nama_tampil}, Kota Bengkulu"
             hasil.append(
                 HasilGeocode(
                     name=nama_tampil,
@@ -148,37 +133,33 @@ def geocode_pencarian_lokal(q: str) -> list[HasilGeocode]:
     return hasil
 
 
-def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
-    """Ambil atau hitung analisis atap untuk sebuah bangunan."""
-    # 1. Periksa apakah sudah ada berkas analisis fixture tersimpan
+def analisis_tersimpan(building_id: int) -> AnalisisAtap | None:
+    """Baca hasil lokal tanpa menjalankan model atau mengakses citra."""
     tersimpan = analisis_bangunan_terbaru(building_id)
-    if tersimpan and not force:
+    if tersimpan:
         return tersimpan
     if DIR_ANALISIS.exists():
         for berkas in DIR_ANALISIS.glob("*.json"):
             try:
                 data = json.loads(berkas.read_text(encoding="utf-8"))
                 if data.get("building_id") == building_id:
-                    tersimpan = AnalisisAtap.model_validate(data)
-                    if not force:
-                        return tersimpan
-                    break
+                    return AnalisisAtap.model_validate(data)
             except Exception:
                 continue
 
-    # 2. Cari data bangunan
-    daftar = muat_semua_bangunan()
-    bangunan_ditemukan: BangunanRingkas | None = None
-    for b, _, _ in daftar:
-        if b.id == building_id:
-            bangunan_ditemukan = b
-            break
+    return None
 
-    if bangunan_ditemukan is None:
+
+def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
+    """Ambil atau hitung analisis atap untuk bangunan OSM di Bengkulu."""
+    tersimpan = analisis_tersimpan(building_id)
+    if tersimpan and not force:
+        return tersimpan
+    bangunan = cari_bangunan(building_id)
+    if bangunan is None:
         raise BuildingNotFoundError(f"Bangunan id {building_id} tidak terdaftar.")
 
     # Hasil tersimpan selalu didahulukan; penghitungan langsung tidak menyimpan tile Esri.
-    bangunan = bangunan_ditemukan
     bingkai = bingkai_bangunan(bangunan)
     sebab = None
     try:
@@ -200,6 +181,8 @@ def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
     analisis, _ = analisis_dari_mask(bangunan, bingkai, mask, skor)
     if tersimpan:
         analisis.roof_analysis_id = tersimpan.roof_analysis_id
+    else:
+        analisis.roof_analysis_id = 1_000_000_000_000 + building_id
     analisis.imagery.source = sumber
     if sebab:
         analisis.peringatan = f"Analisis citra tidak tersedia ({sebab}). {analisis.peringatan}"

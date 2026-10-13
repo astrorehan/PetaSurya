@@ -18,6 +18,27 @@
 # Periode tarif, tahun data, metode emisi, dan revisi modul tetap membatasi pemakaian.
 
 sumber:
+  - id: osm_katalog_bengkulu_20261013
+    nama: Katalog awal dan pencarian bangunan di Kota Bengkulu
+    nilai:
+      bangunan_katalog_awal: 181
+    satuan: poligon WGS84
+    penerbit: OpenStreetMap contributors (ODbL 1.0)
+    url: https://api.openstreetmap.org/api/0.6/map?bbox=102.265,-3.763,102.270,-3.758
+    tahun: 2026
+    diambil: 2026-10-13
+    dipakai_untuk: L1 katalog dan penelusuran bangunan; masukan analisis langsung L2
+    status: terverifikasi
+    catatan: >-
+      Katalog memakai seluruh 180 way bangunan tertutup yang valid pada cuplikan
+      bangunan/mentah/osm-unib-20261013.osm, ditambah contoh awal sehingga total
+      181 ID unik. Sumber contoh awal mengikuti fixture bangunan masing-masing.
+      Luas baru dihitung geodesik; nama tidak tersedia tetap null. Katalog tidak
+      mengandung hasil segmentasi rekaan. Pencarian area dilakukan atas tindakan
+      pengguna, dibatasi 200 m dan Kota Bengkulu, lalu geometri disimpan lokal.
+      Batas radius 200 m merupakan batas aplikasi, bukan batas resmi OSM.
+      Dokumentasi endpoint https://wiki.openstreetmap.org/wiki/API_v0.6.
+
   - id: mobilesam_onnx_acly
     nama: MobileSAM, encoder dan decoder ONNX
     nilai:

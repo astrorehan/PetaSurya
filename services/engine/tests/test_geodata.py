@@ -122,8 +122,9 @@ def test_analyze_building_fallback():
     assert analisis.peringatan is not None
 
 
-def test_analyze_building_tidak_ada():
+def test_analyze_building_tidak_ada(monkeypatch):
     """Uji analisis bangunan yang tidak terdaftar menghasilkan 404 BUILDING_NOT_FOUND."""
+    monkeypatch.setattr("app.buildings.ambil_osm", lambda _: b"<osm/>")
     response = client.post("/api/v1/analyze", json={"building_id": 99999999, "force": False})
     assert response.status_code == 404
     galat = GalatApi.model_validate(response.json())

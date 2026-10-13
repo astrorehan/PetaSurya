@@ -111,6 +111,7 @@ def paket_demo(force=False) -> None:
                 "analisis": a.model_dump(mode="json", exclude_unset=True),
                 "simulasi": hasil,
                 "viewer": {
+                    "bingkai": asdict(bingkai),
                     "tiles": ada["_sumber"]["tiles"],
                     "footprint": list(footprint.exterior.coords),
                     "mask": [list(p.exterior.coords) for p in pixel.geoms] if pixel else [],

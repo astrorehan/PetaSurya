@@ -39,6 +39,20 @@ analisis tersimpan; `--force` menjalankan ulang inferensi. Enam footprint tambah
 dapat dibentuk ulang dari respons OSM mentah dengan
 `uv run python -m scripts.ambil_bangunan_demo`.
 
+Katalog awal berisi 181 bangunan nyata dari cuplikan OSM dan sembilan contoh
+awal. `uv run python -m scripts.buat_katalog_bangunan` membentuk ulang katalog
+tanpa membuat analisis. Beranda mengambil bangunan lain di sekitar pusat peta
+melalui OSM Map API, pada radius maksimal 200 m. Cakupan dibatasi batas Kota
+Bengkulu karena cuaca simulasi memakai acuan Bengkulu 2024.
+
+`GET /api/v1/catalog` membaca katalog lokal, `GET /api/v1/scans/{building_id}`
+menyiapkan citra dan hasil tersimpan, dan `POST /api/v1/scans` menjalankan model
+bagi bangunan baru. Bangunan yang belum dihitung membawa `analisis: null`.
+`GET /api/v1/scans` mengembalikan ID hasil tersimpan. Geometri serta hasil baru
+disimpan pada SQLite di `data/cache/`, yang diabaikan Git; citra tidak disimpan.
+Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
+tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
+
 `POST /api/v1/analyze` mengembalikan hasil tersimpan tanpa jaringan. `force: true`
 menjalankan inferensi dari citra lokal bergeoreferensi bila ada, atau mosaik Esri
 dalam memori. Kegagalan citra/model memakai `footprint_fallback` dengan peringatan.

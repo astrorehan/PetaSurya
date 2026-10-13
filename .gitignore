@@ -29,6 +29,7 @@ test-results/
 # model & data besar
 services/engine/models/*.onnx
 data/tiles/
+data/cache/
 
 # editor & OS
 .vscode/
