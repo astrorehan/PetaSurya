@@ -1,0 +1,63 @@
+{
+  "_catatan": "Bangunan nyata OSM; dipilih berdasarkan jarak dari FH UNIB, bukan skor CV.",
+  "_sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL 1.0)",
+    "url_kueri": "https://api.openstreetmap.org/api/0.6/map?bbox=102.265,-3.763,102.270,-3.758",
+    "kueri": "bbox=102.265,-3.763,102.270,-3.758",
+    "diambil": "2026-10-13",
+    "osm_timestamp": "2023-02-16T02:08:20Z",
+    "osm_version": 2,
+    "mentah": "mentah/osm-unib-20261013.osm"
+  },
+  "id": 304512057,
+  "source": "osm",
+  "source_ref": "way/304512057",
+  "geom": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          102.2685186,
+          -3.7604909
+        ],
+        [
+          102.2687899,
+          -3.7605388
+        ],
+        [
+          102.2688175,
+          -3.7603833
+        ],
+        [
+          102.2687215,
+          -3.7603664
+        ],
+        [
+          102.268727,
+          -3.7603352
+        ],
+        [
+          102.2686566,
+          -3.7603228
+        ],
+        [
+          102.268652,
+          -3.7603489
+        ],
+        [
+          102.268547,
+          -3.7603304
+        ],
+        [
+          102.2685186,
+          -3.7604909
+        ]
+      ]
+    ]
+  },
+  "footprint_m2": 568.9,
+  "building_tag": "university",
+  "levels": 2,
+  "nama": "Pasca Sarjana FH UNIB",
+  "region_code": "1771"
+}

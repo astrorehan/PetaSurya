@@ -31,6 +31,31 @@ uv run pytest
 
 ## Konvensi
 
+L2 memakai MobileSAM ONNX pada CPU. Dari direktori engine, jalankan
+`uv run python -m scripts.unduh_model_vision` untuk mengunduh bobot yang dipatok
+beserta pemeriksaan SHA-256, lalu `uv run python -m scripts.buat_fixture_vision`
+untuk menghasilkan paket sembilan bangunan demo. Pengulangan biasa memakai
+analisis tersimpan; `--force` menjalankan ulang inferensi. Enam footprint tambahan
+dapat dibentuk ulang dari respons OSM mentah dengan
+`uv run python -m scripts.ambil_bangunan_demo`.
+
+`POST /api/v1/analyze` mengembalikan hasil tersimpan tanpa jaringan. `force: true`
+menjalankan inferensi dari citra lokal bergeoreferensi bila ada, atau mosaik Esri
+dalam memori. Kegagalan citra/model memakai `footprint_fallback` dengan peringatan.
+Mask dinilai **sebelum** dipotong ke footprint. Jalur CV membutuhkan IoU terhadap
+OSM > 0,5 dan skor heuristik ≥ 0,45. IoU ini mengukur kesesuaian dengan OSM,
+bukan akurasi terhadap anotasi atap. Skor belum dikalibrasi. Luas mask dihitung
+pada ellipsoid WGS84; tilt 15°, cadangan area 15% dan hadap panel tetap asumsi.
+Halangan serta bayangan belum diukur. Sumbu persegi panjang minimum modulo 180°
+tidak menentukan hadap bidang atap.
+
+Bobot dan tile tidak masuk Git. Ketentuan World Imagery membatasi ekspor luring;
+paket demo menyimpan hasil segmentasi, sedangkan citra latar tetap daring.
+Untuk citra lokal yang berizin, sediakan `data/tiles/<building_id>.png` dan JSON
+dengan bentuk `{"bingkai":{"x0":0,"y0":0,"lebar":640,"tinggi":480,"zoom":19},"source":"nama-sumber"}`.
+`x0/y0` adalah asal piksel global Web Mercator pada zoom tersebut, **bukan**
+lintang/bujur. Mask dan angka tersimpan tetap dapat ditampilkan tanpa internet.
+
 Alamat engine web memakai `NEXT_PUBLIC_API_BASE` di `apps/web/.env.local`; ubah sebelum menjalankan atau membangun web. Contoh ada di `apps/web/.env.example`.
 
 `POST /api/v1/simulate` mewajibkan `parameter_fisika` berisi `modul` (Wp, dimensi, gamma, NOCT), `albedo`, dan `derate`. Kotoran, mismatch, kabel DC dan ketersediaan adalah fraksi **rugi**; inverter adalah fraksi **efisiensi**. Mesin memakai NOCT dan efisiensi inverter konstan, lalu mengalikan faktor derate sekali. Masukan tersimpan agar hasil dapat direproduksi. Modul demo mengikuti lembar data Jinko F5; albedo dan derate tetap asumsi. Ketiga fixture hasil dihitung ulang dengan `uv run python -m scripts.buat_fixture_simulasi` dari direktori engine, memakai angka serta asalnya dari registri sumber. Jejak ekonomi dan karbon hanya menyebut sumber resmi bila cocok dengan masukan; nilai yang diubah ditandai sebagai masukan pengguna.

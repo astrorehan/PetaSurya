@@ -1,0 +1,47 @@
+{
+  "_catatan": "Bangunan nyata OSM; dipilih berdasarkan jarak dari FH UNIB, bukan skor CV.",
+  "_sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL 1.0)",
+    "url_kueri": "https://api.openstreetmap.org/api/0.6/map?bbox=102.265,-3.763,102.270,-3.758",
+    "kueri": "bbox=102.265,-3.763,102.270,-3.758",
+    "diambil": "2026-10-13",
+    "osm_timestamp": "2024-03-04T04:25:58Z",
+    "osm_version": 1,
+    "mentah": "mentah/osm-unib-20261013.osm"
+  },
+  "id": 1257322079,
+  "source": "osm",
+  "source_ref": "way/1257322079",
+  "geom": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          102.2683361,
+          -3.7610143
+        ],
+        [
+          102.2683014,
+          -3.7609164
+        ],
+        [
+          102.2683934,
+          -3.7608839
+        ],
+        [
+          102.2684281,
+          -3.7609818
+        ],
+        [
+          102.2683361,
+          -3.7610143
+        ]
+      ]
+    ]
+  },
+  "footprint_m2": 124.5,
+  "building_tag": "yes",
+  "levels": null,
+  "nama": "Bangunan UNIB 1257322079",
+  "region_code": "1771"
+}

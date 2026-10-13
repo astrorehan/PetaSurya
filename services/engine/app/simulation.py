@@ -121,6 +121,10 @@ def muat_cuaca_bengkulu() -> pd.DataFrame:
 
 def cari_analisis_atap(roof_analysis_id: int) -> AnalisisAtap | None:
     """Cari analisis atap berdasarkan id dari fixture yang tersedia."""
+    from app.analyses import analisis_terbaru
+
+    if terbaru := analisis_terbaru(roof_analysis_id):
+        return terbaru
     if not DIR_ANALISIS.exists():
         return None
     for berkas in DIR_ANALISIS.glob("*.json"):

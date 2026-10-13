@@ -1,56 +1,112 @@
 {
-  "_catatan": "contoh dari cetak biru, bukan hasil hitungan. Angka dari contoh respons POST /analyze (jalur cv). building_id dan mask_geojson diarahkan ke fixture bangunan toko-wr-supratman agar bisa ditampilkan di peta; mask = jejak bangunan OSM, bukan hasil segmentasi, dan luas contoh (112,4 m²) tidak berasal dari bangunan itu.",
   "roof_analysis_id": 9912,
   "building_id": 991016391,
-  "roof_area_m2": 112.4,
-  "usable_area_m2": 78.7,
-  "obstruction_frac": 0.19,
-  "tilt_deg": 22.0,
-  "azimuth_deg": 285.0,
-  "roof_type": "pelana",
-  "confidence": 0.81,
-  "method": "cv",
+  "roof_area_m2": 207.9,
+  "usable_area_m2": 176.7,
+  "obstruction_frac": 0.0,
+  "tilt_deg": 15.0,
+  "azimuth_deg": 112.0,
+  "roof_type": "kompleks",
+  "confidence": 0.44,
+  "method": "footprint_fallback",
   "model_version": "mobilesam-osmprompt-v3",
   "imagery": {
     "source": "esri-world-imagery",
-    "date": "2025-07-14"
+    "date": null
   },
-  "mask_geojson": {
-    "type": "MultiPolygon",
-    "coordinates": [
-      [
-        [
-          [
-            102.271636,
-            -3.7626287
-          ],
-          [
-            102.2718471,
-            -3.7627138
-          ],
-          [
-            102.2718167,
-            -3.762789
-          ],
-          [
-            102.2715798,
-            -3.7626932
-          ],
-          [
-            102.2715985,
-            -3.7626469
-          ],
-          [
-            102.2716244,
-            -3.7626574
-          ],
-          [
-            102.271636,
-            -3.7626287
-          ]
-        ]
-      ]
-    ]
+  "mask_geojson": null,
+  "catatan": "Tilt 15° dan cadangan area 15% adalah asumsi; obstruksi belum diukur. Azimut adalah sumbu panjang modulo 180°, bukan arah hadap bidang atap. Skor keyakinan merupakan heuristik yang belum dikalibrasi terhadap anotasi.",
+  "peringatan": "Mask kurang sesuai dengan batas OSM. Luas diperkirakan dari footprint × 0,85; periksa batas atap sebelum merencanakan pemasangan.",
+  "_catatan": "Inferensi MobileSAM nyata; IoU dibandingkan dengan OSM, bukan anotasi atap.",
+  "_evaluasi": {
+    "sam_score": 0.8652840852737427,
+    "iou_footprint": 0.416971445473732,
+    "rasio_luas": 1.4438373494334595,
+    "confidence": 0.6465503744022986,
+    "durasi_detik": 4.968,
+    "kalibrasi": "heuristik-belum-terkalibrasi",
+    "ambang_iou_footprint": 0.5,
+    "ambang_keyakinan": 0.45,
+    "sha256_citra_rgb": "a6c7477831d8ae56d6e6d03b98556b821158dc591773151556538231288817dd",
+    "sha256_mask": "9e0eb7cb144a101c21d23c3b39faf0b0c106324e0544f091d34032f44f173bf4",
+    "bobot": {
+      "mobilesam_encoder.onnx": "580f5fb648ea1062c0aabc26217aed56921985f03f0cbbd852bba81d760cc749",
+      "mobilesam_decoder.onnx": "8976b90a87ba50a6a72217a5ff994f7d25ce16f2229fcc1ed259e1294c622ffe"
+    }
   },
-  "catatan": "Dua objek terdeteksi di atap (kemungkinan tangki air) dan sudah dikurangkan."
+  "_sumber": {
+    "model": "https://huggingface.co/Acly/MobileSAM",
+    "revision": "0d3b403339b4674a82493d5e97964dd78089ddc8",
+    "diambil": "2026-10-13",
+    "bingkai": {
+      "x0": 105238203.96089731,
+      "y0": 68512472.08354403,
+      "lebar": 640,
+      "tinggi": 480,
+      "zoom": 19
+    },
+    "tiles": [
+      {
+        "x": -187.96089731156826,
+        "y": -216.08354403078556,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411086"
+      },
+      {
+        "x": 68.03910268843174,
+        "y": -216.08354403078556,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411087"
+      },
+      {
+        "x": 324.03910268843174,
+        "y": -216.08354403078556,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411088"
+      },
+      {
+        "x": 580.0391026884317,
+        "y": -216.08354403078556,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411089"
+      },
+      {
+        "x": -187.96089731156826,
+        "y": 39.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411086"
+      },
+      {
+        "x": 68.03910268843174,
+        "y": 39.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411087"
+      },
+      {
+        "x": 324.03910268843174,
+        "y": 39.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411088"
+      },
+      {
+        "x": 580.0391026884317,
+        "y": 39.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411089"
+      },
+      {
+        "x": -187.96089731156826,
+        "y": 295.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411086"
+      },
+      {
+        "x": 68.03910268843174,
+        "y": 295.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411087"
+      },
+      {
+        "x": 324.03910268843174,
+        "y": 295.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411088"
+      },
+      {
+        "x": 580.0391026884317,
+        "y": 295.91645596921444,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411089"
+      }
+    ],
+    "citra_disimpan": false
+  }
 }

@@ -18,6 +18,62 @@
 # Periode tarif, tahun data, metode emisi, dan revisi modul tetap membatasi pemakaian.
 
 sumber:
+  - id: mobilesam_onnx_acly
+    nama: MobileSAM, encoder dan decoder ONNX
+    nilai:
+      revision: 0d3b403339b4674a82493d5e97964dd78089ddc8
+      ukuran_byte: 44653652
+    satuan: bobot model ONNX
+    penerbit: Chaoning Zhang dkk.; ekspor ONNX Acly
+    url: https://huggingface.co/Acly/MobileSAM
+    tahun: 2023
+    diambil: 2026-10-13
+    dipakai_untuk: L2 segmentasi atap, ONNX Runtime CPU
+    status: terverifikasi
+    catatan: >-
+      Model asli https://github.com/ChaoningZhang/MobileSAM memakai Apache-2.0;
+      metadata ekspor Acly menyebut MIT. Versi, ukuran dan SHA-256 kedua berkas
+      dipatok pada services/engine/models/mobilesam.json. Bobot tidak di-commit;
+      skrip unduh_model_vision memeriksa hash. Encoder ini menyertakan
+      resize/normalisasi RGB; decoder menerima titik positif dan sudut kotak OSM.
+
+  - id: osm_bangunan_demo_unib_20261013
+    nama: Enam footprint bangunan tambahan sekitar FH UNIB
+    nilai:
+      way_ids: [1257322079, 304512057, 1146140956, 983558974, 983558971, 983558973]
+    satuan: poligon WGS84
+    penerbit: OpenStreetMap contributors (ODbL 1.0)
+    url: https://api.openstreetmap.org/api/0.6/map?bbox=102.265,-3.763,102.270,-3.758
+    tahun: 2026
+    diambil: 2026-10-13
+    dipakai_untuk: L1 footprint, L2 evaluasi kesesuaian dan bangunan demo
+    status: terverifikasi
+    catatan: >-
+      Respons XML mentah di data/fixtures/bangunan/mentah/osm-unib-20261013.osm.
+      Dipilih berdasarkan jarak dari FH UNIB dan luas minimal 100 m²,
+      sebelum inferensi dan tanpa memilih berdasarkan skor model.
+      Luas dihitung pada ellipsoid WGS84. Nama kosong ditampilkan sebagai ID,
+      bukan nama gedung rekaan. Atribusi © OpenStreetMap contributors wajib.
+
+  - id: esri_world_imagery_l2
+    nama: World Imagery, citra z=19 untuk analisis atap
+    nilai:
+    satuan: citra RGB, tile 256 px
+    penerbit: Esri, Vantor, Earthstar Geographics dan GIS User Community
+    url: https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9
+    tahun: 2025
+    diambil: 2026-10-13
+    dipakai_untuk: L2 masukan segmentasi dan latar pemindai daring
+    status: terverifikasi
+    catatan: >-
+      Tanggal pengambilan citra tidak tersedia; tanggal akses bukan tanggal citra.
+      Item memakai Esri Master License Agreement dan tidak ditujukan untuk
+      ekspor tile luring. Ringkasan ketentuan https://goto.arcgis.com/termsofuse/viewsummary
+      membatasi pengunduhan, distribusi ulang dan self-hosting. Tile hanya
+      diproses dalam memori, tidak disimpan ke fixture atau disertakan ke repo.
+      Demo menyimpan mask/hasil analisis; latar citra tetap memerlukan internet.
+      Citra milik pengguna yang berizin dapat disediakan melalui data/tiles.
+
   - id: osm_overpass_bangunan_bengkulu
     nama: Jejak bangunan OpenStreetMap, Kandang Limun, Kota Bengkulu (3 way)
     nilai:

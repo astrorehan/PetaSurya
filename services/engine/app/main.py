@@ -27,7 +27,7 @@ from app.simulation import (
     jalankan_simulasi,
 )
 
-VERSION = "engine.2026.10.09"
+VERSION = "engine.2026.10.13"
 
 app = FastAPI(title="PetaSurya engine", version=VERSION)
 
@@ -109,10 +109,10 @@ def geocode(
     return geocode_pencarian_lokal(q)
 
 
-@app.post("/api/v1/analyze", response_model=AnalisisAtap)
+@app.post("/api/v1/analyze", response_model=AnalisisAtap, response_model_exclude_unset=True)
 def analyze(permintaan: PermintaanAnalisis) -> AnalisisAtap:
     """Analisis segmentasi atap satu bangunan (CV atau fallback)."""
-    return proses_analisis_atap(permintaan.building_id)
+    return proses_analisis_atap(permintaan.building_id, force=permintaan.force)
 
 
 @app.post("/api/v1/simulate", response_model=HasilSimulasi)

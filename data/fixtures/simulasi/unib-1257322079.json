@@ -1,0 +1,100 @@
+{
+  "id": "demo-unib-1257322079",
+  "engine_version": "l3.2026.10.09+l4.2026.09.22+l5.2026.09.22",
+  "kwp": 18.7,
+  "module_count": 34,
+  "poa_kwh_m2_yr": 1465.8,
+  "e_ac_kwh_yr1": 22644.1,
+  "pr": 0.826,
+  "scr": 0.85,
+  "capex_idr": 271150000.0,
+  "savings_idr_yr1": 27806841.579499997,
+  "payback_years": 11.176471799023062,
+  "npv_idr": -37027977.197230935,
+  "irr": 0.07216159641126463,
+  "lcoe_idr_kwh": 1402.3732694562498,
+  "co2e_ton_yr": 19.02,
+  "co2e_ton_25yr": 419.09,
+  "monthly_kwh": [
+    1951.7,
+    1775.4,
+    1960.0,
+    1835.2,
+    1726.8,
+    1620.9,
+    1898.3,
+    1933.4,
+    1912.5,
+    2358.0,
+    1790.7,
+    1881.2
+  ],
+  "asumsi": {
+    "golongan_tarif": "B-2/TR",
+    "daya_va": 197000,
+    "tarif_rp_kwh": 1444.7,
+    "scr": 0.85,
+    "biaya_per_kwp": 14500000.0,
+    "opex_frac": 0.01,
+    "diskonto": 0.09,
+    "eskalasi_tarif": 0.0,
+    "degradasi_thn": 0.006,
+    "umur_tahun": 25,
+    "ef_grid_tco2_mwh": 0.84,
+    "faktor_ekspor": 0.0
+  },
+  "jejak": {
+    "poa": {
+      "rumus": "POA = DNI·max(cos(AOI), 0) + POA_baur + POA_tanah",
+      "sumber": "Hay-Davies (pvlib.irradiance.haydavies); cuaca NASA POWER Bengkulu 2024"
+    },
+    "suhu_sel": {
+      "rumus": "T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = 45 °C",
+      "sumber": "Model NOCT; Jinko JKM550M-72HL4(-V) F5-EN, 2022, halaman 2"
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02,
+      "gabungan": 0.8810027716
+    },
+    "ekonomi": {
+      "rumus": "Kas_n = E_n × [SCR + (1−SCR) × faktor_ekspor] × tarif_n − OPEX_n",
+      "sumber": "Tarif dasar Permen ESDM 7/2024, tidak naik sejak 2024 (rujukan kebijakan hingga September 2026). Biaya acuan IESR 2020: titik tengah Rp14–15 juta/kWp; bukan penawaran 2026. SCR, OPEX, diskonto dan degradasi adalah asumsi skenario."
+    },
+    "karbon": {
+      "rumus": "CO2_tahun1 = E_AC / 1000 × EF_grid; satuan tCO2/tahun",
+      "sumber": "Gatrik, Sumatera 2019, CM ex-ante OM/BM 0,75/0,25; komponen CO2 saja"
+    }
+  },
+  "parameter_fisika": {
+    "modul": {
+      "wp": 550.0,
+      "panjang_m": 2.278,
+      "lebar_m": 1.134,
+      "gamma_p": -0.0035,
+      "t_noct": 45.0
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02
+    },
+    "albedo": 0.2
+  },
+  "_catatan": "contoh simulasi dihitung dengan mesin dan analisis MobileSAM nyata atau fallback OSM. Tilt, orientasi bidang panel, cadangan area, SCR, golongan/daya, biaya dan rugi tetap asumsi demo. Sumber tarif, modul, emisi dan cuaca mengikuti registri.",
+  "_sumber_ids": [
+    "nasa_power_hourly_bengkulu_2024",
+    "tarif_pln_permen_7_2024",
+    "kebijakan_tarif_tetap_2024_2026",
+    "biaya_per_kwp_terpasang",
+    "permen_esdm_2_2024_faktor_ekspor",
+    "ef_grid_sumatera_2019",
+    "unfccc_tool07_v7_bobot_surya",
+    "modul_jinko_jkm550m_72hl4_f5"
+  ]
+}

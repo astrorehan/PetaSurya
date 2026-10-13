@@ -5,8 +5,13 @@ description = "Mesin hitung PetaSurya: geo, vision, fisika, ekonomi, karbon, agr
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",
+    "onnxruntime>=1.31.0",
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=12.3.0",
     "pvlib>=0.11",
+    "pyproj>=3.8.0",
     "pyyaml>=6.0",
+    "shapely>=2.2.0",
     "uvicorn[standard]>=0.30",
 ]
 

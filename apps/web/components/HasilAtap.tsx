@@ -257,7 +257,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       <section className={s.gridLokasi} aria-label="Lokasi dan keyakinan analisis">
         <Peta className={s.petaHasil} label={`Peta ${nama}, atap tersorot`} tinggi={300} geometriSorot={geometriSorot} />
         <aside className={s.kartuKeyakinan} aria-labelledby="judul-keyakinan">
-          <p className={s.label}>Keyakinan analisis</p>
+          <p className={s.label}>Keyakinan analisis (heuristik)</p>
           <h2 id="judul-keyakinan">{persen(analisis.confidence)} · {keyakinan}</h2>
           <details className={s.rincian}>
             <summary>Sumber analisis <Ikon ikon={ChevronDown} /></summary>
@@ -270,6 +270,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
               <div><dt>Model</dt><dd>{analisis.model_version}</dd></div>
               <div><dt>Versi hitungan</dt><dd>{simulasiAktif.engine_version}</dd></div>
             </dl>
+            {analisis.catatan ? <p className={s.sumberJejak}>{analisis.catatan}</p> : null}
           </details>
         </aside>
       </section>

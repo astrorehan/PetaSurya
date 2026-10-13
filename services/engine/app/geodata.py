@@ -6,16 +6,19 @@ import json
 import math
 from pathlib import Path
 
+import numpy as np
 from pydantic import BaseModel, Field
+from shapely import transform
+from shapely.geometry import shape
 
+from app.analyses import analisis_bangunan_terbaru, simpan_analisis
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
-    CitraAnalisis,
-    MetodeAnalisis,
-    TipeAtap,
 )
+from app.imagery import ambil_citra, bingkai_bangunan, muat_citra_lokal
 from app.simulation import BuildingNotFoundError
+from app.vision import analisis_dari_mask, segmentasi_atap
 
 DIR_ROOT = Path(__file__).resolve().parents[3]
 DIR_BANGUNAN = DIR_ROOT / "data" / "fixtures" / "bangunan"
@@ -36,7 +39,7 @@ class HasilGeocode(BaseModel):
 class PermintaanAnalisis(BaseModel):
     """Badan permintaan untuk POST /api/v1/analyze."""
 
-    building_id: int
+    building_id: int = Field(gt=0)
     force: bool = False
 
 
@@ -145,15 +148,21 @@ def geocode_pencarian_lokal(q: str) -> list[HasilGeocode]:
     return hasil
 
 
-def proses_analisis_atap(building_id: int) -> AnalisisAtap:
+def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
     """Ambil atau hitung analisis atap untuk sebuah bangunan."""
     # 1. Periksa apakah sudah ada berkas analisis fixture tersimpan
+    tersimpan = analisis_bangunan_terbaru(building_id)
+    if tersimpan and not force:
+        return tersimpan
     if DIR_ANALISIS.exists():
         for berkas in DIR_ANALISIS.glob("*.json"):
             try:
                 data = json.loads(berkas.read_text(encoding="utf-8"))
                 if data.get("building_id") == building_id:
-                    return AnalisisAtap.model_validate(data)
+                    tersimpan = AnalisisAtap.model_validate(data)
+                    if not force:
+                        return tersimpan
+                    break
             except Exception:
                 continue
 
@@ -168,28 +177,31 @@ def proses_analisis_atap(building_id: int) -> AnalisisAtap:
     if bangunan_ditemukan is None:
         raise BuildingNotFoundError(f"Bangunan id {building_id} tidak terdaftar.")
 
-    # 3. Buat estimasi fallback L2
-    luas_jejak = bangunan_ditemukan.footprint_m2
-    roof_area = round(luas_jejak * 0.85, 1)
-    usable_area = round(roof_area * 0.85, 1)
-
-    return AnalisisAtap(
-        roof_analysis_id=int(f"99{building_id % 1000:03d}"),
-        building_id=building_id,
-        roof_area_m2=roof_area,
-        usable_area_m2=usable_area,
-        obstruction_frac=0.15,
-        tilt_deg=15.0,
-        azimuth_deg=180.0,
-        roof_type=TipeAtap.pelana,
-        confidence=0.35,
-        method=MetodeAnalisis.footprint_fallback,
-        model_version="footprint-heuristic-v1",
-        imagery=CitraAnalisis(source="esri-world-imagery", date=None),
-        mask_geojson=None,
-        catatan="Dihitung dari aturan fallback L2: luas atap = jejak OSM × 0,85.",
-        peringatan=(
-            "Keyakinan CV rendah. Luas atap diperkirakan dari jejak bangunan OSM "
-            "dikali 0,85. Silakan gambar ulang batas atap secara manual."
-        ),
-    )
+    # Hasil tersimpan selalu didahulukan; penghitungan langsung tidak menyimpan tile Esri.
+    bangunan = bangunan_ditemukan
+    bingkai = bingkai_bangunan(bangunan)
+    sebab = None
+    try:
+        lokal = muat_citra_lokal(building_id)
+        if lokal:
+            bingkai, citra, sumber = lokal
+        else:
+            citra = ambil_citra(bingkai)
+            sumber = "esri-world-imagery"
+        footprint = transform(
+            shape(bangunan.geom.model_dump()), bingkai.ke_piksel, interleaved=False
+        )
+        mask, skor = segmentasi_atap(citra, footprint)
+    except (OSError, ValueError) as galat:
+        sebab = str(galat)
+        sumber = "tidak-tersedia"
+        mask = np.zeros((bingkai.tinggi, bingkai.lebar), dtype=np.uint8)
+        skor = 0.0
+    analisis, _ = analisis_dari_mask(bangunan, bingkai, mask, skor)
+    if tersimpan:
+        analisis.roof_analysis_id = tersimpan.roof_analysis_id
+    analisis.imagery.source = sumber
+    if sebab:
+        analisis.peringatan = f"Analisis citra tidak tersedia ({sebab}). {analisis.peringatan}"
+    simpan_analisis(analisis)
+    return analisis

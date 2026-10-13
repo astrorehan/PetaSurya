@@ -1,10 +1,7 @@
-import type { BangunanRingkas } from "@petasurya/contracts";
-import kampusJson from "../../../data/fixtures/bangunan/kampus-fh-unib.json";
-import rumahJson from "../../../data/fixtures/bangunan/rumah-kandang-limun.json";
-import tokoJson from "../../../data/fixtures/bangunan/toko-wr-supratman.json";
+import { DATA_DEMO } from "../lib/demo";
 import { BerandaInteraktif } from "../components/Beranda";
 
-const bangunan: BangunanRingkas[] = [kampusJson, rumahJson, tokoJson] as unknown as BangunanRingkas[];
+const bangunan = DATA_DEMO.map((data) => data.bangunan);
 
 export default async function Beranda({ searchParams }: { searchParams?: Promise<{ q?: string | string[] }> }) {
   const params = searchParams ? await searchParams : {};

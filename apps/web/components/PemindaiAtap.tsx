@@ -16,7 +16,7 @@ import {
 export type { BangunanTargetPindai, TileCitra };
 export { DAFTAR_BANGUNAN, TAHAP_INFO };
 
-const TAHAP_RINGKAS = ["Citra", "Atap", "Halangan", "Arah", "Panel"];
+const TAHAP_RINGKAS = ["Citra", "Atap", "Area", "Sumbu", "Panel"];
 
 const KUERI_SEMPIT = "(max-width: 560px)";
 const langgananSempit = (ubah: () => void) => {
@@ -42,35 +42,45 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const [tahap, setTahap] = useState(1);
   const [sedangMemindai, setSedangMemindai] = useState(false);
   const [kecepatan, setKecepatan] = useState<1 | 2>(1);
-  const [tipeModul, setTipeModul] = useState<550 | 440>(550);
+  const tipeModul = 550;
+  const [citraGagal, setCitraGagal] = useState(false);
 
   // Sakelar lapisan visual
   const [tampilSatelit, setTampilSatelit] = useState(true);
   const [tampilKontur, setTampilKontur] = useState(true);
-  const [tampilObstruksi, setTampilObstruksi] = useState(true);
-  const [tampilBubungan, setTampilBubungan] = useState(true);
+  const [tampilSumbu, setTampilSumbu] = useState(true);
   const [tampilModul, setTampilModul] = useState(true);
   const [tampilKompas, setTampilKompas] = useState(true);
 
-  // Status interaktif hover inspeksi
-  const [obstruksiSorot, setObstruksiSorot] = useState<string | null>(null);
+  // Status inspeksi sketsa panel.
   const [modulSorot, setModulSorot] = useState<number | null>(null);
-
-  // Animasi posisi laser scanline
-  const [scanlineY, setScanlineY] = useState(120);
-
   const wadahRef = useRef<HTMLDivElement>(null);
   const Judul = mode === "halaman" ? "h1" : "h2";
 
-  // Layar sempit: pangkas kanvas 2× di sekitar pusat. Semua bbox fixture berada di 160–480 × 120–360.
-  const sempit = useSyncExternalStore(langgananSempit, cekSempit, () => false);
-  const viewBox = sempit ? "160 120 320 240" : "0 0 640 480";
-  const posisiKompas = sempit ? "translate(444, 156)" : "translate(596, 44)";
-
   const bangunan = DAFTAR_BANGUNAN[indeksBangunan];
+  const sempit = useSyncExternalStore(langgananSempit, cekSempit, () => false);
+  const lebarKanvas = Math.min(640, Math.max(320, bangunan.bbox[2] + 72, (bangunan.bbox[3] + 72) * 4 / 3));
+  const tinggiKanvas = lebarKanvas * 3 / 4;
+  const viewBox = sempit ? `${320 - lebarKanvas / 2} ${240 - tinggiKanvas / 2} ${lebarKanvas} ${tinggiKanvas}` : "0 0 640 480";
+  const posisiKompas = sempit ? `translate(${320 + lebarKanvas / 2 - 44}, ${240 - tinggiKanvas / 2 + 44})` : "translate(596, 44)";
   const tahapAktif = TAHAP_INFO[tahap - 1];
   const spekAktif = bangunan.specs[tipeModul];
-  const modulAktif = tipeModul === 550 ? bangunan.pv_modules_550 : bangunan.pv_modules_440;
+  const modulAktif = bangunan.pv_modules_550;
+
+  useEffect(() => {
+    let aktif = true;
+    // Tile dapat gagal sebelum hidrasi; periksa lagi dengan listener yang sudah terpasang.
+    const gambar = bangunan.tiles.map((tile) => {
+      const citra = new Image();
+      citra.onerror = () => { if (aktif) setCitraGagal(true); };
+      citra.src = tile.url;
+      return citra;
+    });
+    return () => {
+      aktif = false;
+      gambar.forEach((citra) => { citra.onerror = null; });
+    };
+  }, [bangunan]);
 
   // Sinkronisasi URL query param saat ganti bangunan di mode halaman
   useEffect(() => {
@@ -80,31 +90,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
       window.history.replaceState(null, "", url.toString());
     }
   }, [bangunan.id, mode]);
-
-  // Efek animasi laser scanline saat pemindaian aktif
-  useEffect(() => {
-    if (!sedangMemindai || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let arah = 1;
-    const batasAtas = 140;
-    const batasBawah = 350;
-
-    const interval = setInterval(() => {
-      setScanlineY((sebelumnya) => {
-        let lanjut = sebelumnya + 4 * arah * kecepatan;
-        if (lanjut >= batasBawah) {
-          arah = -1;
-          lanjut = batasBawah;
-        } else if (lanjut <= batasAtas) {
-          arah = 1;
-          lanjut = batasAtas;
-        }
-        return lanjut;
-      });
-    }, 32);
-
-    return () => clearInterval(interval);
-  }, [sedangMemindai, kecepatan]);
 
   // Efek pergantian tahap otomatis saat pemindaian aktif
   useEffect(() => {
@@ -197,9 +182,9 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
   const gantiBangunan = (idx: number) => {
     setIndeksBangunan(idx);
+    setCitraGagal(false);
     setTahap(1);
     setSedangMemindai(false);
-    setObstruksiSorot(null);
     setModulSorot(null);
   };
 
@@ -207,7 +192,10 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
     return bangunan.polygon.map(([x, y]) => `${x},${y}`).join(" ");
   }, [bangunan]);
 
-  // Sudut dial kompas dan vektor hadap
+  const maskPath = useMemo(() => bangunan.mask_rings.map((rings) => rings.map((ring) =>
+    `M ${ring.map(([x, y]) => `${x} ${y}`).join(" L ")} Z`).join(" ")).join(" "), [bangunan]);
+
+  // Sudut sumbu geometri pada dial kompas.
   const rotasiJarum = bangunan.azimuth_deg;
 
   const konten = (
@@ -215,7 +203,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
       <header className={s.kepala}>
         <div className={s.labelBaris}>
           <Judul id="judul-modal-pemindai" className={s.judul}>Pindai atap</Judul>
-          <Lencana contoh>Demo</Lencana>
+          <Lencana contoh>Hasil tersimpan</Lencana>
         </div>
         {mode === "modal" && onTutup ? (
           <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol>
@@ -245,15 +233,13 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               aria-label={`Visualisasi pemindaian tahap ${tahap}: ${tahapAktif.nama}`}
             >
               <defs>
+                <pattern id="arsirPerkiraan" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                  <line x1="0" y1="0" x2="0" y2="8" stroke="#E8920F" strokeWidth="1" />
+                </pattern>
                 {/* Pola Grid Millimeter Teknis */}
                 <pattern id="gridTeknis" width="40" height="40" patternUnits="userSpaceOnUse">
                   <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(174, 183, 199, 0.08)" strokeWidth="0.8" />
                   <circle cx="20" cy="20" r="0.8" fill="rgba(174, 183, 199, 0.12)" />
-                </pattern>
-
-                {/* Pola Arsir Merah untuk Area Obstruksi */}
-                <pattern id="arsirObstruksi" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-                  <line x1="0" y1="0" x2="0" y2="8" stroke="#B03A1E" strokeWidth="2" opacity="0.75" />
                 </pattern>
 
                 {/* Marker Panah Vektor Azimut */}
@@ -265,13 +251,14 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               {/* Latar Grid Teknis Millimeter */}
               <rect width="640" height="480" fill="url(#gridTeknis)" />
 
-              {/* Citra satelit latar: mosaik multi-tile Esri z=19 (0,298 m/px) */}
+              {/* Citra daring memiliki georeferensi yang sama dengan masukan model. */}
               {tampilSatelit ? (
                 <g id="satelit-tiles" opacity="0.88">
                   {bangunan.tiles.map((t, ti) => (
                     <image
                       key={ti}
                       href={t.url}
+                      onError={() => setCitraGagal(true)}
                       x={t.x}
                       y={t.y}
                       width={256}
@@ -338,8 +325,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                     strokeWidth="2.5"
                   />
                   {/* Centroid Prompt Point */}
-                  <circle cx="320" cy="240" r="7" fill="#E8920F" opacity="0.9" />
-                  <circle cx="320" cy="240" r="15" fill="none" stroke="#E8920F" strokeWidth="1.2" opacity="0.6" />
+                  <circle cx={bangunan.centroid[0]} cy={bangunan.centroid[1]} r="7" fill="#E8920F" opacity="0.9" />
+                  <circle cx={bangunan.centroid[0]} cy={bangunan.centroid[1]} r="15" fill="none" stroke="#E8920F" strokeWidth="1.2" opacity="0.6" />
                   <text
                     x={bangunan.bbox[0]}
                     y={bangunan.bbox[1] - 14}
@@ -356,20 +343,14 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 </g>
               ) : null}
 
-              {/* TAHAP 2: Poligon Kontur Atap Segmentasi AI */}
+              {/* TAHAP 2: Mask hasil model; fallback hanya menampilkan footprint berarsir. */}
               {tahap >= 2 && tampilKontur ? (
                 <g id="tahap-2-kontur">
-                  <polygon
-                    points={polygonString}
-                    fill="rgba(232, 144, 15, 0.25)"
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                  />
-                  {/* Titik Simpul (Vertices) */}
-                  {bangunan.polygon.map(([vx, vy], vi) => (
-                    <circle key={vi} cx={vx} cy={vy} r="3.5" fill="#FFFFFF" stroke="#E8920F" strokeWidth="1.5" />
-                  ))}
+                  {bangunan.method === "cv" ? (
+                    <path d={maskPath} fillRule="evenodd" fill="rgba(232, 144, 15, 0.25)" stroke="#E8920F" strokeWidth="2.5" strokeLinejoin="round" />
+                  ) : (
+                    <polygon points={polygonString} fill="url(#arsirPerkiraan)" stroke="#E8920F" strokeWidth="2" strokeDasharray="5 4" />
+                  )}
                   {tahap === 2 ? (
                     <text
                       x="320"
@@ -383,81 +364,15 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                       fontWeight="600"
                       textAnchor="middle"
                     >
-                      LUAS ATAP {m2(bangunan.roof_area_m2)}
+                      {bangunan.method === "cv" ? "LUAS MASK" : "LUAS PERKIRAAN"} {m2(bangunan.roof_area_m2)}
                     </text>
                   ) : null}
                 </g>
               ) : null}
 
-              {/* TAHAP 3: Obstruksi & Zona Larangan */}
-              {tahap >= 3 && tampilObstruksi ? (
-                <g id="tahap-3-obstruksi">
-                  {bangunan.obstructions.map((obs) => {
-                    const disorot = obstruksiSorot === obs.id;
-                    return (
-                      <g
-                        key={obs.id}
-                        onMouseEnter={() => setObstruksiSorot(obs.id)}
-                        onMouseLeave={() => setObstruksiSorot(null)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <rect
-                          x={obs.x}
-                          y={obs.y}
-                          width={obs.w}
-                          height={obs.h}
-                          fill="url(#arsirObstruksi)"
-                          stroke={disorot ? "#FFFFFF" : "#EE8460"}
-                          strokeWidth={disorot ? "2.5" : "1.8"}
-                          rx="2"
-                        />
-                        {(tahap <= 4 || disorot) ? (
-                          <>
-                            <rect
-                              x={obs.x}
-                              y={obs.y - 16}
-                              width={obs.label.length * 6 + 8}
-                              height="14"
-                              fill="rgba(10, 14, 28, 0.9)"
-                              rx="2"
-                            />
-                            <text
-                              x={obs.x + 4}
-                              y={obs.y - 5}
-                              fill={disorot ? "#FFFFFF" : "#EE8460"}
-                              fontFamily="monospace"
-                              fontSize="10"
-                              fontWeight="600"
-                            >
-                              {obs.label}
-                            </text>
-                          </>
-                        ) : null}
-                      </g>
-                    );
-                  })}
-                </g>
-              ) : null}
-
-              {/* TAHAP 4: Garis Bubungan (Ridge) & Vektor Azimut / Kemiringan */}
-              {tahap >= 4 && tampilBubungan ? (
+              {/* TAHAP 4: Sumbu geometri, bukan deteksi bubungan atau arah hadap bidang. */}
+              {tahap >= 4 && tampilSumbu ? (
                 <g id="tahap-4-orientasi">
-                  {bangunan.ridges.map(([rx1, ry1, rx2, ry2], ri) => (
-                    <g key={ri}>
-                      <line x1={rx1} y1={ry1} x2={rx2} y2={ry2} stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" />
-                      <line
-                        x1={rx1}
-                        y1={ry1}
-                        x2={rx2}
-                        y2={ry2}
-                        stroke="#E8920F"
-                        strokeWidth="1.2"
-                        strokeDasharray="4 2"
-                      />
-                    </g>
-                  ))}
-
-                  {/* Vektor Arah Hadap (Azimut) */}
                   <line
                     x1={bangunan.azimuth_vec[0]}
                     y1={bangunan.azimuth_vec[1]}
@@ -480,7 +395,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                       fontSize="10"
                       fontWeight="600"
                     >
-                      AZIMUT {bangunan.azimuth_deg}° · MIRING {bangunan.tilt_deg}°
+                      SUMBU {bangunan.azimuth_deg}°
                     </text>
                   ) : null}
                 </g>
@@ -548,7 +463,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   <text x="-22" y="3" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
                     B
                   </text>
-                  {/* Jarum Hadap Atap */}
+                  {/* Jarum sumbu geometri. */}
                   <g transform={`rotate(${rotasiJarum})`}>
                     <line x1="0" y1="0" x2="0" y2="-22" stroke="#E8920F" strokeWidth="2" markerEnd="url(#panahAzimut)" />
                     <circle cx="0" cy="0" r="2.5" fill="#E8920F" />
@@ -559,37 +474,10 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 </g>
               ) : null}
 
-              {/* Garis Pemindai Laser Optik (Scanline) */}
-              {sedangMemindai ? (
-                <g id="laser-scanline">
-                  <line x1="60" y1={scanlineY} x2="580" y2={scanlineY} stroke="#E8920F" strokeWidth="2.5" />
-                  <line
-                    x1="60"
-                    y1={scanlineY}
-                    x2="580"
-                    y2={scanlineY}
-                    stroke="#FFFFFF"
-                    strokeWidth="1"
-                    strokeDasharray="4 2"
-                  />
-                  <rect
-                    x="60"
-                    y={scanlineY - 20}
-                    width="520"
-                    height="20"
-                    fill="rgba(232, 144, 15, 0.12)"
-                    pointerEvents="none"
-                  />
-                </g>
-              ) : null}
             </svg>
 
-            {/* Tooltip Dinamis saat Hover Elemen Obstruksi / Modul */}
-            {obstruksiSorot ? (
-              <div className={s.tooltipKanvas}>
-                <span>OBSTRUKSI: {bangunan.obstructions.find((o) => o.id === obstruksiSorot)?.keterangan}</span>
-              </div>
-            ) : modulSorot ? (
+            {/* Inspeksi sketsa panel. */}
+            {modulSorot ? (
               <div className={s.tooltipKanvas}>
                 <span>
                   MODUL #{modulSorot}: Mono-Si {tipeModul} Wp · String #{modulAktif.find((m) => m.id === modulSorot)?.string_id}
@@ -598,8 +486,8 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             ) : null}
 
             <div className={s.hudBawah}>
-              <span>© Esri World Imagery</span>
-              <span>Data contoh</span>
+              <span>Esri · Vantor · Earthstar Geographics</span>
+              <span>{citraGagal ? "Citra tidak tersedia" : "Analisis tersimpan"}</span>
             </div>
           </div>
 
@@ -632,8 +520,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 {[
                   { label: "Satelit", nilai: tampilSatelit, ubah: setTampilSatelit },
                   { label: "Kontur", nilai: tampilKontur, ubah: setTampilKontur },
-                  { label: "Penghalang", nilai: tampilObstruksi, ubah: setTampilObstruksi },
-                  { label: "Bubungan", nilai: tampilBubungan, ubah: setTampilBubungan },
+                  { label: "Sumbu", nilai: tampilSumbu, ubah: setTampilSumbu },
                   { label: "Panel", nilai: tampilModul, ubah: setTampilModul },
                   { label: "Kompas", nilai: tampilKompas, ubah: setTampilKompas },
                 ].map((lapisan) => (
@@ -671,13 +558,9 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             keterangan={`${spekAktif.count} panel · ${m2(bangunan.usable_area_m2)} area pemasangan`}
           />
 
-          <Segmen
-            label="Daya per panel"
-            nama="daya-panel-demo"
-            nilai={String(tipeModul)}
-            onUbah={(nilai) => setTipeModul(Number(nilai) as 550 | 440)}
-              pilihan={[{ nilai: "550", label: "550 Wp" }, { nilai: "440", label: "440 Wp (ilustrasi)" }]}
-          />
+          <p className={s.bantuan}>Modul Jinko 550 Wp. Kemiringan 15° dan cadangan area 15% adalah asumsi.</p>
+          {tahap >= 3 ? <p className={s.bantuan}>Halangan dan bayangan belum diukur.</p> : null}
+          {tahap === 5 ? <p className={s.bantuan}>Sketsa: {modulAktif.length} panel. Kapasitas dihitung dari luas; susunan perlu dirancang ulang.</p> : null}
 
           <Link className={kelasTombol()} href={`/atap/${bangunan.id}`} onClick={onTutup}>Lihat hasil bangunan</Link>
 
@@ -688,9 +571,9 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               { label: "Hemat tahun pertama", nilai: rupiah(spekAktif.savings_idr_yr1) },
               { label: "Luas bangunan", nilai: m2(bangunan.footprint_m2) },
               { label: "Luas atap", nilai: m2(bangunan.roof_area_m2) },
-              { label: "Penghalang", nilai: persen(bangunan.obstruction_frac) },
-              { label: "Kemiringan", nilai: bangunan.tilt_deg.toLocaleString("id-ID") + "°" },
-              { label: "Arah atap", nilai: bangunan.arah_label },
+              { label: "Penghalang", nilai: "Belum diukur" },
+              { label: "Kemiringan (asumsi)", nilai: bangunan.tilt_deg.toLocaleString("id-ID") + "°" },
+              { label: "Orientasi", nilai: bangunan.arah_label },
             ]} />
           </details>
 
@@ -698,13 +581,15 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
             <summary>Tentang tahap ini <Ikon ikon={ChevronDown} /></summary>
             <h2 className={s.kartuInfoJudul}>{tahapAktif.subjudul}</h2>
             <p className={s.penjelasanTahap}>{tahapAktif.penjelasan}</p>
-            <p className={s.bantuan}>Demo memutar data contoh; analisis citra tidak dijalankan langsung.</p>
+            <p className={s.bantuan}>Mask ini dihasilkan model dan disimpan. Pemutaran menampilkan tahap analisis tersebut.</p>
           </details>
 
           <details className={s.rincian}>
             <summary>Data teknis <Ikon ikon={ChevronDown} /></summary>
             <DaftarData baris={[
-              { label: "Keyakinan analisis", nilai: persen(bangunan.confidence) },
+              { label: "Keyakinan (heuristik)", nilai: persen(bangunan.confidence) },
+              { label: "IoU terhadap OSM", nilai: bangunan.iou_footprint.toLocaleString("id-ID", { maximumFractionDigits: 3 }) },
+              { label: "Waktu proses tersimpan", nilai: bangunan.durasi_detik.toLocaleString("id-ID") + " detik" },
               { label: "Metode", nilai: bangunan.method === "cv" ? "Analisis citra" : "Jejak bangunan" },
               { label: "Model", nilai: bangunan.model_version },
               { label: "Koordinat", nilai: bangunan.koordinat.map((n) => n.toLocaleString("id-ID", { maximumFractionDigits: 5 })).join("; ") },
@@ -713,7 +598,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
 
           <details className={s.rincian}>
             <summary>Log demo <Ikon ikon={ChevronDown} /></summary>
-            <div className={s.terminalIsi} role="log" aria-label="Catatan tahap demo">
+            <div className={s.terminalIsi} role="log" aria-label="Catatan tahap analisis">
               {bangunan.cv_logs.filter((log) => log.tahap <= tahap).map((log, li) => (
                 <div key={li} className={s.terminalBaris}>
                   <span className={s.terminalWaktu}>[{log.waktu}]</span>

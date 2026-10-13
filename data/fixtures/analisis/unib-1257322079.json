@@ -1,0 +1,112 @@
+{
+  "roof_analysis_id": 1257322079,
+  "building_id": 1257322079,
+  "roof_area_m2": 105.8,
+  "usable_area_m2": 90.0,
+  "obstruction_frac": 0.0,
+  "tilt_deg": 15.0,
+  "azimuth_deg": 160.5,
+  "roof_type": "kompleks",
+  "confidence": 0.44,
+  "method": "footprint_fallback",
+  "model_version": "mobilesam-osmprompt-v3",
+  "imagery": {
+    "source": "esri-world-imagery",
+    "date": null
+  },
+  "mask_geojson": null,
+  "catatan": "Tilt 15° dan cadangan area 15% adalah asumsi; obstruksi belum diukur. Azimut adalah sumbu panjang modulo 180°, bukan arah hadap bidang atap. Skor keyakinan merupakan heuristik yang belum dikalibrasi terhadap anotasi.",
+  "peringatan": "Mask kurang sesuai dengan batas OSM. Luas diperkirakan dari footprint × 0,85; periksa batas atap sebelum merencanakan pemasangan.",
+  "_catatan": "Inferensi MobileSAM nyata; IoU dibandingkan dengan OSM, bukan anotasi atap.",
+  "_evaluasi": {
+    "sam_score": 0.705636203289032,
+    "iou_footprint": 0.415913341050346,
+    "rasio_luas": 0.5482585642427498,
+    "confidence": 0.5727576736962354,
+    "durasi_detik": 4.625,
+    "kalibrasi": "heuristik-belum-terkalibrasi",
+    "ambang_iou_footprint": 0.5,
+    "ambang_keyakinan": 0.45,
+    "sha256_citra_rgb": "30549cf050b9d731f938bbb568556b772334bedbd42d673e1c86101de36f531a",
+    "sha256_mask": "b93502a5a8b04744eb08683f6a469a3650d35718cc7c4be5657e5be836f78795",
+    "bobot": {
+      "mobilesam_encoder.onnx": "580f5fb648ea1062c0aabc26217aed56921985f03f0cbbd852bba81d760cc749",
+      "mobilesam_decoder.onnx": "8976b90a87ba50a6a72217a5ff994f7d25ce16f2229fcc1ed259e1294c622ffe"
+    }
+  },
+  "_sumber": {
+    "model": "https://huggingface.co/Acly/MobileSAM",
+    "revision": "0d3b403339b4674a82493d5e97964dd78089ddc8",
+    "diambil": "2026-10-13",
+    "bingkai": {
+      "x0": 105236953.89727858,
+      "y0": 68511815.47886778,
+      "lebar": 640,
+      "tinggi": 480,
+      "zoom": 19
+    },
+    "tiles": [
+      {
+        "x": -217.8972785770893,
+        "y": -71.4788677841425,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267624/411081"
+      },
+      {
+        "x": 38.10272142291069,
+        "y": -71.4788677841425,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267624/411082"
+      },
+      {
+        "x": 294.1027214229107,
+        "y": -71.4788677841425,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267624/411083"
+      },
+      {
+        "x": 550.1027214229107,
+        "y": -71.4788677841425,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267624/411084"
+      },
+      {
+        "x": -217.8972785770893,
+        "y": 184.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267625/411081"
+      },
+      {
+        "x": 38.10272142291069,
+        "y": 184.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267625/411082"
+      },
+      {
+        "x": 294.1027214229107,
+        "y": 184.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267625/411083"
+      },
+      {
+        "x": 550.1027214229107,
+        "y": 184.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267625/411084"
+      },
+      {
+        "x": -217.8972785770893,
+        "y": 440.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411081"
+      },
+      {
+        "x": 38.10272142291069,
+        "y": 440.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411082"
+      },
+      {
+        "x": 294.1027214229107,
+        "y": 440.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411083"
+      },
+      {
+        "x": 550.1027214229107,
+        "y": 440.5211322158575,
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267626/411084"
+      }
+    ],
+    "citra_disimpan": false
+  }
+}
