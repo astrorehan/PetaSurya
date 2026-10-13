@@ -3,6 +3,7 @@ import { AnalisisAtap, CitraAnalisis, MetodeAnalisis, TipeAtap } from "./analisi
 import { BangunanRingkas, SumberBangunan } from "./bangunan.ts";
 import { GalatApi, KodeGalat } from "./galat.ts";
 import { MultiPolygonGeoJSON, PolygonGeoJSON } from "./geojson.ts";
+import { BingkaiPemindaian, PaketPemindaian, TilePemindaian } from "./pemindaian.ts";
 import {
   AsumsiSimulasi,
   DerateSimulasi,
@@ -19,6 +20,7 @@ export * from "./bangunan.ts";
 export * from "./galat.ts";
 export * from "./geojson.ts";
 export * from "./simulasi.ts";
+export * from "./pemindaian.ts";
 
 // Registri skema yang di-generate ke JSON Schema lalu pydantic.
 // Kunci = nama kelas di sisi Python (services/engine/app/contracts.py).
@@ -41,4 +43,7 @@ export const registri: Record<string, ZodType> = {
   AnalisisAtap,
   KodeGalat,
   GalatApi,
+  BingkaiPemindaian,
+  PaketPemindaian,
+  TilePemindaian,
 };

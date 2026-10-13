@@ -3,6 +3,8 @@ import { z } from "zod";
 // Amplop galat seragam semua endpoint (cetak biru §04).
 export const KodeGalat = z.enum([
   "BUILDING_NOT_FOUND", // 404
+  "GEODATA_UNAVAILABLE", // 503
+  "OUT_OF_COVERAGE", // 422
   "IMAGERY_UNAVAILABLE", // 503 → mundur ke jejak bangunan
   "IRRADIANCE_UNAVAILABLE", // 503 → sel kisi terdekat
   "TARIFF_NOT_FOUND", // 422

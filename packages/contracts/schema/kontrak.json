@@ -249,6 +249,51 @@
         "building_tag"
       ]
     },
+    "BingkaiPemindaian": {
+      "type": "object",
+      "properties": {
+        "x0": {
+          "type": "number"
+        },
+        "y0": {
+          "type": "number"
+        },
+        "lebar": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "tinggi": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "zoom": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 22
+        },
+        "meter_per_piksel": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TilePemindaian"
+          }
+        }
+      },
+      "required": [
+        "x0",
+        "y0",
+        "lebar",
+        "tinggi",
+        "zoom",
+        "meter_per_piksel",
+        "tiles"
+      ]
+    },
     "CitraAnalisis": {
       "type": "object",
       "properties": {
@@ -553,6 +598,8 @@
       "type": "string",
       "enum": [
         "BUILDING_NOT_FOUND",
+        "GEODATA_UNAVAILABLE",
+        "OUT_OF_COVERAGE",
         "IMAGERY_UNAVAILABLE",
         "IRRADIANCE_UNAVAILABLE",
         "TARIFF_NOT_FOUND",
@@ -651,6 +698,41 @@
         "coordinates"
       ]
     },
+    "PaketPemindaian": {
+      "type": "object",
+      "properties": {
+        "bangunan": {
+          "$ref": "#/$defs/BangunanRingkas"
+        },
+        "analisis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalisisAtap"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bingkai": {
+          "$ref": "#/$defs/BingkaiPemindaian"
+        },
+        "tersimpan": {
+          "type": "boolean"
+        },
+        "durasi_detik": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "bangunan",
+        "analisis",
+        "bingkai",
+        "tersimpan",
+        "durasi_detik"
+      ]
+    },
     "ParameterFisika": {
       "type": "object",
       "properties": {
@@ -719,6 +801,26 @@
         "osm",
         "ms_footprints",
         "user_drawn"
+      ]
+    },
+    "TilePemindaian": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "url"
       ]
     },
     "TipeAtap": {

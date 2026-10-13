@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, Field, RootModel
+from pydantic import AnyUrl, BaseModel, Field, RootModel
 
 
 class AsumsiSimulasi(BaseModel):
@@ -148,6 +148,8 @@ class JejakSimulasi(BaseModel):
 
 class KodeGalat(StrEnum):
     BUILDING_NOT_FOUND = "BUILDING_NOT_FOUND"
+    GEODATA_UNAVAILABLE = "GEODATA_UNAVAILABLE"
+    OUT_OF_COVERAGE = "OUT_OF_COVERAGE"
     IMAGERY_UNAVAILABLE = "IMAGERY_UNAVAILABLE"
     IRRADIANCE_UNAVAILABLE = "IRRADIANCE_UNAVAILABLE"
     TARIFF_NOT_FOUND = "TARIFF_NOT_FOUND"
@@ -256,6 +258,12 @@ class SumberBangunan(StrEnum):
     user_drawn = "user_drawn"
 
 
+class TilePemindaian(BaseModel):
+    x: float
+    y: float
+    url: AnyUrl
+
+
 class TipeAtap(StrEnum):
     datar = "datar"
     pelana = "pelana"
@@ -333,6 +341,16 @@ class BangunanRingkas(BaseModel):
     """
     Kode BPS wilayah bila sudah dipetakan
     """
+
+
+class BingkaiPemindaian(BaseModel):
+    x0: float
+    y0: float
+    lebar: int = Field(..., gt=0, le=9007199254740991)
+    tinggi: int = Field(..., gt=0, le=9007199254740991)
+    zoom: int = Field(..., ge=0, le=22)
+    meter_per_piksel: float = Field(..., gt=0.0)
+    tiles: list[TilePemindaian]
 
 
 class Error(BaseModel):
@@ -424,3 +442,11 @@ class HasilSimulasi(BaseModel):
     """
     Masukan fisika yang dipakai untuk reproduksi hasil
     """
+
+
+class PaketPemindaian(BaseModel):
+    bangunan: BangunanRingkas
+    analisis: AnalisisAtap | None
+    bingkai: BingkaiPemindaian
+    tersimpan: bool
+    durasi_detik: float = Field(..., ge=0.0)
