@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, type ChangeEvent } from "react";
 import type { AnalisisAtap, BangunanRingkas, HasilSimulasi, PaketPemindaian } from "@petasurya/contracts";
 import { ParameterFisika } from "@petasurya/contracts";
-import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, Tombol, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
+import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, PanelLipat, Tombol, TombolSalin, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
 import { ChevronDown, Crosshair, Sigma, TriangleAlert } from "lucide-react";
 import { Peta } from "./Peta";
 import { PemindaiAtap } from "./PemindaiAtap";
@@ -241,7 +241,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       <section className={`${s.metrix} ${rendah ? s.keyakinanRendah : ""}`} aria-label="Hasil perhitungan" aria-busy={sedangHitung}>
         <div className={s.gridAngka} data-menghitung={sedangHitung || undefined}>
           <div className={s.kartuUtama}>
-            <Angka label="Hemat per tahun" nilai={rupiah(simulasiAktif.savings_idr_yr1, true)} lengkap={rupiah(simulasiAktif.savings_idr_yr1)} ukuran="display" aksen="daun" menghitung={sedangHitung} />
+            <div className={s.fokusHemat} key={simulasiAktif.savings_idr_yr1}><Angka label="Hemat per tahun" nilai={rupiah(simulasiAktif.savings_idr_yr1, true)} lengkap={rupiah(simulasiAktif.savings_idr_yr1)} ukuran="display" aksen="daun" menghitung={sedangHitung} /></div>
             <div className={s.payback}>
               <Angka label="Balik modal" nilai={tahun(simulasiAktif.payback_years ?? Infinity)} menghitung={sedangHitung} />
             </div>
@@ -254,6 +254,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
         <div className={s.aksiHasil}>
           <Tombol ikon={Sigma} onClick={() => setJejakAktif("hemat")}>Cara hitung</Tombol>
           <Tombol ikon={Crosshair} onClick={() => { setJejakAktif(null); setBukaPemindai(true); }}>Pindai atap</Tombol>
+          <TombolSalin label="Salin ringkasan" nilai={`${nama}\nKapasitas skenario: ${kwp(simulasiAktif.kwp)}\nHemat per tahun: ${rupiah(simulasiAktif.savings_idr_yr1)}\nBalik modal: ${tahun(simulasiAktif.payback_years ?? Infinity)}\n${tersimpanOffline ? "Skenario contoh tersimpan. " : ""}Batas atap dan kapasitas pasang belum diverifikasi.`} />
         </div>
       </section>
 
@@ -280,11 +281,10 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       </section>
 
       <section className={s.kartuGrafik} aria-label="Produksi bulanan">
-        <GrafikBulanan data={simulasiAktif.monthly_kwh} menghitung={sedangHitung} />
+        <GrafikBulanan data={simulasiAktif.monthly_kwh} menghitung={sedangHitung} animasi />
       </section>
 
-      <details className={s.kartuAsumsi}>
-        <summary>Ubah asumsi <Ikon ikon={ChevronDown} /></summary>
+      <div className={s.wadahAsumsi}><PanelLipat judul="Ubah asumsi">
         <form id="form-asumsi" className={s.formAsumsi} onSubmit={(event) => { event.preventDefault(); void jalankanHitungUlang(); }}>
           <label>
             Golongan tarif
@@ -333,7 +333,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
           </button>
           <span id="keterangan-hitung-ulang" role="status">{pesanMesin}</span>
         </div>
-      </details>
+      </PanelLipat></div>
 
       {jejakAktif ? <PanelJejak daftar={jejak} aktif={jejakAktif} pilih={setJejakAktif} tutup={() => setJejakAktif(null)} /> : null}
       {bukaPemindai ? (

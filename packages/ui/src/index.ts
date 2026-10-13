@@ -5,6 +5,10 @@ export { kontras, luminansi, tokenTema } from "./kontras";
 export { POLA_KEYAKINAN_RENDAH, SKALA_KWP, warnaKwp } from "./skalaPeta";
 
 export { Angka, DaftarData, JejakTautan, Label, type Aksen } from "./komponen/Angka";
+export { BandingLapisan } from "./komponen/BandingLapisan";
+export { PanelLipat } from "./komponen/PanelLipat";
+export { PilihanKartu } from "./komponen/PilihanKartu";
+export { TombolSalin } from "./komponen/TombolSalin";
 export { GrafikBulanan, langkahRapi } from "./komponen/GrafikBulanan";
 export { Ikon } from "./komponen/Ikon";
 export { Keadaan, Kerangka } from "./komponen/Keadaan";

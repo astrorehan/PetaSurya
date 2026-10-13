@@ -56,7 +56,7 @@ export function ukuranPx(nilai: string): string {
 
 /**
  * Spesifikasi peran huruf dari tokens.css, mis. --tipe-display →
- * { keluarga: "Archivo", berat: "600", ukuran: "48–72 px", leading: "1,05" }.
+ * { keluarga: "Geist", berat: "600", ukuran: "48–72 px", leading: "1,1" }.
  */
 export function spesifikasiTipe(peran: string) {
   const akar = tokenAkar();

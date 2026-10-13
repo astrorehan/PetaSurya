@@ -9,6 +9,7 @@ import { useTema } from "./Tema";
 import s from "./chrome.module.css";
 
 const NAVIGASI = [
+  { href: "/", label: "Peta" },
   { href: "/pindai", label: "Pindai atap" },
   { href: "/metodologi", label: "Metodologi" },
   { href: "/sumber-data", label: "Sumber data" },
@@ -48,13 +49,13 @@ export function Header() {
           <span className={s.wordmark}>PetaSurya</span>
         </Link>
 
-        <Suspense fallback={<FormCari />}><CariBangunan /></Suspense>
-
         <nav className={s.nav} aria-label="Navigasi utama">
           {NAVIGASI.map(({ href, label }) => (
-            <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+            <Link key={href} href={href} aria-current={pathname === href || (href === "/pindai" && pathname.startsWith("/atap/")) ? "page" : undefined}>{label}</Link>
           ))}
         </nav>
+
+        <Suspense fallback={<FormCari />}><CariBangunan /></Suspense>
 
         <details
           ref={menuRef}

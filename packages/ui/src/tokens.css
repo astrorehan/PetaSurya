@@ -26,10 +26,10 @@
   --brand-surya-2: #c4551a;
   --brand-daun: #2e7d52;
 
-  /* --- tipografi: empat keluarga, tidak lebih --- */
-  --f-display: var(--font-archivo, "Archivo"), "Segoe UI", system-ui, sans-serif;
-  --f-ui: var(--font-instrument-sans, "Instrument Sans"), "Segoe UI", system-ui, sans-serif;
-  --f-prose: var(--font-newsreader, "Newsreader"), Georgia, "Times New Roman", serif;
+  /* --- tipografi Arc, data tetap memakai mono tabular --- */
+  --f-display: var(--font-geist, "Geist"), system-ui, sans-serif;
+  --f-ui: var(--font-inter, "Inter"), system-ui, sans-serif;
+  --f-prose: var(--font-inter, "Inter"), system-ui, sans-serif;
   --f-mono: var(--font-plex-mono, "IBM Plex Mono"), "Cascadia Mono", Consolas, monospace;
 
   /*
@@ -39,23 +39,24 @@
    * setiap lebar: yang terpenting harus dua kali yang berikutnya.
    */
   --fs-xs: 0.75rem; /* 12  label, keterangan, metadata */
-  --fs-s: 0.8125rem; /* 13  data tabel, teks sekunder */
-  --fs-m: 0.9375rem; /* 15  kontrol, teks antarmuka */
+  --fs-s: 0.875rem; /* 14  data tabel, teks sekunder */
+  --fs-m: 0.875rem; /* 14  kontrol, teks antarmuka */
   --fs-b: 1rem; /* 16  tubuh */
   --fs-l: 1.125rem; /* 18  judul bagian, prosa */
-  --fs-xl: 1.5rem; /* 24  judul halaman */
-  --fs-2xl: 2rem; /* 32  angka ringkasan */
+  --fs-xl: 1.75rem; /* 28  judul halaman */
+  --fs-2xl: 2.25rem; /* 36  judul utama */
   --fs-figure: clamp(1.5rem, 1.25rem + 0.5vw, 2rem);
   --fs-display: clamp(3rem, 2.25rem + 3vw, 4.5rem);
 
   /* tracking & leading per ukuran: besar = rapat, kecil = longgar */
-  --track-display: -0.02em;
-  --track-title: -0.01em;
-  --track-label: 0.06em;
-  --lead-display: 1.05;
+  --track-display: -0.03em;
+  --track-title: -0.03em;
+  --track-label: 0.02em;
+  --track-body: -0.01em;
+  --lead-display: 1.1;
   --lead-title: 1.2;
-  --lead-ui: 1.45;
-  --lead-prose: 1.65;
+  --lead-ui: 1.4;
+  --lead-prose: 1.6;
 
   /*
    * Peran huruf siap pakai: `font: var(--tipe-…)`. Tracking dan
@@ -66,18 +67,24 @@
   --tipe-angka: 600 var(--fs-figure) / 1.1 var(--f-display);
   --tipe-judul-halaman: 600 var(--fs-xl) / 1.15 var(--f-display);
   --tipe-judul: 600 var(--fs-l) / var(--lead-title) var(--f-display);
-  --tipe-label: 600 var(--fs-xs) / 1.35 var(--f-ui);
+  --tipe-label: 500 var(--fs-xs) / 1.4 var(--f-ui);
   --tipe-ui: 500 var(--fs-m) / var(--lead-ui) var(--f-ui);
   --tipe-tubuh: 400 var(--fs-b) / var(--lead-ui) var(--f-ui);
   --tipe-kecil: 400 var(--fs-s) / 1.45 var(--f-ui);
   --tipe-prosa: 400 var(--fs-l) / var(--lead-prose) var(--f-prose);
   --tipe-data: 400 var(--fs-s) / 1.45 var(--f-mono);
 
-  /* --- radius: 4 / 8 / 10 --- */
-  --r-s: 4px; /* tombol, kolom isian, lencana, legenda, batang grafik */
-  --r-m: 8px; /* panel, bingkai tabel */
-  --radius: 10px; /* lembar, bingkai peta */
+  /* --- radius Arc: kontrol / panel / permukaan --- */
+  --r-s: 18px;
+  --r-m: 26px;
+  --radius: 34px;
   --r-l: var(--radius);
+  --r-pill: 9999px;
+  --r-bar: 4px; /* batang grafik dan penanda data */
+  --radius-control: var(--r-s);
+  --radius-panel: var(--r-m);
+  --radius-surface: var(--radius);
+  --panel-pad: 24px;
 
   /* --- spasi: kelipatan 4 px --- */
   --sp-1: 4px;
@@ -95,8 +102,8 @@
   --lebar-isi: 75rem; /* 1200 px, halaman dokumen */
   --lebar-teks: 42rem; /* ±70 karakter prosa */
   --tepi: clamp(16px, 4vw, 32px); /* margin halaman: 16 → 32 px */
-  --header-h: 56px;
-  --kontrol-h: 36px; /* tinggi tombol dan kolom isian */
+  --header-h: 88px;
+  --kontrol-h: 44px;
   --lebar-lembar: 400px; /* lembar samping jejak & asumsi */
 
   /* lapisan: peta di bawah, header di atas, lembar di atas header di ponsel */
@@ -106,11 +113,25 @@
   --z-lembar: 40;
   --z-tooltip: 50;
 
-  /* --- gerak: hanya respons tekan, transisi keadaan, peta terbang --- */
-  --t-fast: 100ms; /* umpan balik tekan */
-  --t-base: 180ms; /* opacity & warna (redup saat hitung ulang) */
-  --t-move: 260ms; /* perpindahan (lembar masuk/keluar) */
-  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* --- gerak: durasi dan kurva adaptasi Arc Library --- */
+  --t-instant: 120ms;
+  --t-fast: 160ms; /* umpan balik tekan */
+  --t-base: 180ms; /* opacity tetap di bawah 200 ms */
+  --t-move: 240ms; /* perpindahan dan pengungkapan rincian */
+  --t-exit: 180ms;
+  --t-considered: 480ms; /* demonstrasi perubahan besar, bukan muat halaman */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --tekan-skala: 0.98;
+  /* Motion presentasi: kontur, perpindahan babak, dan aliran energi. */
+  --t-scene: 480ms;
+  --t-reveal: 900ms;
+  --t-outline: 1800ms;
+  --t-scan: 2200ms;
+  --t-flow: 2600ms;
+  --t-stagger: 45ms;
 
   /*
    * Arsir miring 8 px untuk keyakinan rendah (POLA_KEYAKINAN_RENDAH).
@@ -124,6 +145,10 @@
   :root {
     --kontrol-h: 44px;
   }
+}
+
+@media (max-width: 900px) {
+  :root { --header-h: 152px; }
 }
 
 /* --- warna tema terang --- */
@@ -239,6 +264,7 @@ html {
   font-family: var(--f-ui);
   font-size: 16px;
   line-height: var(--lead-ui);
+  letter-spacing: var(--track-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
@@ -293,6 +319,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   :root {
     --t-move: 0ms;
+    --t-considered: 0ms;
   }
 
   html {

@@ -124,6 +124,9 @@
   min-width: 0;
 }
 
+.pilihKurva { display: grid; gap: var(--sp-1); font: var(--tipe-kecil); color: var(--ink-2); }
+.pilihKurva select { min-height: var(--kontrol-h); padding: var(--sp-2); border: 1px solid var(--line-2); border-radius: var(--r-s); color: var(--ink); background: var(--surface); font: var(--tipe-ui); }
+
 .durasi {
   display: grid;
   margin: 0;

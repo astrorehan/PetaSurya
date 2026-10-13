@@ -1,7 +1,7 @@
 .halaman {
   width: min(100% - 2 * var(--tepi), 1200px);
   margin: 0 auto;
-  padding: var(--sp-6) 0 var(--sp-12);
+  padding: var(--sp-8) 0 var(--sp-12);
 }
 
 .kepala {
@@ -24,7 +24,7 @@
   color: var(--ink-2);
   font: var(--tipe-label);
   letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .judul {
@@ -73,11 +73,17 @@
 .kartuGrafik,
 .kartuAsumsi {
   min-width: 0;
-  padding: var(--sp-4);
+  padding: var(--panel-pad);
   border: 1px solid var(--line);
   border-radius: var(--r-m);
   background: var(--surface);
 }
+.metrix { border-radius: var(--radius); }
+.metrix { border-color: var(--daun); }
+.fokusHemat { border-left: 3px solid var(--daun); padding-left: var(--sp-4); animation: hematMasuk var(--t-reveal) var(--ease-out) both; }
+@keyframes hematMasuk { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .fokusHemat { animation: none; } }
+.wadahAsumsi { margin-top: var(--sp-6); }
 
 .gridAngka {
   display: grid;

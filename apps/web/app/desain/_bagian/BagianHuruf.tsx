@@ -3,29 +3,23 @@ import { spesifikasiTipe, tracking } from "../_token";
 import { toko } from "../_data";
 import { Bagian, Kode, Pelat, YaJangan } from "./Lembar";
 import h from "./huruf.module.css";
+import { DemoHuruf } from "./DemoHuruf";
 
 /* Bobot = yang dimuat next/font di app/layout.tsx; bobot lain tidak tersedia. */
 const KELUARGA = [
   {
-    nama: "Archivo",
+    nama: "Geist",
     token: "--f-display",
     peran: "Angka jawaban dan judul",
-    bobot: "500 · 600 · 700",
+    bobot: "Variable · 400–700",
     contoh: "Rp 12,1 juta · 17,1 tahun",
   },
   {
-    nama: "Instrument Sans",
+    nama: "Inter",
     token: "--f-ui",
-    peran: "Antarmuka, label, teks tubuh",
-    bobot: "400 · 500 · 600",
+    peran: "Antarmuka, label, teks tubuh dan prosa",
+    bobot: "Variable · 400–700",
     contoh: "Ubah asumsi · Jejak hitungan · Tarif listrik",
-  },
-  {
-    nama: "Newsreader",
-    token: "--f-prose",
-    peran: "Prosa: pengantar dan metodologi",
-    bobot: "400 · 500, tegak dan miring",
-    contoh: "Angka contoh diberi label. Hasil buruk tetap tampil.",
   },
   {
     nama: "IBM Plex Mono",
@@ -55,7 +49,7 @@ export function BagianHuruf() {
       id="huruf"
       nomor="03"
       judul="Huruf"
-      aturan="Empat keluarga, masing-masing satu tugas. Hierarki dibangun dari bobot, ukuran, dan leading sekaligus; kapital hanya untuk label 12 px."
+      aturan="Geist untuk angka dan judul, Inter untuk antarmuka dan prosa. IBM Plex Mono mempertahankan keterbacaan data tabular."
     >
       <Pelat
         nomor="3.1"
@@ -123,6 +117,13 @@ export function BagianHuruf() {
             );
           })}
         </ol>
+      </Pelat>
+
+      <Pelat nomor="3.3" judul="Laboratorium font · Arc"
+        keterangan="Pasangan font Arc dipakai di seluruh web. Coba bobot dan teks dengan font yang sama seperti layar produk.">
+        <div className={h.arcFonts}>
+          <DemoHuruf />
+        </div>
       </Pelat>
 
       <YaJangan

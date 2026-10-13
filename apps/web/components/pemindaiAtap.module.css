@@ -1,9 +1,9 @@
 .wadah {
   display: grid;
-  gap: var(--sp-4);
+  gap: var(--sp-6);
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--sp-4);
+  padding: var(--sp-6);
   color: var(--ink);
 }
 
@@ -44,6 +44,8 @@
   justify-content: space-between;
   gap: var(--sp-3);
 }
+.kepala { flex-wrap: wrap; }
+.aksiKepala { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 
 .labelBaris {
   justify-content: flex-start;
@@ -93,7 +95,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--line-2);
-  border-radius: var(--r-m);
+  border-radius: var(--radius);
   background: var(--brand-sel);
   aspect-ratio: 4 / 3;
 }
@@ -145,22 +147,32 @@
 }
 
 .stepper {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-1);
+  padding: var(--sp-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface-2);
 }
+.penunjukTahap { position: absolute; inset-block: var(--sp-1); left: var(--sp-1); width: calc((100% - var(--sp-1) * 4) / 3); border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface); box-shadow: var(--shadow-s); transform: translateX(calc(var(--tahap-index) * (100% + var(--sp-1)))); transition: transform var(--t-scene) var(--ease-out); pointer-events: none; }
 
 .tombolTahap {
-  display: grid;
-  gap: var(--sp-1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
   min-height: var(--kontrol-h);
   padding: var(--sp-2);
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: var(--r-s);
-  background: var(--surface);
+  background: transparent;
   color: var(--ink-2);
   cursor: pointer;
   text-align: left;
+  transition: background var(--t-base) var(--ease-out), color var(--t-base) var(--ease-out);
 }
 
 .tombolTahap:hover {
@@ -173,20 +185,28 @@
 }
 
 .tahapNomor {
-  font: var(--tipe-data);
+  font: 600 var(--fs-xs) / 1 var(--f-display);
+  font-variant-numeric: tabular-nums;
   font-size: var(--fs-xs);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
 }
 
 .tahapNama {
-  font: var(--tipe-kecil);
-  font-size: var(--fs-xs);
+  font: var(--tipe-ui);
 }
 
 .tahapAktif {
-  border-color: var(--pri);
-  background: var(--pri-bg);
+  border-color: transparent;
+  background: transparent;
   color: var(--ink);
 }
+.tahapAktif .tahapNomor { color: var(--on-pri); background: var(--pri); }
 
 .barisLapisan {
   display: flex;
@@ -213,11 +233,21 @@
   display: grid;
   gap: var(--sp-4);
   min-width: 0;
-  padding: var(--sp-4);
+  padding: var(--panel-pad);
   border: 1px solid var(--line);
   border-radius: var(--r-m);
   background: var(--surface);
+  animation: babakMasuk var(--t-scene) var(--ease-enter) both;
 }
+.panelTelemetri[data-babak="3"] { border-color: var(--daun); }
+.fokusJawaban { --_fokus: var(--pri); border-left: 3px solid var(--_fokus); padding-left: var(--sp-4); animation: jawabanMasuk var(--t-reveal) var(--ease-out) both; }
+.fokusJawaban[data-aksen="surya"] { --_fokus: var(--surya); }
+.fokusJawaban[data-aksen="daun"] { --_fokus: var(--daun); }
+.fokusJawaban :global([data-ukuran="display"]) { font-variant-numeric: tabular-nums; }
+.statusDemo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); color: var(--ink); font: var(--tipe-kecil); }
+.statusDemo > span:last-child { margin-left: auto; color: var(--ink-2); }
+.titikDemo { width: 6px; height: 6px; background: var(--surya); border-radius: var(--r-pill); animation: aktifDemo var(--t-scan) var(--ease-in-out) infinite; }
+.wadah[data-demo-jeda] * { animation-play-state: paused !important; }
 
 .kotakPeringatan {
   display: flex;
@@ -293,10 +323,11 @@
 .hasilGrafik {
   display: grid;
   gap: var(--sp-5);
-  padding: var(--sp-4);
+  padding: var(--panel-pad);
   border: 1px solid var(--line);
   border-radius: var(--r-m);
   background: var(--surface);
+  animation: babakMasuk var(--t-scene) var(--ease-enter) both;
 }
 
 .bagianLuas {
@@ -309,6 +340,17 @@
 
 .bagianLuas > span {
   background: var(--surya);
+  transform-origin: left;
+  animation: luasMasuk var(--t-reveal) var(--ease-out) both;
+}
+
+@keyframes babakMasuk { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes jawabanMasuk { from { opacity: 0; transform: translateY(14px); clip-path: inset(0 0 20% 0); } to { opacity: 1; transform: translateY(0); clip-path: inset(0); } }
+@keyframes luasMasuk { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes aktifDemo { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .penunjukTahap { transition: none; }
+  .panelTelemetri, .fokusJawaban, .hasilGrafik, .bagianLuas > span, .titikDemo { animation: none; }
 }
 
 .pilihBangunan > select,
@@ -349,6 +391,7 @@
 @media (max-width: 560px) {
   .wadah {
     --kontrol-h: 44px;
+    padding: var(--sp-4);
   }
 
   .pilihBangunan {
@@ -359,7 +402,10 @@
   .tombolTahap {
     padding: var(--sp-2) var(--sp-1);
     text-align: center;
+    gap: var(--sp-1);
   }
+  .tahapNama { font-size: var(--fs-xs); }
+  .tahapNomor { width: 24px; height: 24px; }
 
   .wadahModal {
     padding: var(--sp-2);

@@ -85,7 +85,7 @@ export function BagianKontrol() {
         <Pelat
           nomor="8.2"
           judul="Anatomi tombol"
-          keterangan="Tinggi --kontrol-h: 36, atau 44 di layar sentuh. Tepi 1, padding 16, ikon 16, ikon ke label 8, radius 4. Label 15&nbsp;px, tebal 600."
+          keterangan="Kontrol Arc: tinggi 44 px, radius 18 px, label Inter 14 px / 500. Ikon 16 px, jarak ke label 8 px."
           kisi
           statis
         >
@@ -106,7 +106,7 @@ export function BagianKontrol() {
               <Ukur arah="h" label="8" luar="atas" gaya={{ left: skala(33), width: skala(8), top: -16 }} />
               <Ukur arah="h" label="16" luar="atas" gaya={{ right: skala(1), width: skala(16), top: -16 }} />
               <span className={k.tinggiHalus}>
-                <Ukur arah="v" label="36" luar="kiri" gaya={{ left: -16, top: 0, height: "100%" }} />
+                <Ukur arah="v" label="44" luar="kiri" gaya={{ left: -16, top: 0, height: "100%" }} />
               </span>
               <span className={k.tinggiSentuh}>
                 <Ukur arah="v" label="44" luar="kiri" gaya={{ left: -16, top: 0, height: "100%" }} />

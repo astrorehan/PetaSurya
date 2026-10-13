@@ -3,7 +3,7 @@
   min-height: 240px;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: var(--r-m);
+  border-radius: var(--radius);
   background: var(--surface-2);
   box-shadow: var(--shadow-s);
 }
@@ -34,8 +34,8 @@
 }
 
 .kanvas :global(.maplibregl-ctrl-group button) {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-color: var(--line);
   background-color: var(--surface);
 }

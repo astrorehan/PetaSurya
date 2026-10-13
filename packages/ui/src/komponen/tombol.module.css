@@ -1,6 +1,6 @@
 /*
- * Tombol: dua gaya, satu ukuran. Tinggi mengikuti --kontrol-h (36 px, 44 px
- * di layar sentuh). Umpan balik muncul saat ditekan (pointer-down), bukan
+ * Tombol: dua gaya, satu ukuran. Tinggi mengikuti --kontrol-h (44 px).
+ * Umpan balik muncul saat ditekan (pointer-down), bukan
  * saat dilepas; skala 0,98 hanya bila pengguna tidak meminta gerak minimal.
  */
 .tombol {
@@ -19,7 +19,7 @@
   background: var(--_isi);
   color: var(--_tinta);
   font: var(--tipe-ui);
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -77,7 +77,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .tombol:active:not(:disabled, [aria-disabled="true"]),
   .tombol[data-paksa="aktif"] {
-    transform: scale(0.98);
+    transform: scale(var(--tekan-skala));
   }
 }
 

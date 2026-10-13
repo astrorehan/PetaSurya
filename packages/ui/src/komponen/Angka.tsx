@@ -18,7 +18,7 @@ export function Label({ children, aksen, as: Tag = "p" }: { children: ReactNode;
 
 /**
  * Angka hasil. `display` hanya satu per layar (jawaban), `figure` untuk
- * pendamping. Satuan diset lebih kecil dari angkanya; angka memakai Archivo,
+ * pendamping. Satuan diset lebih kecil dari angkanya; angka memakai Geist,
  * yang digitnya sudah hampir sama lebar. Saat `menghitung`, angka lama
  * meredup, tidak hilang.
  */

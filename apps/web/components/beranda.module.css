@@ -1,7 +1,7 @@
 .halaman {
   width: min(100% - 2 * var(--tepi), 1440px);
   margin: 0 auto;
-  padding: var(--sp-6) 0 var(--sp-10);
+  padding: var(--sp-8) 0 var(--sp-12);
 }
 
 .kepala {
@@ -18,12 +18,12 @@
   color: var(--ink-2);
   font: var(--tipe-label);
   letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .judul {
   margin: 0;
-  font: var(--tipe-angka);
+  font: 600 var(--fs-2xl) / var(--lead-display) var(--f-display);
   letter-spacing: var(--track-title);
 }
 
@@ -37,8 +37,8 @@
 
 .barisPeta {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 1fr) 364px;
+  gap: var(--sp-6);
   align-items: start;
 }
 
@@ -55,9 +55,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--sp-4);
+  padding: var(--panel-pad);
   border: 1px solid var(--line);
-  border-radius: var(--r-m);
+  border-radius: var(--radius);
   background: var(--surface);
 }
 
@@ -77,6 +77,9 @@
 .jumlah {
   font: var(--tipe-data);
   color: var(--ink-2);
+  border-radius: var(--r-pill);
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--surface-2);
 }
 
 .statusTeks {
@@ -90,7 +93,9 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line);
+  display: grid;
+  gap: var(--sp-1);
+  margin-block: var(--sp-3);
   max-height: 440px;
   overflow-y: auto;
 }
@@ -112,8 +117,9 @@
 
 .contohCepat > div {
   display: flex;
-  gap: var(--sp-4);
+  gap: var(--sp-2);
 }
+.contohCepat a { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-pill); text-decoration: none; background: var(--surface-2); }
 
 .galat {
   padding: var(--sp-3);
@@ -127,10 +133,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-2);
-  border-bottom: 1px solid var(--line);
+  padding: var(--sp-3);
+  border-radius: var(--r-s);
   color: var(--ink);
   text-decoration: none;
+  transition: background var(--t-fast) var(--ease-out);
 }
 
 .bangunan:hover {
@@ -185,7 +192,7 @@
 }
 
 .tentangData {
-  border-top: 1px solid var(--line);
+  margin-top: var(--sp-4);
   font: var(--tipe-kecil);
 }
 

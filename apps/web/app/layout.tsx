@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, IBM_Plex_Mono, Instrument_Sans, Newsreader } from "next/font/google";
+import { Geist, IBM_Plex_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import contohSimulasi from "../../../data/fixtures/simulasi/contoh-3f8c.json";
 import "@petasurya/ui/tokens.css";
@@ -8,25 +8,15 @@ import { Header } from "../components/Header";
 import { PenyediaTema } from "../components/Tema";
 import s from "./layout.module.css";
 
-// Empat peran huruf (§01). Di-host sendiri saat build sehingga jalan luring.
-// Nama variabel harus sama dengan yang dirujuk --f-* di tokens.css.
-const archivo = Archivo({
+// Pasangan Arc di-host sendiri saat build; data memakai angka tabular mono.
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-archivo",
+  variable: "--font-geist",
   display: "swap",
 });
-const instrumentSans = Instrument_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-instrument-sans",
-  display: "swap",
-});
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
+  variable: "--font-inter",
   display: "swap",
 });
 const plexMono = IBM_Plex_Mono({
@@ -44,7 +34,7 @@ export const metadata: Metadata = {
   description: "Peta potensi PLTS atap tingkat bangunan untuk Indonesia. Atapmu, dihitung.",
 };
 
-const kelasFont = [archivo, instrumentSans, newsreader, plexMono].map((f) => f.variable).join(" ");
+const kelasFont = [geist, inter, plexMono].map((f) => f.variable).join(" ");
 const engineVersion = contohSimulasi.engine_version;
 
 const skripTemaAwal = `

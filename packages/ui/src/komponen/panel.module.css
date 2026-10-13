@@ -1,11 +1,11 @@
 /*
- * Padding tetap 16 px di semua lebar (alat kerja: 12–16 px). Panel juga
+ * Padding mengikuti token panel. Panel juga
  * wadah container query agar isinya bisa menyusun ulang menurut lebar panel.
  */
 .panel {
   position: relative;
   min-width: 0;
-  padding: var(--sp-4);
+  padding: var(--panel-pad);
   border: 1px solid var(--line);
   border-radius: var(--r-m);
   background: var(--surface);

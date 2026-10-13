@@ -63,12 +63,13 @@ const DURASI = [
   { token: "--t-fast", tugas: "Umpan balik tekan: warna dan skala 0,98" },
   { token: "--t-base", tugas: "Opacity dan warna: redup saat hitung ulang, pudar lembar" },
   { token: "--t-move", tugas: "Perpindahan: lembar samping masuk dan keluar" },
+  { token: "--t-considered", tugas: "Peraga perubahan besar yang dipicu pengguna" },
 ] as const;
 
 const GERAK = [
-  { gerak: "Tombol ditekan: warna, skala 0,98", durasi: "100 ms", minimal: "Warna tetap, skala mati" },
+  { gerak: "Tombol ditekan: warna, skala 0,98", durasi: "--t-fast", minimal: "Warna tetap, skala mati" },
   { gerak: "Hitung ulang: angka meredup ke 40 %", durasi: "180 ms", minimal: "Tetap, hanya opacity" },
-  { gerak: "Lembar samping masuk dan keluar", durasi: "260 ms geser, 180 ms pudar", minimal: "Geser mati, pudar tetap" },
+  { gerak: "Lembar samping masuk dan keluar", durasi: "--t-move geser, --t-base pudar", minimal: "Geser mati, pudar tetap" },
   { gerak: "Peta terbang ke bangunan", durasi: "500 ms, kurva MapLibre", minimal: "Langsung lompat" },
   { gerak: "Indikator sibuk di tombol", durasi: "800 ms per putaran", minimal: "Berdenyut opacity" },
 ] as const;
@@ -139,7 +140,7 @@ export function BagianIkonGerak() {
       id="ikon-gerak"
       nomor="07"
       judul="Ikon & gerak"
-      aturan="Ikon menamai tindakan, bukan menghias. Gerak hanya menjawab sentuhan, menandai perubahan keadaan, dan memindahkan peta."
+      aturan="Ikon menamai tindakan. Motion demo mengarahkan perhatian ke bangunan, batas atap, dan penghematan; angka hasil tetap utuh."
     >
       <Pelat
         nomor="7.1"
@@ -183,7 +184,7 @@ export function BagianIkonGerak() {
         judul="Kurva dan durasi"
         keterangan={
           <>
-            Satu kurva untuk semua transisi, <Kode>--ease-out</Kode> = {akar["--ease-out"]}: cepat di awal agar terasa langsung
+            Kurva standard Arc untuk transisi, <Kode>--ease-out</Kode> = {akar["--ease-out"]}: cepat di awal agar terasa langsung
             menjawab, pelan di akhir. Dengan gerak minimal, <Kode>--t-move</Kode> menjadi 0 dan balok di sini berpindah tanpa
             animasi.
           </>
@@ -195,10 +196,12 @@ export function BagianIkonGerak() {
         </div>
       </Pelat>
 
+
+
       <Pelat
         nomor="7.3"
         judul="Gerak yang dipakai"
-        keterangan="Tidak ada angka yang menghitung naik, elemen yang muncul saat digulir, paralaks, pemintal di atas data yang sudah ada, atau pantulan tanpa momentum gestur."
+        keterangan="Putar demo pada pemindai untuk melihat penelusuran kontur, kamera halus, sorotan jawaban, dan aliran energi. Demo dapat dijeda atau diakhiri; mode gerak minimal tetap tersedia."
         polos
       >
         <Tabel judul="Gerak" gulir>
@@ -213,10 +216,28 @@ export function BagianIkonGerak() {
             {GERAK.map((b) => (
               <tr key={b.gerak}>
                 <th scope="row">{b.gerak}</th>
-                <td className={g.durasiSel}>{b.durasi}</td>
+                <td className={g.durasiSel}>{b.durasi.replace(/--t-[a-z]+/g, (token) => akar[token].replace("ms", " ms"))}</td>
                 <td>{b.minimal}</td>
               </tr>
             ))}
+          </tbody>
+        </Tabel>
+      </Pelat>
+      <Pelat nomor="7.4" judul="Kosakata motion · Arc" keterangan="Durasi panjang hanya untuk perubahan yang dipicu pengguna. Tanpa animasi otomatis saat muat atau gulir." polos>
+        <Tabel judul="Token motion Arc" gulir>
+          <thead><tr><th scope="col">Token</th><th scope="col">Nilai</th><th scope="col">Peran</th></tr></thead>
+          <tbody>
+            {[
+              ["--t-instant", "Konfirmasi segera"],
+              ["--t-fast", "Respons tekan"],
+              ["--t-move", "Buka rincian dan pindah keadaan"],
+              ["--t-exit", "Keluar dari keadaan"],
+              ["--t-considered", "Perubahan besar dalam peraga"],
+              ["--ease-enter", "Masuk atau label baru"],
+              ["--ease-out", "Perubahan keadaan standar"],
+              ["--ease-exit", "Keluar"],
+              ["--ease-in-out", "Pergeseran di dalam layar"],
+            ].map(([token, peran]) => <tr key={token}><th scope="row"><Kode>{token}</Kode></th><td className="num">{akar[token]}</td><td>{peran}</td></tr>)}
           </tbody>
         </Tabel>
       </Pelat>

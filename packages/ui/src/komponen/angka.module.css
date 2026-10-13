@@ -1,4 +1,4 @@
-/* Label kapital: 12 px / 600 / +0,06em. Selalu --ink-2, tidak pernah warna semantik. */
+/* Label memakai Inter dan warna sekunder; angka memakai Geist. */
 .label {
   display: flex;
   align-items: center;
@@ -6,7 +6,7 @@
   margin: 0;
   font: var(--tipe-label);
   letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--ink-2);
 }
 

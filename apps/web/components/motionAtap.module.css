@@ -1,0 +1,38 @@
+.panggung { position: relative; overflow: hidden; border: 1px solid var(--line-2); border-radius: var(--radius); aspect-ratio: 4 / 3; background: var(--brand-sel); isolation: isolate; }
+.kanvas { display: block; width: 100%; height: 100%; }
+.kamera { transform-box: view-box; }
+.panggung[data-demo] .kamera { animation: kamera var(--t-flow) var(--ease-out) both; }
+.luarSorot { fill: var(--brand-sel); opacity: .52; transition: opacity var(--t-scene) var(--ease-out); }
+.panggung[data-babak="batas"] .luarSorot { opacity: .68; }
+.jejak { fill: none; stroke: var(--brand-busbar); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.kontur { fill: none; stroke: var(--surya); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: telusuri var(--t-outline) var(--ease-in-out) both; }
+.bidangAtap { fill-opacity: .22; animation: isiBidang var(--t-reveal) var(--ease-out) both; animation-delay: var(--t-scene); }
+.pembidik { fill: none; stroke: var(--brand-busbar); stroke-width: 1.25; opacity: .75; animation: bidik var(--t-reveal) var(--ease-out) both; }
+.scan { animation: lintasScan var(--t-scan) linear infinite; }
+.scanPita { fill: var(--surya); opacity: .16; }
+.scanGaris { fill: none; stroke: var(--surya); stroke-width: 1.5; }
+.keterangan { position: absolute; inset-inline-start: var(--sp-4); bottom: var(--sp-4); display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line-2); border-radius: var(--r-pill); background: var(--surface); color: var(--ink); font: var(--tipe-kecil); pointer-events: none; animation: keteranganMasuk var(--t-reveal) var(--ease-out) both; }
+.citraKosong { position: absolute; top: var(--sp-4); right: var(--sp-4); color: var(--ink); background: var(--surface); border-radius: var(--r-pill); padding: var(--sp-2) var(--sp-3); font: var(--tipe-kecil); }
+.keterangan > span { display: grid; gap: var(--sp-1); color: var(--ink-2); }
+.keterangan strong { font: 600 var(--fs-l) / 1.1 var(--f-display); color: var(--ink); letter-spacing: var(--track-title); }
+.alurEnergi { margin-bottom: var(--sp-3); }
+.alurEnergi svg { width: 100%; height: auto; display: block; }
+.sambungan { fill: none; stroke: var(--line-2); stroke-width: 1; }
+.aliran { fill: none; stroke: var(--surya); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 7 30; animation: energi var(--t-flow) linear 3; }
+.simpul { fill: var(--surface-2); stroke: var(--line-2); stroke-width: 1; }
+.ikonSurya { color: var(--surya); stroke-width: 1.75; }
+.ikonDaun { color: var(--daun); stroke-width: 1.75; }
+.labelAlur { fill: var(--ink-2); font: var(--tipe-ui); }
+@keyframes telusuri { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes isiBidang { from { fill-opacity: 0; } to { fill-opacity: .22; } }
+@keyframes bidik { from { opacity: 0; } to { opacity: .75; } }
+@keyframes kamera { from { transform: scale(1); } to { transform: scale(1.06); } }
+@keyframes lintasScan { from { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } to { transform: translateY(var(--lintasan-scan)); opacity: 0; } }
+@keyframes keteranganMasuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes energi { to { stroke-dashoffset: -74; } }
+@media (prefers-reduced-motion: reduce) {
+  .panggung .kamera, .kontur, .bidangAtap, .pembidik, .keterangan, .aliran { animation: none; }
+  .scan { display: none; }
+  .luarSorot { transition: none; }
+}
+@media (max-width: 560px) { .labelAlur { font-size: var(--fs-xl); } }

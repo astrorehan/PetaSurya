@@ -27,7 +27,7 @@ const keteranganHemat = `Tahun pertama · ${asumsi.golongan_tarif} ${tarif} · k
 const ANATOMI = [
   { nama: "Label dan kunci", isi: "12 px, 600, kapital, --ink-2. Kunci 8 px membawa kategori: surya energi, daun uang dan CO₂." },
   { nama: "Awalan", isi: "Satuan di depan angka. 0,4 em pada display, 0,55 em pada figure; 500, --ink-2." },
-  { nama: "Angka", isi: "Archivo 600, --ink. Presisi penuh muncul saat disorot." },
+  { nama: "Angka", isi: "Geist 600, --ink. Presisi penuh muncul saat disorot." },
   { nama: "Akhiran", isi: "juta, kWp, tahun: aturan sama dengan awalan." },
   { nama: "Keterangan", isi: "13 px --ink-2. Asumsi yang paling menggeser angka ini." },
   { nama: "Jejak", isi: "Membuka lembar jejak: rumus, masukan, sumber." },

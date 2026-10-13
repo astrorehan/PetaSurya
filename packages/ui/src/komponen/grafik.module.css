@@ -143,10 +143,13 @@
   position: relative;
   width: min(24px, 72%);
   min-height: 2px;
-  border-radius: var(--r-s) var(--r-s) 0 0;
+  border-radius: var(--r-bar) var(--r-bar) 0 0;
   background: var(--surya);
   transition: opacity var(--t-fast) var(--ease-out);
 }
+.grafik[data-animasi] .batang { transform-origin: bottom; animation: tumbuhBatang var(--t-reveal) var(--ease-out) both; animation-delay: calc(var(--urutan-batang) * var(--t-stagger)); }
+@keyframes tumbuhBatang { from { transform: scaleY(0); opacity: .25; } to { transform: scaleY(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .grafik[data-animasi] .batang { animation: none; } }
 
 .slot:focus-visible .batang {
   box-shadow: var(--ring);

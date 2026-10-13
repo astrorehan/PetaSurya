@@ -32,11 +32,11 @@ const TEMA = [
 
 const sim = toko.simulasi;
 
-/** Sudut digambar 4:1. Garis putus = sudut tajam yang dibulatkan. */
+/** Sudut digambar 2:1. Garis putus = sudut tajam yang dibulatkan. */
 function Sudut({ px }: { px: number }) {
   const u = 96;
   const o = 12;
-  const R = px * 4;
+  const R = px * 2;
   const c = o + R;
   const k = Math.SQRT1_2;
   const garis = `M ${u} ${o} H ${c} A ${R} ${R} 0 0 0 ${o} ${c} V ${u}`;
@@ -64,7 +64,7 @@ export function BagianBentuk() {
       judul="Bentuk"
       aturan="Tiga radius dan dua bayangan. Bayangan hanya untuk yang benar-benar mengapung; selebihnya garis rambut."
     >
-      <Pelat nomor="6.1" judul="Radius" keterangan="Sudut digambar pada skala 4:1. Garis putus-putus = sudut tajam asalnya.">
+      <Pelat nomor="6.1" judul="Radius" keterangan="Radius Arc: 18 px kontrol, 26 px panel, 34 px permukaan. Sudut digambar pada skala 2:1.">
         <ul className={b.radius}>
           {RADIUS.map((r) => {
             const px = Number.parseFloat(akar[r.token]);

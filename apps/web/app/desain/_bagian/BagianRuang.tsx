@@ -38,7 +38,7 @@ export function BagianRuang() {
       id="ruang"
       nomor="05"
       judul="Ruang"
-      aturan="Kelipatan 4 px. Rapat seperti alat ukur: padding 12–16 px, dan setiap ruang kosong punya tugas."
+      aturan="Kelipatan 4 px. Panel memakai padding 24 px; kontrol dan baris tetap ringkas."
     >
       <Pelat nomor="5.1" judul="Skala spasi" keterangan="Batang digambar pada ukuran sebenarnya." polos>
         <ol className={r.skala}>
@@ -59,7 +59,7 @@ export function BagianRuang() {
         <Pelat
           nomor="5.2"
           judul="Kepadatan panel"
-          keterangan="Padding 16 di keempat sisi dan di semua lebar layar. Kelompok dipisah 24 dan garis --line, bukan panel di dalam panel."
+          keterangan="Padding 24 px mengikuti --panel-pad. Kelompok dipisah ruang dan garis --line."
           kisi
           statis
         >
@@ -68,9 +68,9 @@ export function BagianRuang() {
             <span className={r.celah} aria-hidden="true">
               <Ukur
                 arah="h"
-                label="16"
+                label="24"
                 luar="kanan"
-                gaya={{ left: "calc(-1 * var(--sp-4))", width: "var(--sp-4)", top: "calc(50% - 4px)" }}
+                gaya={{ left: "calc(-1 * var(--panel-pad))", width: "var(--panel-pad)", top: "calc(50% - 4px)" }}
               />
               <Ukur arah="v" label="24" luar="kanan" gaya={{ top: 0, bottom: 0, left: "62%" }} />
             </span>
@@ -80,7 +80,7 @@ export function BagianRuang() {
                 { label: "Biaya pasang", nilai: rupiah(sim.capex_idr, true) },
               ]}
             />
-            <Ukur arah="v" label="16" luar="kanan" gaya={{ top: 0, height: "var(--sp-4)", left: "62%" }} />
+            <Ukur arah="v" label="24" luar="kanan" gaya={{ top: 0, height: "var(--panel-pad)", left: "62%" }} />
           </Panel>
         </Pelat>
 
@@ -89,7 +89,7 @@ export function BagianRuang() {
           judul="Token tata letak"
           keterangan={
             <>
-              Tinggi kontrol naik ke {ukuranPx(kontrolSentuh ?? "")} di layar sentuh (<Kode>pointer: coarse</Kode>).
+              Tinggi kontrol {ukuranPx(kontrolSentuh ?? "")} juga memenuhi target sentuh (<Kode>pointer: coarse</Kode>).
             </>
           }
           polos
@@ -131,7 +131,7 @@ export function BagianRuang() {
               />
             </Panel>
           ),
-          alasan: "Padding 16, rata kiri. Label, angka, dan rinciannya terbaca dalam satu pandangan.",
+          alasan: "Padding 24, rata kiri. Label, angka, dan rinciannya terbaca dalam satu pandangan.",
         }}
         jangan={{
           contoh: (

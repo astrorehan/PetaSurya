@@ -31,7 +31,7 @@
   padding: 2px;
   gap: 2px;
   border: 1px solid var(--line);
-  border-radius: var(--r-s);
+  border-radius: var(--r-pill);
   background: var(--surface-2);
 }
 
@@ -57,7 +57,7 @@
   gap: var(--sp-1);
   min-height: calc(var(--kontrol-h) - 6px);
   padding: 0 var(--sp-3);
-  border-radius: 3px;
+  border-radius: var(--r-pill);
   color: var(--ink-2);
   font: var(--tipe-ui);
   font-size: var(--fs-s);

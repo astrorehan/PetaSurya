@@ -6,6 +6,7 @@ import { BagianBentuk } from "./_bagian/BagianBentuk";
 import { BagianHuruf } from "./_bagian/BagianHuruf";
 import { BagianIkonGerak } from "./_bagian/BagianIkonGerak";
 import { BagianKontrol } from "./_bagian/BagianKontrol";
+import { BagianKreatif } from "./_bagian/BagianKreatif";
 import { BagianPrinsip } from "./_bagian/BagianPrinsip";
 import { BagianRuang } from "./_bagian/BagianRuang";
 import { BagianWarna } from "./_bagian/BagianWarna";
@@ -28,6 +29,7 @@ const ISI: readonly ButirIsi[] = [
   { id: "bentuk", nomor: "06", judul: "Bentuk" },
   { id: "ikon-gerak", nomor: "07", judul: "Ikon & gerak" },
   { id: "kontrol", nomor: "08", judul: "Kontrol" },
+  { id: "kreatif", nomor: "09", judul: "Komponen kreatif" },
 ];
 
 export default function ReferensiDesain() {
@@ -50,7 +52,7 @@ export default function ReferensiDesain() {
             </div>
             <div className={s.sel}>
               <dt>Revisi</dt>
-              <dd>B · 30 September 2026</dd>
+              <dd>C · 13 Oktober 2026</dd>
             </div>
             <div className={s.sel} data-lebar="">
               <dt>Berlaku untuk</dt>
@@ -90,6 +92,7 @@ export default function ReferensiDesain() {
           <BagianBentuk />
           <BagianIkonGerak />
           <BagianKontrol />
+          <BagianKreatif />
         </div>
       </div>
     </main>

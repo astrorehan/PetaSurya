@@ -1,7 +1,7 @@
 "use client";
 
 import { ChartColumn, Table2 } from "lucide-react";
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { persen, ucapan } from "../format";
 import { Label } from "./Angka";
 import { Ikon } from "./Ikon";
@@ -32,11 +32,14 @@ export function GrafikBulanan({
   satuan = "kWh",
   judul = "Produksi bulanan",
   menghitung = false,
+  animasi = false,
 }: {
   data: readonly number[];
   satuan?: string;
   judul?: string;
   menghitung?: boolean;
+  /** Munculkan batang berurutan saat hasil siap; nilai data tetap utuh. */
+  animasi?: boolean;
 }) {
   const [aktif, setAktif] = useState<number | null>(null);
   const [fokus, setFokus] = useState(0);
@@ -66,7 +69,7 @@ export function GrafikBulanan({
   };
 
   return (
-    <figure className={s.grafik} data-menghitung={menghitung || undefined} aria-busy={menghitung || undefined}>
+    <figure className={s.grafik} data-animasi={animasi || undefined} data-menghitung={menghitung || undefined} aria-busy={menghitung || undefined}>
       <figcaption className={s.kepala}>
         <span id={idJudul}>
           <Label as="span" aksen="surya">
@@ -162,7 +165,7 @@ export function GrafikBulanan({
                   }}
                   onKeyDown={(e) => pindah(e, i)}
                 >
-                  <span className={s.batang} style={{ height: `${tinggi * 100}%` }}>
+                  <span className={s.batang} style={{ height: `${tinggi * 100}%`, "--urutan-batang": i } as CSSProperties}>
                     {tandai && (
                       <span
                         className={s.labelLangsung}

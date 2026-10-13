@@ -173,3 +173,20 @@
   font: var(--tipe-tubuh);
   color: var(--ink-2);
 }
+
+.arcFonts {
+  --f-arc-display: var(--font-geist), system-ui, sans-serif;
+  --f-arc-body: var(--font-inter), system-ui, sans-serif;
+}
+.lab { display: grid; gap: var(--sp-6); }
+.labKontrol { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.labKontrol label { display: grid; gap: var(--sp-1); font: var(--tipe-kecil); color: var(--ink-2); min-width: 0; }
+.labKontrol select, .labKontrol input { min-height: var(--kontrol-h); max-width: 100%; padding: var(--sp-2); border: 1px solid var(--line-2); border-radius: var(--r-s); background: var(--surface); color: var(--ink); font: var(--tipe-ui); }
+.labTeks { flex: 1 1 16rem; }
+.labSpesimen { border-top: 1px solid var(--line); padding-top: var(--sp-4); font-size: var(--fs-2xl); line-height: var(--lead-title); letter-spacing: var(--track-display); overflow-wrap: anywhere; }
+.labSpesimen p { margin: 0 0 var(--sp-4); }
+.labSpesimen .labKarakter { font-size: var(--fs-l); line-height: var(--lead-ui); letter-spacing: normal; font-variant-numeric: tabular-nums; }
+.arcFonts { --arc-track-display: -0.03em; --arc-track-body: -0.01em; --arc-lead-display: 1.1; --arc-lead-body: 1.4; }
+.labSpesimen[data-arc] { letter-spacing: var(--arc-track-display); line-height: var(--arc-lead-display); }
+.labSpesimen[data-arc] .labKarakter { letter-spacing: var(--arc-track-body); line-height: var(--arc-lead-body); }
+.labSpek { margin: 0; color: var(--ink-2); font: var(--tipe-kecil); }

@@ -1,19 +1,23 @@
 .header {
   position: sticky;
   z-index: var(--z-header);
-  top: 0;
-  border-bottom: 1px solid var(--line);
+  top: var(--sp-3);
+  width: min(100% - var(--sp-8), 1440px);
+  margin: var(--sp-3) auto 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: var(--shadow-s);
 }
 
 .headerDalam {
-  width: min(100% - var(--sp-8), 1440px);
-  min-height: var(--header-h);
+  width: calc(100% - var(--sp-8));
+  min-height: 72px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: auto minmax(180px, 1fr) auto auto;
+  grid-template-columns: auto auto minmax(160px, 1fr) auto;
   align-items: center;
-  gap: var(--sp-6);
+  gap: var(--sp-4);
 }
 
 .merek {
@@ -28,14 +32,15 @@
 .wordmark {
   font-family: var(--f-display);
   font-size: var(--fs-l);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: var(--track-title);
 }
 
 .formCari {
-  width: min(100%, 440px);
+  grid-column: 3;
+  width: min(100%, 320px);
   min-height: var(--kontrol-h);
-  justify-self: center;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
@@ -44,6 +49,7 @@
   border: 1px solid var(--line-2);
   border-radius: var(--r-s);
   background: var(--surface-2);
+  font: var(--tipe-ui);
 }
 
 .formCari:focus-within {
@@ -68,9 +74,15 @@
 }
 
 .nav {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
+  gap: 2px;
+  padding: var(--sp-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
   white-space: nowrap;
   font-size: var(--fs-s);
 }
@@ -84,15 +96,19 @@
 .nav a {
   display: inline-flex;
   align-items: center;
-  min-height: var(--kontrol-h);
+  min-height: 36px;
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-pill);
+  font-weight: 500;
+  transition: color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
 }
 
 .nav a[aria-current],
 .menuIsi a[aria-current] {
   color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: var(--pri);
-  text-underline-offset: var(--sp-1);
+  background: var(--surface);
+  box-shadow: var(--shadow-s);
+  text-decoration: none;
 }
 
 .nav a:hover,
@@ -101,8 +117,10 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.nav a:hover { text-decoration: none; background: var(--surface); }
 
 .tombolTema {
+  grid-column: 4;
   justify-self: end;
 }
 
@@ -150,6 +168,7 @@
   color: var(--ink);
   font: var(--tipe-ui);
   text-decoration: none;
+  border-radius: var(--r-s);
 }
 
 .menuIsi a:hover {
@@ -237,6 +256,7 @@
   .nav {
     justify-content: flex-end;
   }
+  .tombolTema { grid-column: 3; grid-row: 1; }
 }
 
 @media (max-width: 700px) {
@@ -251,10 +271,13 @@
 
   .menu {
     display: block;
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 
 @media (max-width: 560px) {
+  .header { width: calc(100% - var(--sp-4)); top: var(--sp-2); margin-top: var(--sp-2); border-radius: var(--r-m); }
   .headerDalam,
   .footerDalam {
     width: min(100% - var(--sp-6), 1440px);

@@ -1,0 +1,8 @@
+.plot { background: var(--surface-2); }
+.kisi { fill: none; stroke: var(--line); stroke-width: 0.5; }
+.jejak { fill: var(--pri-bg); stroke: var(--ink-2); stroke-width: 1.5; }
+.mask { fill: var(--surya-bg); stroke: var(--surya); stroke-width: 1.5; }
+.sumber { margin: var(--sp-4) 0 0; color: var(--ink-2); font: var(--tipe-kecil); }
+.catatan { margin: var(--sp-3) 0 0; color: var(--ink-2); font: var(--tipe-kecil); }
+.contohSalin { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+.contohSalin .catatan { flex: 1 1 18rem; margin: 0; }
