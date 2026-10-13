@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { AlertTriangle, ChevronDown, Pause, Play, X } from "lucide-react";
-import { Angka, DaftarData, Ikon, Lencana, Segmen, Tombol, kelasTombol, kwh, kwp, m2, persen, rupiah } from "@petasurya/ui";
+import { Angka, DaftarData, Ikon, Lencana, Segmen, Tombol, kelasTombol, kwh, kwp, m2, rupiah } from "@petasurya/ui";
 import s from "./pemindaiAtap.module.css";
 
 import {
@@ -16,7 +16,7 @@ import {
 export type { BangunanTargetPindai, TileCitra };
 export { DAFTAR_BANGUNAN, TAHAP_INFO };
 
-const TAHAP_RINGKAS = ["Citra", "Atap", "Area", "Sumbu", "Panel"];
+const TAHAP_RINGKAS = ["Citra", "Atap", "Area", "Sumbu", "Potensi"];
 
 const KUERI_SEMPIT = "(max-width: 560px)";
 const langgananSempit = (ubah: () => void) => {
@@ -42,18 +42,14 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const [tahap, setTahap] = useState(1);
   const [sedangMemindai, setSedangMemindai] = useState(false);
   const [kecepatan, setKecepatan] = useState<1 | 2>(1);
-  const tipeModul = 550;
   const [citraGagal, setCitraGagal] = useState(false);
 
   // Sakelar lapisan visual
   const [tampilSatelit, setTampilSatelit] = useState(true);
   const [tampilKontur, setTampilKontur] = useState(true);
   const [tampilSumbu, setTampilSumbu] = useState(true);
-  const [tampilModul, setTampilModul] = useState(true);
   const [tampilKompas, setTampilKompas] = useState(true);
 
-  // Status inspeksi sketsa panel.
-  const [modulSorot, setModulSorot] = useState<number | null>(null);
   const wadahRef = useRef<HTMLDivElement>(null);
   const Judul = mode === "halaman" ? "h1" : "h2";
 
@@ -64,8 +60,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
   const viewBox = sempit ? `${320 - lebarKanvas / 2} ${240 - tinggiKanvas / 2} ${lebarKanvas} ${tinggiKanvas}` : "0 0 640 480";
   const posisiKompas = sempit ? `translate(${320 + lebarKanvas / 2 - 44}, ${240 - tinggiKanvas / 2 + 44})` : "translate(596, 44)";
   const tahapAktif = TAHAP_INFO[tahap - 1];
-  const spekAktif = bangunan.specs[tipeModul];
-  const modulAktif = bangunan.pv_modules_550;
+  const spekAktif = bangunan.specs[550];
 
   useEffect(() => {
     let aktif = true;
@@ -185,7 +180,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
     setCitraGagal(false);
     setTahap(1);
     setSedangMemindai(false);
-    setModulSorot(null);
   };
 
   const polygonString = useMemo(() => {
@@ -401,52 +395,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                 </g>
               ) : null}
 
-              {/* TAHAP 5: Grid Modul Surya PV */}
-              {tahap >= 5 && tampilModul ? (
-                <g id="tahap-5-pv">
-                  {modulAktif.map((mod) => {
-                    const disorot = modulSorot === mod.id;
-                    return (
-                      <g
-                        key={mod.id}
-                        onMouseEnter={() => setModulSorot(mod.id)}
-                        onMouseLeave={() => setModulSorot(null)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <rect
-                          x={mod.x}
-                          y={mod.y}
-                          width={mod.w}
-                          height={mod.h}
-                          fill={disorot ? "#2B3A77" : "#17204A"}
-                          stroke={disorot ? "#E8920F" : "#AEB7C7"}
-                          strokeWidth={disorot ? "1.5" : "0.8"}
-                          rx="1"
-                        />
-                        <line
-                          x1={mod.x + 2}
-                          y1={mod.y + 1}
-                          x2={mod.x + 2}
-                          y2={mod.y + mod.h - 1}
-                          stroke="#AEB7C7"
-                          strokeWidth="0.4"
-                          opacity="0.6"
-                        />
-                        <line
-                          x1={mod.x + mod.w - 2}
-                          y1={mod.y + 1}
-                          x2={mod.x + mod.w - 2}
-                          y2={mod.y + mod.h - 1}
-                          stroke="#AEB7C7"
-                          strokeWidth="0.4"
-                          opacity="0.6"
-                        />
-                      </g>
-                    );
-                  })}
-                </g>
-              ) : null}
-
               {/* Mini Dial Kompas Surya di Sudut Kanan Bawah */}
               {tampilKompas && (tahap >= 4 || tahap === 5) ? (
                 <g id="dial-kompas" transform={posisiKompas}>
@@ -475,15 +423,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
               ) : null}
 
             </svg>
-
-            {/* Inspeksi sketsa panel. */}
-            {modulSorot ? (
-              <div className={s.tooltipKanvas}>
-                <span>
-                  MODUL #{modulSorot}: Mono-Si {tipeModul} Wp · String #{modulAktif.find((m) => m.id === modulSorot)?.string_id}
-                </span>
-              </div>
-            ) : null}
 
             <div className={s.hudBawah}>
               <span>Esri · Vantor · Earthstar Geographics</span>
@@ -521,7 +460,6 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
                   { label: "Satelit", nilai: tampilSatelit, ubah: setTampilSatelit },
                   { label: "Kontur", nilai: tampilKontur, ubah: setTampilKontur },
                   { label: "Sumbu", nilai: tampilSumbu, ubah: setTampilSumbu },
-                  { label: "Panel", nilai: tampilModul, ubah: setTampilModul },
                   { label: "Kompas", nilai: tampilKompas, ubah: setTampilKompas },
                 ].map((lapisan) => (
                   <label key={lapisan.label} className={s.itemLapisan}>
@@ -551,26 +489,31 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
           ) : null}
 
           <Angka
-            label="Kapasitas contoh"
+            label="Potensi berbasis luas"
             nilai={kwp(spekAktif.kwp)}
             ukuran="display"
             aksen="surya"
-            keterangan={`${spekAktif.count} panel · ${m2(bangunan.usable_area_m2)} area pemasangan`}
+            keterangan={`${spekAktif.count} modul setara · ${m2(bangunan.usable_area_m2)} luas perhitungan (asumsi)`}
           />
 
+          <p className={s.bantuan}>Batas atap belum diverifikasi. Jumlah panel yang dapat dipasang belum dihitung.</p>
           <p className={s.bantuan}>Modul Jinko 550 Wp. Kemiringan 15° dan cadangan area 15% adalah asumsi.</p>
           {tahap >= 3 ? <p className={s.bantuan}>Halangan dan bayangan belum diukur.</p> : null}
-          {tahap === 5 ? <p className={s.bantuan}>Sketsa: {modulAktif.length} panel. Kapasitas dihitung dari luas; susunan perlu dirancang ulang.</p> : null}
+
 
           <Link className={kelasTombol()} href={`/atap/${bangunan.id}`} onClick={onTutup}>Lihat hasil bangunan</Link>
 
           <details className={s.rincian}>
-            <summary>Rincian simulasi <Ikon ikon={ChevronDown} /></summary>
+            <summary>Asal estimasi <Ikon ikon={ChevronDown} /></summary>
             <DaftarData baris={[
               { label: "Produksi tahun pertama", nilai: kwh(spekAktif.e_ac_kwh_yr1) },
               { label: "Hemat tahun pertama", nilai: rupiah(spekAktif.savings_idr_yr1) },
               { label: "Luas bangunan", nilai: m2(bangunan.footprint_m2) },
-              { label: "Luas atap", nilai: m2(bangunan.roof_area_m2) },
+              { label: "Luas mask / perkiraan", nilai: m2(bangunan.roof_area_m2) },
+              { label: "Luas perhitungan (asumsi)", nilai: m2(bangunan.usable_area_m2) },
+              { label: "Luas satu modul", nilai: bangunan.luas_modul_m2.toLocaleString("id-ID", { maximumFractionDigits: 3 }) + " m²" },
+              { label: "Modul setara dari luas", nilai: spekAktif.count.toLocaleString("id-ID") },
+              { label: "Kapasitas pasang", nilai: "Belum dihitung" },
               { label: "Penghalang", nilai: "Belum diukur" },
               { label: "Kemiringan (asumsi)", nilai: bangunan.tilt_deg.toLocaleString("id-ID") + "°" },
               { label: "Orientasi", nilai: bangunan.arah_label },
@@ -587,7 +530,7 @@ export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: Pemi
           <details className={s.rincian}>
             <summary>Data teknis <Ikon ikon={ChevronDown} /></summary>
             <DaftarData baris={[
-              { label: "Keyakinan (heuristik)", nilai: persen(bangunan.confidence) },
+              { label: "Skor penyaringan", nilai: bangunan.confidence.toLocaleString("id-ID", { maximumFractionDigits: 3 }) + " / 1 (belum dikalibrasi)" },
               { label: "IoU terhadap OSM", nilai: bangunan.iou_footprint.toLocaleString("id-ID", { maximumFractionDigits: 3 }) },
               { label: "Waktu proses tersimpan", nilai: bangunan.durasi_detik.toLocaleString("id-ID") + " detik" },
               { label: "Metode", nilai: bangunan.method === "cv" ? "Analisis citra" : "Jejak bangunan" },

@@ -15,7 +15,6 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
       expect(b.ridges).toEqual([]);
       if (b.method === "footprint_fallback") {
         expect(b.mask_rings).toEqual([]);
-        expect(b.pv_modules_550).toEqual([]);
         expect(b.peringatan).toBeTruthy();
       } else {
         expect(b.mask_rings.length).toBeGreaterThan(0);
@@ -31,7 +30,7 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
       expect(b.specs[550].count).toBe(data.simulasi.module_count);
       expect(b.specs[550].kwp).toBe(data.simulasi.kwp);
       expect(b.specs[550].e_ac_kwh_yr1).toBe(data.simulasi.e_ac_kwh_yr1);
-      expect(b.pv_modules_550.length).toBeLessThanOrEqual(b.specs[550].count);
+      expect(b.luas_modul_m2).toBe(data.simulasi.parameter_fisika.modul.panjang_m * data.simulasi.parameter_fisika.modul.lebar_m);
       expect(data.viewer.evaluasi.sha256_citra_rgb).toMatch(/^[a-f0-9]{64}$/);
     }
   });
@@ -63,6 +62,6 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
     expect(TAHAP_INFO.map((t) => t.nomor)).toEqual([1, 2, 3, 4, 5]);
     expect(TAHAP_INFO[2].penjelasan).toContain("belum diukur");
     expect(TAHAP_INFO[3].penjelasan).toContain("asumsi");
-    expect(TAHAP_INFO[4].penjelasan).toContain("bukan rancangan");
+    expect(TAHAP_INFO[4].penjelasan).toContain("modul setara");
   });
 });

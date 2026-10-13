@@ -66,12 +66,6 @@ function namaSumberCitra(source: string) {
   return source === "esri-world-imagery" ? "Esri World Imagery" : source;
 }
 
-function labelKeyakinan(skor: number) {
-  if (skor >= 0.7) return "tinggi";
-  if (skor >= 0.45) return "sedang";
-  return "rendah";
-}
-
 function angkaDesimal(nilai: number, maksimum = 2) {
   return nilai.toLocaleString("id-ID", { maximumFractionDigits: maksimum });
 }
@@ -123,8 +117,8 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
     diskonto: String(simulasi.asumsi.diskonto * 100),
   });
 
-  const keyakinan = labelKeyakinan(analisis.confidence);
-  const rendah = keyakinan === "rendah";
+  const rendah = analisis.confidence < 0.45;
+  const modul = (simulasiAktif.parameter_fisika ?? PARAMETER_FISIKA_CONTOH).modul;
   const nama = bangunan.nama ?? (bangunan.building_tag === "house" ? "Rumah Kandang Limun" : `Bangunan ${id}`);
   const geometriSorot = analisis.mask_geojson ?? bangunan.geom;
   const jejak = useMemo<Record<KunciJejak, JejakTampilan>>(() => ({
@@ -149,13 +143,16 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     kwp: {
-      judul: "Kapasitas terpasang",
-      rumus: "kWp = jumlah modul × daya modul",
+      judul: "Potensi berbasis luas",
+      rumus: "modul setara = ⌊luas perhitungan / luas satu modul⌋; kWp = modul setara × Wp / 1.000",
       masukan: [
-        ["Jumlah modul", `${simulasiAktif.module_count} modul`],
-        ["Kapasitas hasil", kwp(simulasiAktif.kwp)],
+        ["Luas perhitungan (asumsi)", m2(analisis.usable_area_m2)],
+        ["Luas satu modul", `${angkaDesimal(modul.panjang_m * modul.lebar_m, 3)} m²`],
+        ["Modul setara dari luas", `${simulasiAktif.module_count}`],
+        ["Daya satu modul", `${modul.wp} Wp`],
+        ["Potensi berbasis luas", kwp(simulasiAktif.kwp)],
       ],
-      sumber: "Kalkulasi simulasi dari respons POST /simulate.",
+      sumber: "Estimasi dari luas dan dimensi modul. Jumlah panel yang dapat dipasang belum dihitung; batas atap, penataan per bidang, bayangan, akses dan struktur perlu diperiksa.",
     },
     energi: {
       judul: "Produksi tahun pertama",
@@ -185,7 +182,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       ],
       sumber: simulasiAktif.jejak?.karbon?.sumber ?? "Faktor emisi masukan skenario; sumber belum tercatat.",
     },
-  }), [simulasiAktif]);
+  }), [simulasiAktif, analisis.usable_area_m2, modul.lebar_m, modul.panjang_m, modul.wp]);
 
   const ubahAsumsi = (kunci: keyof FormAsumsi) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAsumsi((sebelumnya) => ({ ...sebelumnya, [kunci]: event.target.value }));
@@ -244,10 +241,11 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
               <Angka label="Balik modal" nilai={tahun(simulasiAktif.payback_years ?? Infinity)} menghitung={sedangHitung} />
             </div>
           </div>
-          <div className={s.kartuAngka}><Angka label="Kapasitas" nilai={kwp(simulasiAktif.kwp)} menghitung={sedangHitung} /></div>
+          <div className={s.kartuAngka}><Angka label="Potensi berbasis luas" nilai={kwp(simulasiAktif.kwp)} menghitung={sedangHitung} /></div>
           <div className={s.kartuAngka}><Angka label="Produksi per tahun" nilai={kwh(simulasiAktif.e_ac_kwh_yr1)} menghitung={sedangHitung} /></div>
           <div className={s.kartuAngka}><Angka label="Emisi terhindar per tahun" nilai={ton(simulasiAktif.co2e_ton_yr)} menghitung={sedangHitung} /></div>
         </div>
+        <p className={s.sumberJejak}>Skenario awal dari luas. Batas atap dan kapasitas pasang belum diverifikasi.</p>
         <div className={s.aksiHasil}>
           <Tombol ikon={Sigma} onClick={() => setJejakAktif("hemat")}>Cara hitung</Tombol>
           <Tombol ikon={Crosshair} onClick={() => { setJejakAktif(null); setBukaPemindai(true); }}>Pindai atap</Tombol>
@@ -257,14 +255,15 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       <section className={s.gridLokasi} aria-label="Lokasi dan keyakinan analisis">
         <Peta className={s.petaHasil} label={`Peta ${nama}, atap tersorot`} tinggi={300} geometriSorot={geometriSorot} />
         <aside className={s.kartuKeyakinan} aria-labelledby="judul-keyakinan">
-          <p className={s.label}>Keyakinan analisis (heuristik)</p>
-          <h2 id="judul-keyakinan">{persen(analisis.confidence)} · {keyakinan}</h2>
+          <p className={s.label}>Batas atap</p>
+          <h2 id="judul-keyakinan">{analisis.method === "cv" ? "Hasil model" : "Perkiraan OSM"}</h2>
           <details className={s.rincian}>
             <summary>Sumber analisis <Ikon ikon={ChevronDown} /></summary>
             <dl className={s.ringkasKeyakinan}>
               <div><dt>Bangunan</dt><dd>{bangunan.source_ref}</dd></div>
               <div><dt>Luas bangunan</dt><dd>{m2(bangunan.footprint_m2)}</dd></div>
               <div><dt>Metode</dt><dd>{analisis.method === "cv" ? "Analisis citra" : "Jejak bangunan"}</dd></div>
+              <div><dt>Skor penyaringan</dt><dd>{angkaDesimal(analisis.confidence, 3)} / 1 · belum dikalibrasi</dd></div>
               <div><dt>Citra</dt><dd>{namaSumberCitra(analisis.imagery.source)}</dd></div>
               <div><dt>Tanggal citra</dt><dd>{tanggalCitra(analisis.imagery.date)}</dd></div>
               <div><dt>Model</dt><dd>{analisis.model_version}</dd></div>
