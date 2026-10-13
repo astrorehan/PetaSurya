@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Crosshair, Satellite } from "lucide-react";
+import { Crosshair, Satellite, Search } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
@@ -95,7 +95,7 @@ function titikGeometri(koordinat: unknown, bounds: maplibregl.LngLatBounds) {
   koordinat.forEach((anak) => titikGeometri(anak, bounds));
 }
 
-function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefined) {
+function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefined, sesuaikan=true) {
   if (!geometri) return;
 
   const data: FiturGeoJSON = {
@@ -138,14 +138,13 @@ function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefine
 
   const bounds = new maplibregl.LngLatBounds();
   titikGeometri(geometri.coordinates, bounds);
-  if (!bounds.isEmpty()) {
+  if (sesuaikan && !bounds.isEmpty()) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     map.fitBounds(bounds, { padding: 56, maxZoom: 18, duration: reducedMotion ? 0 : 500 });
   }
 }
 
-function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[]) {
-  if (!bangunan.length) return;
+function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=true) {
 
   const data: { type: "FeatureCollection"; features: FiturBangunan[] } = {
     type: "FeatureCollection",
@@ -181,7 +180,7 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[]) {
 
   const bounds = new maplibregl.LngLatBounds();
   bangunan.forEach((item) => titikGeometri(item.geom.coordinates, bounds));
-  if (!bounds.isEmpty()) {
+  if (sesuaikan && !bounds.isEmpty()) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     map.fitBounds(bounds, { padding: 64, maxZoom: 15.5, duration: reducedMotion ? 0 : 500 });
   }
@@ -260,6 +259,11 @@ type PetaProps = {
   wilayahTerpilih?: string | null;
   onPilihWilayah?: (id: string) => void;
   tampilanKosong?: boolean;
+  onCariArea?: (lat: number, lon: number) => void;
+  mencariArea?: boolean;
+  batasPencarian?: [number, number, number, number];
+  pertahankanKamera?: boolean;
+  satelitAwal?: boolean;
 };
 
 export function Peta({
@@ -273,13 +277,21 @@ export function Peta({
   wilayahTerpilih = null,
   onPilihWilayah,
   tampilanKosong = false,
+  onCariArea,
+  mencariArea = false,
+  batasPencarian,
+  pertahankanKamera = false,
+  satelitAwal = false,
 }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const gayaRef = useRef(GAYA_PETA[terpilih]);
-  const satelitRef = useRef(false);
-  const [satelit, setSatelit] = useState(false);
+  const satelitRef = useRef(satelitAwal);
+  const [satelit, setSatelit] = useState(satelitAwal);
+  const [petaSiap, setPetaSiap] = useState(false);
+  const terkini = useRef({bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera});
+  terkini.current = {bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera};
 
   useEffect(() => {
     const container = containerRef.current;
@@ -295,6 +307,7 @@ export function Peta({
       zoom: ZOOM_AWAL,
       attributionControl: false,
       keyboard: true,
+      maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
     });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
@@ -304,29 +317,33 @@ export function Peta({
     );
 
     const saatFiturDiklik = (event: MapMouseEvent) => {
-      if (wilayah.length && onPilihWilayah) {
+      const data = terkini.current;
+      if (data.wilayah.length && data.onPilihWilayah && map.getLayer(LAPISAN_WILAYAH_ISI)) {
         const fiturWilayah = map.queryRenderedFeatures(event.point, {
           layers: [LAPISAN_WILAYAH_ISI, LAPISAN_WILAYAH_TERPILIH_ISI],
         });
         const idWilayah = fiturWilayah[0]?.properties?.id;
         if (typeof idWilayah === "string") {
-          onPilihWilayah(idWilayah);
+          data.onPilihWilayah(idWilayah);
           return;
         }
       }
-      if (bangunan.length && onPilihBangunan) {
+      if (data.bangunan.length && data.onPilihBangunan && map.getLayer(LAPISAN_BANGUNAN_ISI)) {
         const fiturBangunan = map.queryRenderedFeatures(event.point, { layers: [LAPISAN_BANGUNAN_ISI] });
         const idBangunan = fiturBangunan[0]?.properties?.id;
-        if (typeof idBangunan === "string") onPilihBangunan(Number(idBangunan));
+        if (typeof idBangunan === "string") data.onPilihBangunan(Number(idBangunan));
       }
     };
     let pendengarFiturTerpasang = false;
+    let kameraAwal = true;
 
     const siapGaya = () => {
+      const data = terkini.current;
       pasangCitra(map, satelitRef.current);
-      pasangSorot(map, geometriSorot);
-      pasangBangunan(map, bangunan);
-      pasangWilayah(map, wilayah, wilayahTerpilih);
+      pasangSorot(map, data.geometriSorot, kameraAwal);
+      pasangBangunan(map, data.bangunan, kameraAwal);
+      pasangWilayah(map, data.wilayah, data.wilayahTerpilih);
+      kameraAwal = false;
       if ((bangunan.length || wilayah.length) && !pendengarFiturTerpasang) {
         map.on("click", saatFiturDiklik);
         if (wilayah.length) {
@@ -350,6 +367,7 @@ export function Peta({
       // Atribusi ringkas terbuka saat muat; tutup agar tidak menutupi peta. Tombol (i) tetap membukanya.
       container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
       siapGaya();
+      setPetaSiap(true);
     });
 
     return () => {
@@ -359,7 +377,17 @@ export function Peta({
       map.remove();
       mapRef.current = null;
     };
-  }, [bangunan, geometriSorot, label, onPilihBangunan, onPilihWilayah, siap, terpilih, wilayah, wilayahTerpilih]);
+  // Geometri dan pilihan diperbarui tanpa menghapus kamera yang sedang ditelusuri.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [siap]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map?.getSource(SUMBER_BANGUNAN)) return;
+    pasangBangunan(map, bangunan, !pertahankanKamera);
+    pasangSorot(map, geometriSorot, !pertahankanKamera);
+    pasangWilayah(map, wilayah, wilayahTerpilih);
+  }, [bangunan, geometriSorot, pertahankanKamera, wilayah, wilayahTerpilih]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -373,7 +401,7 @@ export function Peta({
   useEffect(() => {
     satelitRef.current = satelit;
     const map = mapRef.current;
-    if (map?.isStyleLoaded()) pasangCitra(map, satelit);
+    if (map?.getLayer(LAPISAN_CITRA)) pasangCitra(map, satelit);
   }, [satelit]);
 
   const kelas = [s.peta, className].filter(Boolean).join(" ");
@@ -382,6 +410,7 @@ export function Peta({
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
       <div className={s.toolbar} aria-label="Alat peta">
+        {onCariArea && <button className={s.tombolPeta} type="button" disabled={mencariArea || !petaSiap} onClick={() => {const pusat=mapRef.current?.getCenter();if(pusat)onCariArea(pusat.lat,pusat.lng);}}><Search size={16} aria-hidden="true"/><span>{mencariArea ? "Mencari…" : "Cari area ini · 200 m"}</span></button>}
         <button
           className={s.tombolPeta}
           type="button"

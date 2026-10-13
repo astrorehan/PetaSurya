@@ -63,7 +63,8 @@
   color: var(--ink-2);
 }
 
-.pilihBangunan select {
+.pilihBangunan select,
+.pilihBangunan input {
   min-width: 0;
   max-width: 100%;
   min-height: var(--kontrol-h);
@@ -145,7 +146,7 @@
 
 .stepper {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-1);
 }
 
@@ -164,6 +165,11 @@
 
 .tombolTahap:hover {
   background: var(--surface-2);
+}
+
+.tombolTahap:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .tahapNomor {
@@ -276,6 +282,38 @@
   margin: var(--sp-2) 0;
   font: var(--tipe-kecil);
   color: var(--ink-2);
+}
+
+.statusProses {
+  margin: 0;
+  font: var(--tipe-kecil);
+  color: var(--ink-2);
+}
+
+.hasilGrafik {
+  display: grid;
+  gap: var(--sp-5);
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.bagianLuas {
+  display: flex;
+  height: var(--sp-4);
+  overflow: hidden;
+  border-radius: var(--r-s);
+  background: var(--surface-3);
+}
+
+.bagianLuas > span {
+  background: var(--surya);
+}
+
+.pilihBangunan > select,
+.pilihBangunan > input {
+  width: 100%;
 }
 
 .terminalIsi {

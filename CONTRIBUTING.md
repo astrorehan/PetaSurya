@@ -53,6 +53,13 @@ disimpan pada SQLite di `data/cache/`, yang diabaikan Git; citra tidak disimpan.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
 
+Alur web adalah Bangunan → Batas & luas → Potensi. Potensi luas atap adalah
+ekuivalen modul berdasarkan luas; kapasitas skenario untuk simulasi dipilih
+terpisah. Nilai awal memakai nilai terkecil antara potensi luas dan daya profil
+dalam kVA, sebagai asumsi demo yang dapat diubah, bukan batas izin pemasangan.
+Masukan `usable_area_m2` pada `/simulate` membawa luas ekuivalen kapasitas yang
+dipilih, sehingga hitung ulang asumsi mempertahankan kapasitas skenario.
+
 `POST /api/v1/analyze` mengembalikan hasil tersimpan tanpa jaringan. `force: true`
 menjalankan inferensi dari citra lokal bergeoreferensi bila ada, atau mosaik Esri
 dalam memori. Kegagalan citra/model memakai `footprint_fallback` dengan peringatan.

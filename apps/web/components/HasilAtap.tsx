@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ChangeEvent } from "react";
-import type { AnalisisAtap, BangunanRingkas, HasilSimulasi } from "@petasurya/contracts";
+import type { AnalisisAtap, BangunanRingkas, HasilSimulasi, PaketPemindaian } from "@petasurya/contracts";
 import { ParameterFisika } from "@petasurya/contracts";
 import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, Tombol, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
 import { ChevronDown, Crosshair, Sigma, TriangleAlert } from "lucide-react";
 import { Peta } from "./Peta";
 import { PemindaiAtap } from "./PemindaiAtap";
 import { GalatSimulasi, hitungUlangAtap } from "../lib/api";
+import { namaBangunan } from "../lib/pemindaian";
 import parameterFisikaJson from "../../../data/fixtures/parameter/fisika-contoh.json";
 import s from "./hasilAtap.module.css";
 
@@ -34,6 +35,8 @@ type DataAtap = {
   bangunan: BangunanRingkas;
   analisis: AnalisisAtap;
   simulasi: HasilSimulasi;
+  pemindaian?: PaketPemindaian;
+  tersimpanOffline?: boolean;
 };
 
 type JenisKeadaan = "kosong" | "galat";
@@ -101,7 +104,7 @@ function PanelJejak({
   );
 }
 
-export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
+export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersimpanOffline }: DataAtap) {
   const [jejakAktif, setJejakAktif] = useState<KunciJejak | null>(null);
   const [simulasiAktif, setSimulasiAktif] = useState<HasilSimulasi>(simulasi);
   const [sedangHitung, setSedangHitung] = useState(false);
@@ -119,7 +122,8 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
 
   const rendah = analisis.confidence < 0.45;
   const modul = (simulasiAktif.parameter_fisika ?? PARAMETER_FISIKA_CONTOH).modul;
-  const nama = bangunan.nama ?? (bangunan.building_tag === "house" ? "Rumah Kandang Limun" : `Bangunan ${id}`);
+  const luasSkenario = simulasiAktif.module_count * modul.panjang_m * modul.lebar_m;
+  const nama = namaBangunan(bangunan);
   const geometriSorot = analisis.mask_geojson ?? bangunan.geom;
   const jejak = useMemo<Record<KunciJejak, JejakTampilan>>(() => ({
     hemat: {
@@ -143,14 +147,14 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     kwp: {
-      judul: "Potensi berbasis luas",
-      rumus: "modul setara = ⌊luas perhitungan / luas satu modul⌋; kWp = modul setara × Wp / 1.000",
+      judul: "Kapasitas skenario",
+      rumus: "modul skenario = ⌊luas ekuivalen skenario / luas satu modul⌋; kWp = modul skenario × Wp / 1.000",
       masukan: [
-        ["Luas perhitungan (asumsi)", m2(analisis.usable_area_m2)],
+        ["Luas ekuivalen skenario", m2(luasSkenario)],
         ["Luas satu modul", `${angkaDesimal(modul.panjang_m * modul.lebar_m, 3)} m²`],
-        ["Modul setara dari luas", `${simulasiAktif.module_count}`],
+        ["Modul dalam skenario", `${simulasiAktif.module_count}`],
         ["Daya satu modul", `${modul.wp} Wp`],
-        ["Potensi berbasis luas", kwp(simulasiAktif.kwp)],
+        ["Kapasitas skenario", kwp(simulasiAktif.kwp)],
       ],
       sumber: "Estimasi dari luas dan dimensi modul. Jumlah panel yang dapat dipasang belum dihitung; batas atap, penataan per bidang, bayangan, akses dan struktur perlu diperiksa.",
     },
@@ -182,7 +186,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       ],
       sumber: simulasiAktif.jejak?.karbon?.sumber ?? "Faktor emisi masukan skenario; sumber belum tercatat.",
     },
-  }), [simulasiAktif, analisis.usable_area_m2, modul.lebar_m, modul.panjang_m, modul.wp]);
+  }), [simulasiAktif, luasSkenario, modul.lebar_m, modul.panjang_m, modul.wp]);
 
   const ubahAsumsi = (kunci: keyof FormAsumsi) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAsumsi((sebelumnya) => ({ ...sebelumnya, [kunci]: event.target.value }));
@@ -196,6 +200,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       const payload = {
         roof_analysis_id: analisis.roof_analysis_id,
         parameter_fisika: simulasiAktif.parameter_fisika ?? PARAMETER_FISIKA_CONTOH,
+        usable_area_m2: Math.min(analisis.usable_area_m2,luasSkenario+1e-6),
         asumsi: {
           ...simulasiAktif.asumsi,
           golongan_tarif: asumsi.golongan_tarif,
@@ -221,7 +226,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
   return (
     <main className={s.halaman}>
       <header className={s.kepala}>
-        <div className={s.labelBaris}><p className={s.label}>Hasil atap</p><Lencana contoh>Data contoh</Lencana></div>
+        <div className={s.labelBaris}><p className={s.label}>Hasil atap</p><Lencana>{tersimpanOffline ? "Skenario contoh tersimpan" : "Simulasi awal"}</Lencana></div>
         <h1 className={s.judul}>{nama}</h1>
         <Link className={s.tombolSekunder} href="/">Kembali ke peta</Link>
       </header>
@@ -241,11 +246,11 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
               <Angka label="Balik modal" nilai={tahun(simulasiAktif.payback_years ?? Infinity)} menghitung={sedangHitung} />
             </div>
           </div>
-          <div className={s.kartuAngka}><Angka label="Potensi berbasis luas" nilai={kwp(simulasiAktif.kwp)} menghitung={sedangHitung} /></div>
+          <div className={s.kartuAngka}><Angka label="Kapasitas skenario" nilai={kwp(simulasiAktif.kwp)} menghitung={sedangHitung} /></div>
           <div className={s.kartuAngka}><Angka label="Produksi per tahun" nilai={kwh(simulasiAktif.e_ac_kwh_yr1)} menghitung={sedangHitung} /></div>
           <div className={s.kartuAngka}><Angka label="Emisi terhindar per tahun" nilai={ton(simulasiAktif.co2e_ton_yr)} menghitung={sedangHitung} /></div>
         </div>
-        <p className={s.sumberJejak}>Skenario awal dari luas. Batas atap dan kapasitas pasang belum diverifikasi.</p>
+        <p className={s.sumberJejak}>{tersimpanOffline ? "Mesin belum terhubung; angka memakai skenario contoh tersimpan. " : ""}Batas atap dan kapasitas pasang belum diverifikasi.</p>
         <div className={s.aksiHasil}>
           <Tombol ikon={Sigma} onClick={() => setJejakAktif("hemat")}>Cara hitung</Tombol>
           <Tombol ikon={Crosshair} onClick={() => { setJejakAktif(null); setBukaPemindai(true); }}>Pindai atap</Tombol>
@@ -334,6 +339,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi }: DataAtap) {
       {bukaPemindai ? (
         <PemindaiAtap
           bangunanAwalId={Number(id) || bangunan.id}
+          paketAwal={pemindaian}
           mode="modal"
           onTutup={() => setBukaPemindai(false)}
         />

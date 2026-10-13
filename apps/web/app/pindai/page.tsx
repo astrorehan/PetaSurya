@@ -4,7 +4,7 @@ import { PemindaiAtap } from "../../components/PemindaiAtap";
 export const metadata: Metadata = {
   title: "Pindai atap",
   description:
-    "Demo visual batas atap, penghalang, dan susunan panel surya pada bangunan contoh.",
+    "Pilih bangunan, tinjau batas dan luas atap, lalu hitung potensi energi dan penghematan.",
 };
 
 export default async function HalamanPindai({

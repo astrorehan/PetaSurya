@@ -18,8 +18,8 @@ function FormCari({ query = "" }: { query?: string }) {
   return (
     <form className={s.formCari} role="search" action="/" method="get">
       <Ikon ikon={Search} />
-      <label className={s.srOnly} htmlFor="cari-alamat">Cari bangunan contoh</label>
-      <input key={query} id="cari-alamat" name="q" type="search" placeholder="Cari bangunan contoh" defaultValue={query} />
+      <label className={s.srOnly} htmlFor="cari-alamat">Cari nama atau ID bangunan</label>
+      <input key={query} id="cari-alamat" name="q" type="search" placeholder="Cari nama atau ID bangunan" defaultValue={query} />
     </form>
   );
 }

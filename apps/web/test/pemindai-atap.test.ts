@@ -57,10 +57,10 @@ describe("Pemindai — hasil inferensi tersimpan", () => {
       for (const t of b.tiles) expect(t.url).toMatch(/^https:\/\/server\.arcgisonline\.com\/.*\/tile\/19\/\d+\/\d+$/);
     }
   });
-  it("kelima tahap menyampaikan batas pengukuran", () => {
-    expect(TAHAP_INFO.map((t) => t.nomor)).toEqual([1, 2, 3, 4, 5]);
-    expect(TAHAP_INFO[2].penjelasan).toContain("belum diukur");
-    expect(TAHAP_INFO[3].penjelasan).toContain("asumsi");
-    expect(TAHAP_INFO[4].penjelasan).toContain("modul setara");
+  it("tiga tahap membedakan bangunan, tinjauan batas, dan perhitungan", () => {
+    expect(TAHAP_INFO.map((t) => t.nomor)).toEqual([1, 2, 3]);
+    expect(TAHAP_INFO[1].penjelasan).toContain("belum diukur");
+    expect(TAHAP_INFO[2].penjelasan).toContain("asumsi");
+    expect(TAHAP_INFO[2].penjelasan).toContain("modul setara");
   });
 });

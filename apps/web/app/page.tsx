@@ -1,10 +1,12 @@
-import { DATA_DEMO } from "../lib/demo";
+import { KATALOG_BANGUNAN } from "../lib/pemindaian";
 import { BerandaInteraktif } from "../components/Beranda";
+import { muatKatalog } from "../lib/api";
 
-const bangunan = DATA_DEMO.map((data) => data.bangunan);
+const bangunan = KATALOG_BANGUNAN;
 
 export default async function Beranda({ searchParams }: { searchParams?: Promise<{ q?: string | string[] }> }) {
   const params = searchParams ? await searchParams : {};
   const query = Array.isArray(params.q) ? params.q[0] ?? "" : params.q ?? "";
-  return <BerandaInteraktif bangunan={bangunan} query={query} />;
+  const tersedia=await muatKatalog().catch(()=>bangunan);
+  return <BerandaInteraktif bangunan={tersedia} query={query} />;
 }

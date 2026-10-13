@@ -1,22 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { AlertTriangle, ChevronDown, Pause, Play, X } from "lucide-react";
-import { Angka, DaftarData, Ikon, Lencana, Segmen, Tombol, kelasTombol, kwh, kwp, m2, rupiah } from "@petasurya/ui";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import type { HasilSimulasi, PaketPemindaian } from "@petasurya/contracts";
+import { AlertTriangle, ArrowLeft, ArrowRight, ChevronDown, Scan, X } from "lucide-react";
+import { Angka, DaftarData, GrafikBulanan, Ikon, Lencana, Tombol, kelasTombol, kwh, kwp, m2, rupiah, tahun } from "@petasurya/ui";
+import { GalatPemindaian, GalatSimulasi, hitungUlangAtap, muatPemindaian, pindaiBangunan } from "../lib/api";
+import { KATALOG_BANGUNAN, PROFIL_SIMULASI, type ProfilSimulasi, areaSkenario, namaBangunan, paketBangunan, profilBangunan, potensiLuas, simulasiContoh, tampilanPaket } from "../lib/pemindaian";
+import { TAHAP_INFO } from "./pemindaiData";
 import s from "./pemindaiAtap.module.css";
-
-import {
-  type BangunanTargetPindai,
-  type TileCitra,
-  DAFTAR_BANGUNAN,
-  TAHAP_INFO,
-} from "./pemindaiData";
-
-export type { BangunanTargetPindai, TileCitra };
-export { DAFTAR_BANGUNAN, TAHAP_INFO };
-
-const TAHAP_RINGKAS = ["Citra", "Atap", "Area", "Sumbu", "Potensi"];
 
 const KUERI_SEMPIT = "(max-width: 560px)";
 const langgananSempit = (ubah: () => void) => {
@@ -25,553 +17,204 @@ const langgananSempit = (ubah: () => void) => {
   return () => mq.removeEventListener("change", ubah);
 };
 const cekSempit = () => window.matchMedia(KUERI_SEMPIT).matches;
+const pathRing = (ring: number[][]) => `M${ring.map(p => p.join(",")).join(" L")}Z`;
 
-type PemindaiAtapProps = {
+type Props = {
   bangunanAwalId?: number;
+  paketAwal?: PaketPemindaian;
   mode?: "halaman" | "modal" | "tertanam";
   onTutup?: () => void;
 };
 
-export function PemindaiAtap({ bangunanAwalId, mode = "halaman", onTutup }: PemindaiAtapProps) {
-  const [indeksBangunan, setIndeksBangunan] = useState(() => {
-    if (!bangunanAwalId) return 0;
-    const idx = DAFTAR_BANGUNAN.findIndex((b) => b.id === bangunanAwalId);
-    return idx >= 0 ? idx : 0;
-  });
-
-  const [tahap, setTahap] = useState(1);
-  const [sedangMemindai, setSedangMemindai] = useState(false);
-  const [kecepatan, setKecepatan] = useState<1 | 2>(1);
+export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTutup }: Props) {
+  const idAwal = paketAwal?.bangunan.id ?? bangunanAwalId ?? 1146141501;
+  const awal = paketAwal ?? (() => { const b = KATALOG_BANGUNAN.find(b => b.id === idAwal); return b ? paketBangunan(b) : null; })();
+  const [id, setId] = useState(idAwal);
+  const [paket, setPaket] = useState<PaketPemindaian | null>(awal);
+  const [pilihan, setPilihan] = useState(KATALOG_BANGUNAN);
+  const [tahap, setTahap] = useState(mode === "modal" && awal?.analisis ? 2 : 1);
+  const [profil, setProfil] = useState<ProfilSimulasi>(awal ? profilBangunan(awal.bangunan) : "rumah");
+  const [simulasi, setSimulasi] = useState<HasilSimulasi | undefined>();
+  const [kapasitas,setKapasitas]=useState("");
+  const [sibuk, setSibuk] = useState<"muat" | "analisis" | "hitung" | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
   const [citraGagal, setCitraGagal] = useState(false);
-
-  // Sakelar lapisan visual
-  const [tampilSatelit, setTampilSatelit] = useState(true);
-  const [tampilKontur, setTampilKontur] = useState(true);
-  const [tampilSumbu, setTampilSumbu] = useState(true);
-  const [tampilKompas, setTampilKompas] = useState(true);
-
+  const [bandingkanOSM, setBandingkanOSM] = useState(false);
   const wadahRef = useRef<HTMLDivElement>(null);
-  const Judul = mode === "halaman" ? "h1" : "h2";
-
-  const bangunan = DAFTAR_BANGUNAN[indeksBangunan];
   const sempit = useSyncExternalStore(langgananSempit, cekSempit, () => false);
-  const lebarKanvas = Math.min(640, Math.max(320, bangunan.bbox[2] + 72, (bangunan.bbox[3] + 72) * 4 / 3));
-  const tinggiKanvas = lebarKanvas * 3 / 4;
-  const viewBox = sempit ? `${320 - lebarKanvas / 2} ${240 - tinggiKanvas / 2} ${lebarKanvas} ${tinggiKanvas}` : "0 0 640 480";
-  const posisiKompas = sempit ? `translate(${320 + lebarKanvas / 2 - 44}, ${240 - tinggiKanvas / 2 + 44})` : "translate(596, 44)";
-  const tahapAktif = TAHAP_INFO[tahap - 1];
-  const spekAktif = bangunan.specs[550];
+  const aktif = paket?.bangunan.id === id ? paket : null;
+  const a = aktif?.analisis;
+  const gambar = useMemo(() => aktif ? tampilanPaket(aktif) : null, [aktif]);
 
   useEffect(() => {
-    let aktif = true;
-    // Tile dapat gagal sebelum hidrasi; periksa lagi dengan listener yang sudah terpasang.
-    const gambar = bangunan.tiles.map((tile) => {
-      const citra = new Image();
-      citra.onerror = () => { if (aktif) setCitraGagal(true); };
-      citra.src = tile.url;
-      return citra;
-    });
-    return () => {
-      aktif = false;
-      gambar.forEach((citra) => { citra.onerror = null; });
-    };
-  }, [bangunan]);
-
-  // Sinkronisasi URL query param saat ganti bangunan di mode halaman
-  useEffect(() => {
-    if (mode === "halaman" && typeof window !== "undefined") {
+    let berlaku = true;
+    const local = paketAwal?.bangunan.id === id ? paketAwal : (() => { const b = KATALOG_BANGUNAN.find(b => b.id === id); return b ? paketBangunan(b) : null; })();
+    setPaket(local); setGalat(null); setCitraGagal(false);
+    setProfil(local ? profilBangunan(local.bangunan) : "rumah");
+    setSimulasi(undefined);
+    setKapasitas(local?.analisis ? String(Math.min(potensiLuas(local),PROFIL_SIMULASI[profilBangunan(local.bangunan)].data.asumsi.daya_va/1000)) : "");
+    setSibuk("muat");
+    if (mode === "halaman") {
       const url = new URL(window.location.href);
-      url.searchParams.set("id", String(bangunan.id));
-      window.history.replaceState(null, "", url.toString());
+      url.searchParams.set("id", String(id));
+      window.history.replaceState(null, "", url);
     }
-  }, [bangunan.id, mode]);
+    muatPemindaian(id).then(data => {
+      if (!berlaku) return;
+      setPaket(data);
+      setPilihan(list => list.some(b => b.id === id) ? list : [...list, data.bangunan]);
+      if (!local) setProfil(profilBangunan(data.bangunan));
+      if (data.analisis) setKapasitas(String(Math.min(potensiLuas(data),PROFIL_SIMULASI[profilBangunan(data.bangunan)].data.asumsi.daya_va/1000)));
+      if (local?.analisis && data.analisis && ["roof_area_m2", "usable_area_m2", "azimuth_deg", "model_version"].some(k => local.analisis?.[k as keyof typeof data.analisis] !== data.analisis?.[k as keyof typeof data.analisis])) setSimulasi(undefined);
+    }).catch(error => {
+      if (berlaku && !local?.analisis) setGalat(error instanceof GalatPemindaian ? error.message : "Mesin belum dapat dihubungi. Coba lagi atau pilih hasil tersimpan.");
+    }).finally(() => { if (berlaku) setSibuk(null); });
+    return () => { berlaku = false; };
+  }, [id, mode, paketAwal]);
 
-  // Efek pergantian tahap otomatis saat pemindaian aktif
   useEffect(() => {
-    if (!sedangMemindai) return;
-
-    const durasi = kecepatan === 1 ? 2800 : 1500;
-    const timer = setTimeout(() => {
-      setTahap((sekarang) => {
-        if (sekarang < 5) return sekarang + 1;
-        setSedangMemindai(false);
-        return 5;
-      });
-    }, durasi);
-
-    return () => clearTimeout(timer);
-  }, [sedangMemindai, tahap, kecepatan]);
-
-  // Pintasan hanya berlaku di kanvas; isian dan kontrol mempertahankan perilaku aslinya.
-  useEffect(() => {
-    const tanganiKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mode === "modal" && onTutup) {
-        e.preventDefault();
-        onTutup();
-        return;
-      }
-      const target = e.target;
-      if (!(target instanceof HTMLElement || target instanceof SVGElement) || !wadahRef.current?.contains(target)) return;
-      if (e.ctrlKey || e.metaKey || e.altKey || target.closest("input, textarea, select, button, a, summary, [contenteditable='true']")) return;
-
-      if (e.key === " ") {
-        e.preventDefault();
-        if (tahap === 5 && !sedangMemindai) setTahap(1);
-        setSedangMemindai((p) => !p);
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        e.preventDefault();
-        setTahap((t) => Math.max(1, Math.min(5, t + (e.key === "ArrowLeft" ? -1 : 1))));
-        setSedangMemindai(false);
-      } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
-        e.preventDefault();
-        setTahap(Number(e.key));
-        setSedangMemindai(false);
-      } else if (e.key.toLowerCase() === "r") {
-        e.preventDefault();
-        setTahap(1);
-        setSedangMemindai(true);
-      }
-    };
-    window.addEventListener("keydown", tanganiKey);
-    return () => window.removeEventListener("keydown", tanganiKey);
-  }, [mode, onTutup, tahap, sedangMemindai]);
+    let berlaku = true;
+    const images = aktif?.bingkai.tiles.map(tile => {
+      const image = new Image();
+      image.onerror = () => { if (berlaku) setCitraGagal(true); };
+      image.src = tile.url;
+      return image;
+    }) ?? [];
+    return () => { berlaku = false; images.forEach(image => { image.onerror = null; }); };
+  }, [aktif?.bingkai.tiles]);
 
   useEffect(() => {
     if (mode !== "modal") return;
-    const pemicu = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const wadah = wadahRef.current;
-    const fokuskan = () => Array.from(wadah?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input, select, summary, [tabindex='0']") ?? [])
-      .filter((el) => el.getClientRects().length > 0);
-    fokuskan()[0]?.focus();
-    const jagaFokus = (event: KeyboardEvent) => {
-      if (event.key !== "Tab") return;
-      const kontrol = fokuskan();
-      const pertama = kontrol[0];
-      const terakhir = kontrol[kontrol.length - 1];
-      if (event.shiftKey && document.activeElement === pertama) {
-        event.preventDefault();
-        terakhir?.focus();
-      } else if (!event.shiftKey && document.activeElement === terakhir) {
-        event.preventDefault();
-        pertama?.focus();
+    const container = wadahRef.current;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const controls = () => Array.from(container?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], select:not([disabled]), input, summary, [tabindex='0']") ?? []).filter(el => el.getClientRects().length > 0);
+    controls()[0]?.focus();
+    const tab = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        const list = controls();
+        if (e.shiftKey && document.activeElement === list[0]) { e.preventDefault(); list.at(-1)?.focus(); }
+        else if (!e.shiftKey && document.activeElement === list.at(-1)) { e.preventDefault(); list[0]?.focus(); }
       }
     };
-    wadah?.addEventListener("keydown", jagaFokus);
-    const gulirAwal = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      wadah?.removeEventListener("keydown", jagaFokus);
-      document.body.style.overflow = gulirAwal;
-      pemicu?.focus({ preventScroll: true });
+    window.addEventListener("keydown", tab);
+    return () => { window.removeEventListener("keydown", tab); document.body.style.overflow = overflow; previous?.focus(); };
+  }, [mode, onTutup]);
+
+  useEffect(() => {
+    const container = wadahRef.current;
+    const keydown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && mode === "modal") { e.preventDefault(); onTutup?.(); return; }
+      const el = e.target;
+      if (!(el instanceof SVGElement) || !container?.contains(el) || sibuk || e.ctrlKey || e.metaKey || e.altKey) return;
+      const next = e.key === "ArrowRight" ? tahap+1 : e.key === "ArrowLeft" ? tahap-1 : Number(e.key);
+      if (next >= 1 && next <= 3 && (next === 1 || (next === 2 && a) || (next === 3 && simulasi))) { e.preventDefault(); setTahap(next); }
     };
-  }, [mode]);
+    window.addEventListener("keydown", keydown);
+    return () => { window.removeEventListener("keydown", keydown); };
+  }, [a, mode, onTutup, sibuk, simulasi, tahap]);
 
-  const mulaiPindaiOtomatis = useCallback(() => {
-    if (tahap === 5) setTahap(1);
-    setSedangMemindai(true);
-  }, [tahap]);
-
-  const jedaPindai = useCallback(() => {
-    setSedangMemindai(false);
-  }, []);
-
-  const gantiBangunan = (idx: number) => {
-    setIndeksBangunan(idx);
-    setCitraGagal(false);
-    setTahap(1);
-    setSedangMemindai(false);
-  };
-
-  const polygonString = useMemo(() => {
-    return bangunan.polygon.map(([x, y]) => `${x},${y}`).join(" ");
-  }, [bangunan]);
-
-  const maskPath = useMemo(() => bangunan.mask_rings.map((rings) => rings.map((ring) =>
-    `M ${ring.map(([x, y]) => `${x} ${y}`).join(" L ")} Z`).join(" ")).join(" "), [bangunan]);
-
-  // Sudut sumbu geometri pada dial kompas.
-  const rotasiJarum = bangunan.azimuth_deg;
-
-  const konten = (
-    <div className={s.wadah} ref={wadahRef}>
-      <header className={s.kepala}>
-        <div className={s.labelBaris}>
-          <Judul id="judul-modal-pemindai" className={s.judul}>Pindai atap</Judul>
-          <Lencana contoh>Hasil tersimpan</Lencana>
-        </div>
-        {mode === "modal" && onTutup ? (
-          <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol>
-        ) : null}
-      </header>
-
-      <div className={s.srOnly} aria-live="polite">Tahap {tahap} dari 5: {TAHAP_RINGKAS[tahap - 1]}.</div>
-
-      <label className={s.pilihBangunan}>
-        Bangunan
-        <select value={indeksBangunan} onChange={(event) => gantiBangunan(Number(event.target.value))}>
-          {DAFTAR_BANGUNAN.map((item, idx) => <option key={item.id} value={idx}>{item.nama}</option>)}
-        </select>
-      </label>
-
-      {/* Grid Utama: Layar Sensor + Panel Telemetri */}
-      <div className={s.gridPemindai}>
-        {/* Kolom Kiri: Kanvas Sensor & Kontrol */}
-        <section className={s.kolomKanvas} aria-label="Layar visual pemindai">
-          <div className={s.kotakSensor}>
-            {/* Canvas Overlay Grafis Vektor */}
-            <svg
-              className={s.kanvasSvg}
-              tabIndex={0}
-              viewBox={viewBox}
-              role="img"
-              aria-label={`Visualisasi pemindaian tahap ${tahap}: ${tahapAktif.nama}`}
-            >
-              <defs>
-                <pattern id="arsirPerkiraan" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-                  <line x1="0" y1="0" x2="0" y2="8" stroke="#E8920F" strokeWidth="1" />
-                </pattern>
-                {/* Pola Grid Millimeter Teknis */}
-                <pattern id="gridTeknis" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(174, 183, 199, 0.08)" strokeWidth="0.8" />
-                  <circle cx="20" cy="20" r="0.8" fill="rgba(174, 183, 199, 0.12)" />
-                </pattern>
-
-                {/* Marker Panah Vektor Azimut */}
-                <marker id="panahAzimut" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-                  <path d="M 0 0 L 8 4 L 0 8 Z" fill="#E8920F" />
-                </marker>
-              </defs>
-
-              {/* Latar Grid Teknis Millimeter */}
-              <rect width="640" height="480" fill="url(#gridTeknis)" />
-
-              {/* Citra daring memiliki georeferensi yang sama dengan masukan model. */}
-              {tampilSatelit ? (
-                <g id="satelit-tiles" opacity="0.88">
-                  {bangunan.tiles.map((t, ti) => (
-                    <image
-                      key={ti}
-                      href={t.url}
-                      onError={() => setCitraGagal(true)}
-                      x={t.x}
-                      y={t.y}
-                      width={256}
-                      height={256}
-                      preserveAspectRatio="none"
-                    />
-                  ))}
-                </g>
-              ) : null}
-
-              {/* Reticle Crosshairs Pusat Sensor */}
-              <line x1="320" y1="0" x2="320" y2="480" stroke="rgba(174, 183, 199, 0.18)" strokeDasharray="3 4" />
-              <line x1="0" y1="240" x2="640" y2="240" stroke="rgba(174, 183, 199, 0.18)" strokeDasharray="3 4" />
-              <circle cx="320" cy="240" r="60" fill="none" stroke="rgba(174, 183, 199, 0.22)" strokeDasharray="2 3" />
-
-              {/* TAHAP 1: Bounding Box & Prompt Centroid OSM */}
-              {tahap >= 1 ? (
-                <g id="tahap-1-bbox" opacity="0.95">
-                  <rect
-                    x={bangunan.bbox[0]}
-                    y={bangunan.bbox[1]}
-                    width={bangunan.bbox[2]}
-                    height={bangunan.bbox[3]}
-                    fill="none"
-                    stroke="#AEB7C7"
-                    strokeWidth="1.5"
-                    strokeDasharray="6 4"
-                  />
-                  {/* Sudut kurung [ ] pembatas */}
-                  <path
-                    d={`M ${bangunan.bbox[0] - 8} ${bangunan.bbox[1] + 16} L ${bangunan.bbox[0] - 8} ${
-                      bangunan.bbox[1] - 8
-                    } L ${bangunan.bbox[0] + 16} ${bangunan.bbox[1] - 8}`}
-                    fill="none"
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                  />
-                  <path
-                    d={`M ${bangunan.bbox[0] + bangunan.bbox[2] + 8} ${bangunan.bbox[1] + 16} L ${
-                      bangunan.bbox[0] + bangunan.bbox[2] + 8
-                    } ${bangunan.bbox[1] - 8} L ${bangunan.bbox[0] + bangunan.bbox[2] - 16} ${bangunan.bbox[1] - 8}`}
-                    fill="none"
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                  />
-                  <path
-                    d={`M ${bangunan.bbox[0] - 8} ${bangunan.bbox[1] + bangunan.bbox[3] - 16} L ${
-                      bangunan.bbox[0] - 8
-                    } ${bangunan.bbox[1] + bangunan.bbox[3] + 8} L ${bangunan.bbox[0] + 16} ${
-                      bangunan.bbox[1] + bangunan.bbox[3] + 8
-                    }`}
-                    fill="none"
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                  />
-                  <path
-                    d={`M ${bangunan.bbox[0] + bangunan.bbox[2] + 8} ${bangunan.bbox[1] + bangunan.bbox[3] - 16} L ${
-                      bangunan.bbox[0] + bangunan.bbox[2] + 8
-                    } ${bangunan.bbox[1] + bangunan.bbox[3] + 8} L ${
-                      bangunan.bbox[0] + bangunan.bbox[2] - 16
-                    } ${bangunan.bbox[1] + bangunan.bbox[3] + 8}`}
-                    fill="none"
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                  />
-                  {/* Centroid Prompt Point */}
-                  <circle cx={bangunan.centroid[0]} cy={bangunan.centroid[1]} r="7" fill="#E8920F" opacity="0.9" />
-                  <circle cx={bangunan.centroid[0]} cy={bangunan.centroid[1]} r="15" fill="none" stroke="#E8920F" strokeWidth="1.2" opacity="0.6" />
-                  <text
-                    x={bangunan.bbox[0]}
-                    y={bangunan.bbox[1] - 14}
-                    fill="#E4E8F0"
-                    stroke="rgba(10, 14, 28, 0.9)"
-                    strokeWidth="3"
-                    paintOrder="stroke"
-                    fontFamily="monospace"
-                    fontSize="10"
-                    fontWeight="600"
-                  >
-                    JEJAK BANGUNAN {m2(bangunan.footprint_m2)}
-                  </text>
-                </g>
-              ) : null}
-
-              {/* TAHAP 2: Mask hasil model; fallback hanya menampilkan footprint berarsir. */}
-              {tahap >= 2 && tampilKontur ? (
-                <g id="tahap-2-kontur">
-                  {bangunan.method === "cv" ? (
-                    <path d={maskPath} fillRule="evenodd" fill="rgba(232, 144, 15, 0.25)" stroke="#E8920F" strokeWidth="2.5" strokeLinejoin="round" />
-                  ) : (
-                    <polygon points={polygonString} fill="url(#arsirPerkiraan)" stroke="#E8920F" strokeWidth="2" strokeDasharray="5 4" />
-                  )}
-                  {tahap === 2 ? (
-                    <text
-                      x="320"
-                      y="245"
-                      fill="#FFFFFF"
-                      stroke="rgba(10, 14, 28, 0.9)"
-                      strokeWidth="3"
-                      paintOrder="stroke"
-                      fontFamily="monospace"
-                      fontSize="11"
-                      fontWeight="600"
-                      textAnchor="middle"
-                    >
-                      {bangunan.method === "cv" ? "LUAS MASK" : "LUAS PERKIRAAN"} {m2(bangunan.roof_area_m2)}
-                    </text>
-                  ) : null}
-                </g>
-              ) : null}
-
-              {/* TAHAP 4: Sumbu geometri, bukan deteksi bubungan atau arah hadap bidang. */}
-              {tahap >= 4 && tampilSumbu ? (
-                <g id="tahap-4-orientasi">
-                  <line
-                    x1={bangunan.azimuth_vec[0]}
-                    y1={bangunan.azimuth_vec[1]}
-                    x2={bangunan.azimuth_vec[2]}
-                    y2={bangunan.azimuth_vec[3]}
-                    stroke="#E8920F"
-                    strokeWidth="2.5"
-                    markerEnd="url(#panahAzimut)"
-                  />
-                  <circle cx={bangunan.azimuth_vec[0]} cy={bangunan.azimuth_vec[1]} r="3" fill="#E8920F" />
-                  {tahap === 4 ? (
-                    <text
-                      x={bangunan.azimuth_vec[2] + 6}
-                      y={bangunan.azimuth_vec[3]}
-                      fill="#F2A93F"
-                      stroke="rgba(10, 14, 28, 0.9)"
-                      strokeWidth="3"
-                      paintOrder="stroke"
-                      fontFamily="monospace"
-                      fontSize="10"
-                      fontWeight="600"
-                    >
-                      SUMBU {bangunan.azimuth_deg}°
-                    </text>
-                  ) : null}
-                </g>
-              ) : null}
-
-              {/* Mini Dial Kompas Surya di Sudut Kanan Bawah */}
-              {tampilKompas && (tahap >= 4 || tahap === 5) ? (
-                <g id="dial-kompas" transform={posisiKompas}>
-                  <circle cx="0" cy="0" r="32" fill="rgba(10, 14, 28, 0.88)" stroke="rgba(174, 183, 199, 0.3)" strokeWidth="1" />
-                  <text x="0" y="-20" fill="#E8920F" fontFamily="monospace" fontSize="8" fontWeight="bold" textAnchor="middle">
-                    U
-                  </text>
-                  <text x="22" y="3" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
-                    T
-                  </text>
-                  <text x="0" y="24" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
-                    S
-                  </text>
-                  <text x="-22" y="3" fill="#AEB7C7" fontFamily="monospace" fontSize="7" textAnchor="middle">
-                    B
-                  </text>
-                  {/* Jarum sumbu geometri. */}
-                  <g transform={`rotate(${rotasiJarum})`}>
-                    <line x1="0" y1="0" x2="0" y2="-22" stroke="#E8920F" strokeWidth="2" markerEnd="url(#panahAzimut)" />
-                    <circle cx="0" cy="0" r="2.5" fill="#E8920F" />
-                  </g>
-                  <text x="0" y="38" fill="#AEB7C7" fontFamily="monospace" fontSize="8" textAnchor="middle">
-                    {bangunan.azimuth_deg}°
-                  </text>
-                </g>
-              ) : null}
-
-            </svg>
-
-            <div className={s.hudBawah}>
-              <span>Esri · Vantor · Earthstar Geographics</span>
-              <span>{citraGagal ? "Citra tidak tersedia" : "Analisis tersimpan"}</span>
-            </div>
-          </div>
-
-          <div className={s.kontrolBar}>
-            <div className={s.barisAksi}>
-              <Tombol varian="primer" ikon={sedangMemindai ? Pause : Play} onClick={sedangMemindai ? jedaPindai : mulaiPindaiOtomatis}>
-                {sedangMemindai ? "Jeda" : tahap === 5 ? "Putar ulang" : "Putar demo"}
-              </Tombol>
-              <span className={s.progres}>Tahap {tahap} / 5</span>
-            </div>
-
-            <div className={s.stepper} role="group" aria-label="Tahap pemindaian">
-              {TAHAP_INFO.map((step) => (
-                <button
-                  key={step.nomor}
-                  className={`${s.tombolTahap} ${step.nomor === tahap ? s.tahapAktif : ""}`}
-                  type="button"
-                  aria-pressed={step.nomor === tahap}
-                  onClick={() => { setTahap(step.nomor); setSedangMemindai(false); }}
-                >
-                  <span className={s.tahapNomor} aria-hidden="true">0{step.nomor}</span>
-                  <span className={s.tahapNama}>{TAHAP_RINGKAS[step.nomor - 1]}</span>
-                </button>
-              ))}
-            </div>
-
-            <details className={s.rincian}>
-              <summary>Tampilan & pemutaran <Ikon ikon={ChevronDown} /></summary>
-              <div className={s.barisLapisan}>
-                {[
-                  { label: "Satelit", nilai: tampilSatelit, ubah: setTampilSatelit },
-                  { label: "Kontur", nilai: tampilKontur, ubah: setTampilKontur },
-                  { label: "Sumbu", nilai: tampilSumbu, ubah: setTampilSumbu },
-                  { label: "Kompas", nilai: tampilKompas, ubah: setTampilKompas },
-                ].map((lapisan) => (
-                  <label key={lapisan.label} className={s.itemLapisan}>
-                    <input type="checkbox" checked={lapisan.nilai} onChange={(event) => lapisan.ubah(event.target.checked)} />
-                    {lapisan.label}
-                  </label>
-                ))}
-              </div>
-              <Segmen
-                nama="kecepatan-demo"
-                label="Kecepatan"
-                nilai={String(kecepatan)}
-                onUbah={(nilai) => setKecepatan(Number(nilai) as 1 | 2)}
-                pilihan={[{ nilai: "1", label: "1×" }, { nilai: "2", label: "2×" }]}
-              />
-              <p className={s.bantuan}>Saat kanvas mendapat fokus: Spasi untuk putar/jeda, panah untuk pindah tahap, R untuk ulang.</p>
-            </details>
-          </div>
-        </section>
-
-        <aside className={s.panelTelemetri} aria-label="Hasil simulasi panel">
-          {bangunan.method === "footprint_fallback" ? (
-            <div className={s.kotakPeringatan} role="alert">
-              <Ikon ikon={AlertTriangle} />
-              <span>Keyakinan rendah. Luas atap memakai perkiraan jejak bangunan.</span>
-            </div>
-          ) : null}
-
-          <Angka
-            label="Potensi berbasis luas"
-            nilai={kwp(spekAktif.kwp)}
-            ukuran="display"
-            aksen="surya"
-            keterangan={`${spekAktif.count} modul setara · ${m2(bangunan.usable_area_m2)} luas perhitungan (asumsi)`}
-          />
-
-          <p className={s.bantuan}>Batas atap belum diverifikasi. Jumlah panel yang dapat dipasang belum dihitung.</p>
-          <p className={s.bantuan}>Modul Jinko 550 Wp. Kemiringan 15° dan cadangan area 15% adalah asumsi.</p>
-          {tahap >= 3 ? <p className={s.bantuan}>Halangan dan bayangan belum diukur.</p> : null}
-
-
-          <Link className={kelasTombol()} href={`/atap/${bangunan.id}`} onClick={onTutup}>Lihat hasil bangunan</Link>
-
-          <details className={s.rincian}>
-            <summary>Asal estimasi <Ikon ikon={ChevronDown} /></summary>
-            <DaftarData baris={[
-              { label: "Produksi tahun pertama", nilai: kwh(spekAktif.e_ac_kwh_yr1) },
-              { label: "Hemat tahun pertama", nilai: rupiah(spekAktif.savings_idr_yr1) },
-              { label: "Luas bangunan", nilai: m2(bangunan.footprint_m2) },
-              { label: "Luas mask / perkiraan", nilai: m2(bangunan.roof_area_m2) },
-              { label: "Luas perhitungan (asumsi)", nilai: m2(bangunan.usable_area_m2) },
-              { label: "Luas satu modul", nilai: bangunan.luas_modul_m2.toLocaleString("id-ID", { maximumFractionDigits: 3 }) + " m²" },
-              { label: "Modul setara dari luas", nilai: spekAktif.count.toLocaleString("id-ID") },
-              { label: "Kapasitas pasang", nilai: "Belum dihitung" },
-              { label: "Penghalang", nilai: "Belum diukur" },
-              { label: "Kemiringan (asumsi)", nilai: bangunan.tilt_deg.toLocaleString("id-ID") + "°" },
-              { label: "Orientasi", nilai: bangunan.arah_label },
-            ]} />
-          </details>
-
-          <details className={s.rincian}>
-            <summary>Tentang tahap ini <Ikon ikon={ChevronDown} /></summary>
-            <h2 className={s.kartuInfoJudul}>{tahapAktif.subjudul}</h2>
-            <p className={s.penjelasanTahap}>{tahapAktif.penjelasan}</p>
-            <p className={s.bantuan}>Mask ini dihasilkan model dan disimpan. Pemutaran menampilkan tahap analisis tersebut.</p>
-          </details>
-
-          <details className={s.rincian}>
-            <summary>Data teknis <Ikon ikon={ChevronDown} /></summary>
-            <DaftarData baris={[
-              { label: "Skor penyaringan", nilai: bangunan.confidence.toLocaleString("id-ID", { maximumFractionDigits: 3 }) + " / 1 (belum dikalibrasi)" },
-              { label: "IoU terhadap OSM", nilai: bangunan.iou_footprint.toLocaleString("id-ID", { maximumFractionDigits: 3 }) },
-              { label: "Waktu proses tersimpan", nilai: bangunan.durasi_detik.toLocaleString("id-ID") + " detik" },
-              { label: "Metode", nilai: bangunan.method === "cv" ? "Analisis citra" : "Jejak bangunan" },
-              { label: "Model", nilai: bangunan.model_version },
-              { label: "Koordinat", nilai: bangunan.koordinat.map((n) => n.toLocaleString("id-ID", { maximumFractionDigits: 5 })).join("; ") },
-            ]} />
-          </details>
-
-          <details className={s.rincian}>
-            <summary>Log demo <Ikon ikon={ChevronDown} /></summary>
-            <div className={s.terminalIsi} role="log" aria-label="Catatan tahap analisis">
-              {bangunan.cv_logs.filter((log) => log.tahap <= tahap).map((log, li) => (
-                <div key={li} className={s.terminalBaris}>
-                  <span className={s.terminalWaktu}>[{log.waktu}]</span>
-                  <span className={s.terminalTeks}>{log.pesan}</span>
-                </div>
-              ))}
-            </div>
-          </details>
-        </aside>
-      </div>
-    </div>
-  );
-
-  if (mode === "modal") {
-    return (
-      <div
-        className={s.wadahModal}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="judul-modal-pemindai"
-        onClick={(e) => {
-          if (e.target === e.currentTarget && onTutup) {
-            onTutup();
-          }
-        }}
-      >
-        <div className={s.kartuModal}>{konten}</div>
-      </div>
-    );
+  async function analisisBaru(force=false) {
+    if (sibuk) return;
+    setSibuk("analisis"); setGalat(null);
+    try { const data = await pindaiBangunan(id, force); setPaket(data); setSimulasi(undefined); setKapasitas(String(Math.min(potensiLuas(data),PROFIL_SIMULASI[profil].data.asumsi.daya_va/1000))); setTahap(2); }
+    catch (error) { setGalat(error instanceof GalatPemindaian ? error.message : "Analisis belum berhasil. Cek koneksi dan coba lagi."); }
+    finally { setSibuk(null); }
   }
 
-  return mode === "halaman" ? <main>{konten}</main> : konten;
+  async function hitungPotensi() {
+    if (!a || sibuk) return;
+    const dipilih=Number(kapasitas);
+    if (!aktif || !Number.isFinite(dipilih) || dipilih<.55 || dipilih>potensiLuas(aktif)+.001) {setGalat("Kapasitas skenario harus sesuai rentang luas atap dan minimal satu modul 550 Wp.");return;}
+    setSibuk("hitung"); setGalat(null);
+    try {
+      const acuan = PROFIL_SIMULASI[profil].data;
+      const data = await hitungUlangAtap({ roof_analysis_id: a.roof_analysis_id, asumsi: acuan.asumsi, parameter_fisika: acuan.parameter_fisika, usable_area_m2:Math.min(a.usable_area_m2,areaSkenario(dipilih,profil)) });
+      setSimulasi(data); setTahap(3);
+    } catch (error) { setGalat(error instanceof GalatSimulasi ? error.message : "Perhitungan belum berhasil. Cek koneksi dan coba lagi."); }
+    finally { setSibuk(null); }
+  }
+
+  const frame = aktif?.bingkai;
+  const width = gambar ? Math.min(frame?.lebar ?? 640, Math.max(320, gambar.bbox[2]+72, (gambar.bbox[3]+72)*4/3)) : 640;
+  const viewBox = sempit && frame ? `${frame.lebar/2-width/2} ${frame.tinggi/2-width*3/8} ${width} ${width*3/4}` : `0 0 ${frame?.lebar ?? 640} ${frame?.tinggi ?? 480}`;
+  const masque = gambar?.mask_rings.map(poly => poly.map(pathRing).join(" ")).join(" ") ?? "";
+  const Judul = mode === "halaman" ? "h1" : "h2";
+
+  const kanvas = (<section className={s.kolomKanvas} aria-label={tahap === 3 ? "Produksi energi" : "Citra dan batas bangunan"}>
+        {tahap === 3 && simulasi ? <div className={s.hasilGrafik}>
+          <Angka label="Produksi tahun pertama" nilai={kwh(simulasi.e_ac_kwh_yr1)} keterangan="kWh/tahun · cuaca acuan Bengkulu 2024" aksen="surya"/>
+          <GrafikBulanan data={simulasi.monthly_kwh}/>
+          <p className={s.penjelasanTahap}>Energi dihitung dari kapasitas skenario, orientasi asumsi, cuaca, dan faktor rugi.</p>
+        </div> : <>
+          <div className={s.labelBaris}><strong>{tahap === 1 ? "Jejak bangunan OSM" : a?.mask_geojson ? "Batas atap hasil model" : "Perkiraan dari jejak OSM"}</strong>{a && <Lencana>{aktif?.tersimpan ? "Hasil tersimpan" : "Analisis baru"}</Lencana>}</div>
+          <div className={s.kotakSensor}>
+            <svg className={s.kanvasSvg} viewBox={viewBox} role="img" tabIndex={0} aria-label={`Citra ${aktif ? namaBangunan(aktif.bangunan) : "bangunan"}; ${tahap === 1 ? "jejak OSM" : "batas atap"}`}>
+              <defs><pattern id="arsirPerkiraan" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8L8 0" stroke="var(--surya)" strokeWidth="1"/></pattern></defs>
+              {frame?.tiles.map(t => <image key={t.url} href={t.url} x={t.x} y={t.y} width="256" height="256" onError={() => setCitraGagal(true)}/>)}
+              {gambar && (tahap === 1 || bandingkanOSM) && <path id="jejak-osm" d={pathRing(gambar.footprint)} fill="none" stroke="var(--brand-busbar)" strokeWidth="2" strokeDasharray="5 4"/>}
+              {gambar && tahap === 2 && <g id="batas-atap">{masque ? <path d={masque} fill="var(--surya)" fillOpacity=".20" fillRule="evenodd" stroke="var(--surya)" strokeWidth="2"/> : <path d={pathRing(gambar.footprint)} fill="url(#arsirPerkiraan)" stroke="var(--surya)" strokeWidth="2" strokeDasharray="5 4"/>}</g>}
+            </svg>
+          </div>
+          <p className={s.bantuan}>Esri · Vantor · Earthstar Geographics · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>
+          {citraGagal && <p role="status" className={s.penjelasanTahap}>Citra tidak tersedia. Batas dan hasil tersimpan tetap dapat dibaca.</p>}
+          {tahap === 2 && <label className={s.itemLapisan}><input type="checkbox" checked={bandingkanOSM} onChange={e => setBandingkanOSM(e.target.checked)}/>Bandingkan dengan jejak OSM</label>}
+        </>}
+      </section>);
+  const panel = (<aside className={s.panelTelemetri} aria-label="Hasil tahap analisis">
+        <h2 className={s.kartuInfoJudul}>{TAHAP_INFO[tahap-1].subjudul}</h2>
+        {tahap === 1 && <>
+          <p className={s.penjelasanTahap}>{aktif ? namaBangunan(aktif.bangunan) : `Bangunan ${id}`}</p>
+          {aktif && <Angka label="Luas jejak bangunan" nilai={m2(aktif.bangunan.footprint_m2)} ukuran="display"/>}
+          <p className={s.penjelasanTahap}>{a ? "Hasil tersedia. Tinjau batasnya atau jalankan analisis baru." : "Analisis membaca citra satelit untuk menentukan batas dan luas atap."}</p>
+          <Tombol ikon={a ? ArrowRight : Scan} disabled={Boolean(sibuk) || !aktif} onClick={() => a ? setTahap(2) : void analisisBaru()}>{a ? "Tinjau batas dan luas" : "Analisis atap"}</Tombol>
+        </>}
+        {tahap === 2 && a && <>
+          {a.method === "footprint_fallback" && <div role="alert" className={s.kotakPeringatan}><Ikon ikon={AlertTriangle}/><span>Batas model belum dapat dipakai. Luas memakai perkiraan OSM.</span></div>}
+          <Angka label={a.mask_geojson ? "Luas proyeksi atap" : "Perkiraan luas atap"} nilai={m2(a.roof_area_m2)} ukuran="display" aksen="surya"/>
+          <div className={s.bagianLuas} role="img" aria-label={`Luas perhitungan ${m2(a.usable_area_m2)}; cadangan area 15 persen sebagai asumsi`}><span style={{width:`${a.roof_area_m2 ? a.usable_area_m2/a.roof_area_m2*100 : 0}%`}}/></div>
+          <DaftarData baris={[{label:"Luas untuk perhitungan",nilai:m2(a.usable_area_m2)},{label:"Cadangan area",nilai:"15% · asumsi"}]}/>
+          <p className={s.penjelasanTahap}>Batas belum diverifikasi. Halangan dan bayangan belum diukur.</p>
+          <label className={s.pilihBangunan}>Skenario listrik<select value={profil} disabled={Boolean(sibuk)} onChange={e => {const next=e.target.value as ProfilSimulasi;setProfil(next);setSimulasi(undefined);if(aktif)setKapasitas(String(Math.min(potensiLuas(aktif),PROFIL_SIMULASI[next].data.asumsi.daya_va/1000)));}}>{Object.entries(PROFIL_SIMULASI).map(([key,p])=><option key={key} value={key}>{p.nama}</option>)}</select></label>
+          <label className={s.pilihBangunan}>Kapasitas skenario (kWp)<input type="number" min="0.55" step="0.01" max={aktif ? potensiLuas(aktif) : undefined} value={kapasitas} disabled={Boolean(sibuk)} onChange={e=>{setKapasitas(e.target.value);setSimulasi(undefined);}}/></label>
+          <p className={s.penjelasanTahap}>Awal skenario mengikuti daya listrik yang dipilih. Potensi luas atap {aktif ? kwp(potensiLuas(aktif)) : "—"}.</p>
+          <p className={s.penjelasanTahap}>Profil pemakaian masih asumsi; dapat diubah pada hasil.</p>
+          <Tombol ikon={ArrowRight} disabled={Boolean(sibuk)} onClick={() => void hitungPotensi()}>Hitung potensi</Tombol>
+          <Tombol varian="sekunder" disabled={Boolean(sibuk)} onClick={() => void analisisBaru(true)}>Analisis ulang batas</Tombol>
+        </>}
+        {tahap === 3 && simulasi && <>
+          <Angka label="Potensi hemat per tahun" nilai={rupiah(simulasi.savings_idr_yr1,true)} ukuran="display" aksen="daun" keterangan={`Balik modal ${simulasi.payback_years === null ? "lebih dari 25 tahun" : tahun(simulasi.payback_years)}`}/>
+          <DaftarData baris={[{label:"Kapasitas perhitungan",nilai:kwp(simulasi.kwp)},{label:"Potensi luas atap",nilai:aktif ? kwp(potensiLuas(aktif)) : "—"},{label:"Modul dalam skenario",nilai:`${simulasi.module_count.toLocaleString("id-ID")} modul`},{label:"Skenario listrik",nilai:PROFIL_SIMULASI[profil].nama}]}/>
+          <p className={s.penjelasanTahap}>Kapasitas pasang memerlukan penataan panel dan pemeriksaan atap.</p>
+          <Link href={`/atap/${id}?profil=${profil}&kwp=${kapasitas}`} onClick={onTutup} className={kelasTombol()}>Lihat hasil dan ubah asumsi<Ikon ikon={ArrowRight}/></Link>
+          <Tombol varian="sekunder" ikon={ArrowLeft} onClick={() => setTahap(2)}>Kembali ke batas dan luas</Tombol>
+        </>}
+        {a && <details className={s.rincian}><summary>Rincian analisis<Ikon ikon={ChevronDown}/></summary>
+          <DaftarData baris={[{label:"Sumber batas",nilai:a.mask_geojson ? "Model pada citra satelit" : "Perkiraan OSM"},{label:"Sumbu atap",nilai:`${a.azimuth_deg.toLocaleString("id-ID")}°; hadap panel asumsi`},{label:"Kemiringan",nilai:`${a.tilt_deg}° · asumsi`},{label:"Model",nilai:a.model_version},{label:"Skor penyaringan",nilai:a.confidence.toLocaleString("id-ID",{maximumFractionDigits:3})}]}/>
+          <p className={s.penjelasanTahap}>Skor belum dikalibrasi sebagai akurasi atap.</p>
+        </details>}
+      </aside>);
+
+  const isi = <div ref={wadahRef} className={s.wadah} role={mode === "modal" ? "dialog" : undefined} aria-modal={mode === "modal" ? true : undefined} aria-labelledby="judul-pemindai">
+    <header className={s.kepala}>
+      <Judul id="judul-pemindai" className={s.judul}>Analisis atap</Judul>
+      {mode === "modal" ? <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol> : <Link href="/" className={kelasTombol("sekunder")}>Pilih di peta</Link>}
+    </header>
+    <nav className={s.stepper} aria-label="Tahap analisis">
+      {TAHAP_INFO.map(step => <button key={step.nomor} type="button" className={`${s.tombolTahap} ${tahap === step.nomor ? s.tahapAktif : ""}`} aria-pressed={tahap === step.nomor} disabled={Boolean(sibuk) || (step.nomor === 2 && !a) || (step.nomor === 3 && !simulasi)} onClick={() => setTahap(step.nomor)}>
+        <span className={s.tahapNomor} aria-hidden="true">0{step.nomor}</span><span className={s.tahapNama}>{step.nama}</span>
+      </button>)}
+    </nav>
+    <label className={s.pilihBangunan}>Bangunan<select value={id} disabled={sibuk === "analisis" || sibuk === "hitung"} onChange={e => { setId(Number(e.target.value)); setTahap(1); }}>
+      {!pilihan.some(b => b.id === id) && <option value={id}>Bangunan {id}</option>}
+      {pilihan.map(b => <option key={b.id} value={b.id}>{namaBangunan(b)}{simulasiContoh(b.id) ? " · hasil tersimpan" : ""}</option>)}
+    </select></label>
+    {galat && <div role="alert" className={s.kotakPeringatan}><Ikon ikon={AlertTriangle}/><span>{galat}</span></div>}
+    {sibuk && <p role="status" className={s.statusProses}>{sibuk === "analisis" ? "Membaca citra dan menjalankan analisis atap…" : sibuk === "hitung" ? "Menghitung energi dan penghematan…" : "Memuat bangunan dan hasil tersimpan…"}</p>}
+    <div className={s.gridPemindai} data-tahap={tahap} aria-busy={Boolean(sibuk)}>
+      {tahap === 3 ? <>{panel}{kanvas}</> : <>{kanvas}{panel}</>}
+    </div>
+  </div>;
+  return mode === "modal" ? <div className={s.wadahModal}><div className={s.kartuModal}>{isi}</div></div> : isi;
 }

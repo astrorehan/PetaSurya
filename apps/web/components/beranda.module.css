@@ -91,6 +91,35 @@
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--line);
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+.alur {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+}
+
+.contohCepat {
+  padding-block: var(--sp-3);
+  border-top: 1px solid var(--line);
+}
+
+.contohCepat > div {
+  display: flex;
+  gap: var(--sp-4);
+}
+
+.galat {
+  padding: var(--sp-3);
+  background: var(--merah-bg);
+  border-left: var(--sp-1) solid var(--merah);
+  font: var(--tipe-kecil);
 }
 
 .bangunan {
