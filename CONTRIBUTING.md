@@ -20,6 +20,11 @@ atap. Ruang kerja peta berada di `/peta`; pencarian lama melalui `/?q=…`
 diteruskan ke sana. Halaman pengenalan memakai tema grafit dan amber tetap,
 sementara tema ruang kerja mengikuti pilihan pengguna. Aset karakter tersimpan
 di `apps/web/public/brand/`, dan warna halaman memakai token `--brand-*`.
+Karakter ditayangkan sebagai WebP dengan alpha yang sudah dikompresi, tanpa
+konversi gambar saat permintaan. Judul, orbit cahaya dan kontur contoh mempunyai
+gerak presentasi. Tombol jeda menghentikan gerak; reduced motion menampilkan
+seluruh isi langsung. Orbit berhenti saat panggung keluar viewport atau tab
+tersembunyi. Angka tampil sebagai nilai akhir, tanpa hitungan naik.
 
 ```bash
 pnpm install

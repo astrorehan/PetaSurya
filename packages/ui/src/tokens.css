@@ -57,6 +57,23 @@
   --brand-figure-size: clamp(2.25rem, 3.65vw, 3.1rem);
   --brand-content-width: 1120px;
   --brand-section-space: clamp(80px, 9vw, 128px);
+  --brand-orbit-line: rgba(255, 196, 107, 0.13);
+  --brand-orbit-point: #ffe2b9;
+  --brand-button-sheen: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55), transparent 70%);
+  --brand-t-title: 1300ms;
+  --brand-t-rise: 1800ms;
+  --brand-t-scene: 1100ms;
+  --brand-t-orbit: 18000ms;
+  --brand-t-breathe: 7200ms;
+  --brand-t-aura: 9000ms;
+  --brand-t-reveal: 1000ms;
+  --brand-t-contour: 2200ms;
+  --brand-delay-copy: 260ms;
+  --brand-delay-actions: 420ms;
+  --brand-delay-mascot: 300ms;
+  --brand-delay-features: 750ms;
+  --brand-delay-idle: 2100ms;
+  --brand-stagger: 90ms;
 
   /* --- tipografi Arc, data tetap memakai mono tabular --- */
   --f-display: var(--font-geist, "Geist"), system-ui, sans-serif;

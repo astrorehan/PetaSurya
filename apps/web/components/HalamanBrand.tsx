@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import contoh from "../../../data/fixtures/demo.json";
 import { DemoPotensi } from "./DemoPotensi";
+import { GerakBrand, KontrolGerak } from "./GerakBrand";
+import { OrbitSurya } from "./OrbitSurya";
 import s from "./halamanBrand.module.css";
 
-const MASCOT = "/brand/surya-mascot-v2.png";
+const MASCOT = "/brand/surya-mascot-v2.webp";
 const gedung = contoh.find((d) => d.bangunan.id === 1146141501)!;
 
 const FAQ = [
@@ -59,13 +61,16 @@ function Merek({ ukuran = 36 }: { ukuran?: number }) {
 
 export function HalamanBrand() {
   return (
-    <div className={s.halaman} data-theme="dark">
+    <GerakBrand>
       <a className={s.lewati} href="#isi">Lewati ke isi</a>
       <header className={s.header}>
         <Merek />
-        <Link className={s.tautanHeader} href="/metodologi">
-          Di balik hitungan <ArrowUpRight size={15} aria-hidden="true" />
-        </Link>
+        <div className={s.aksiHeader}>
+          <Link className={s.tautanHeader} href="/metodologi">
+            Di balik hitungan <ArrowUpRight size={15} aria-hidden="true" />
+          </Link>
+          <KontrolGerak />
+        </div>
       </header>
 
       <main id="isi">
@@ -93,11 +98,10 @@ export function HalamanBrand() {
           </div>
           <p className={s.statusHero}><span aria-hidden="true" /> Demo tersedia · Kota Bengkulu</p>
 
-          <div className={s.panggung}>
-            <div className={s.orbitLuar} aria-hidden="true" />
-            <div className={s.orbitDalam} aria-hidden="true" />
+          <div className={s.panggung} data-panggung>
+            <OrbitSurya />
             <div className={s.cahayaMascot} aria-hidden="true" />
-            <Image
+            <div className={s.lapisanMascot}><div className={s.layangMascot}><Image
               className={s.mascotHero}
               src={MASCOT}
               width={1254}
@@ -105,7 +109,8 @@ export function HalamanBrand() {
               sizes="(max-width: 600px) 340px, 520px"
               alt="Surya menghadap lurus ke depan, dengan dua mata gelap pada kepala berbulu amber."
               priority
-            />
+              unoptimized
+            /></div></div>
             <span className={`${s.pillFitur} ${s.pillAtap}`}><ScanLine size={14} aria-hidden="true" /> Batas atap</span>
             <span className={`${s.pillFitur} ${s.pillEnergi}`}><Sun size={14} aria-hidden="true" /> Potensi energi</span>
             <span className={`${s.pillFitur} ${s.pillBiaya}`}><ChartNoAxesCombined size={14} aria-hidden="true" /> Skenario biaya</span>
@@ -115,7 +120,7 @@ export function HalamanBrand() {
         </section>
 
         <section id="potensi" className={s.bagianPotensi} aria-labelledby="judul-potensi">
-          <div className={s.kepalaPotensi}>
+          <div className={s.kepalaPotensi} data-reveal="judul">
             <div>
               <p className={s.eyebrow}>DARI BANGUNAN KE KEPUTUSAN</p>
               <h2 id="judul-potensi">Ada potensi.<br /><span>Mari kita hitung.</span></h2>
@@ -143,7 +148,7 @@ export function HalamanBrand() {
         </section>
 
         <section className={s.bagianAlur} aria-labelledby="judul-alur">
-          <div className={s.kepalaAlur}>
+          <div className={s.kepalaAlur} data-reveal="judul">
             <p className={s.eyebrow}>SESEDERHANA ITU</p>
             <h2 id="judul-alur">Satu atap.<br /><span>Tiga langkah.</span></h2>
             <Link className={s.tautanTeks} href="/peta">Temukan bangunan Anda <ArrowUpRight size={16} aria-hidden="true" /></Link>
@@ -154,7 +159,7 @@ export function HalamanBrand() {
               { nomor: "02", ikon: ScanLine, judul: "Tinjau batasnya.", teks: "Lihat kontur atap dan luas yang terbaca. Ketahui batas analisis sebelum melangkah." },
               { nomor: "03", ikon: ChartNoAxesCombined, judul: "Uji skenarionya.", teks: "Pilih kapasitas. Ubah tarif dan biaya. Bandingkan potensi energi dengan kebutuhan Anda." },
             ].map(({ nomor, ikon: Ikon, judul, teks }) => (
-              <li key={nomor}>
+              <li key={nomor} data-reveal="langkah">
                 <span className={s.nomorLangkah}>{nomor}</span>
                 <div><h3>{judul}</h3><p>{teks}</p></div>
                 <Ikon className={s.ikonLangkah} size={23} strokeWidth={1.5} aria-hidden="true" />
@@ -164,12 +169,12 @@ export function HalamanBrand() {
         </section>
 
         <section id="faq" className={s.bagianFaq} aria-labelledby="judul-faq">
-          <div>
+          <div data-reveal="judul">
             <p className={s.eyebrow}>SEBELUM ANDA MULAI</p>
             <h2 id="judul-faq">Pertanyaan?<br /><span>Ada jawabannya.</span></h2>
             <Link className={s.tautanTeks} href="/metodologi">Kenali cara kami menghitung <ArrowUpRight size={15} aria-hidden="true" /></Link>
           </div>
-          <div className={s.daftarFaq}>
+          <div className={s.daftarFaq} data-reveal="judul">
             {FAQ.map(({ pertanyaan, jawaban }, i) => (
               <details key={pertanyaan} name="faq-petasurya" open={i === 0}>
                 <summary>{pertanyaan}<span className={s.kontrolFaq}><Plus size={15} aria-hidden="true" /></span></summary>
@@ -179,8 +184,8 @@ export function HalamanBrand() {
           </div>
         </section>
 
-        <section className={s.penutup} aria-labelledby="judul-penutup">
-          <Image src={MASCOT} width={112} height={112} sizes="112px" alt="" />
+        <section className={s.penutup} aria-labelledby="judul-penutup" data-reveal="penutup">
+          <Image src={MASCOT} width={112} height={112} sizes="112px" alt="" unoptimized />
           <h2 id="judul-penutup">Atap Anda.<br /><span>Langkah berikutnya.</span></h2>
           <Link className={s.tombolPrimer} href="/peta">Jelajahi peta <ArrowRight size={17} aria-hidden="true" /></Link>
         </section>
@@ -195,7 +200,7 @@ export function HalamanBrand() {
         </div>
         <div className={s.footerBawah}><span>© 2026 PETASURYA</span><span>DIBANGUN UNTUK POTENSI INDONESIA</span></div>
       </footer>
-      <div className={s.signature} aria-hidden="true"><span>PETASURYA</span></div>
-    </div>
+      <div className={s.signature} aria-hidden="true" data-reveal="signature"><span>PETASURYA</span></div>
+    </GerakBrand>
   );
 }

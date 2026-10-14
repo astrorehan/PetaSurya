@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type KeyboardEvent } from "react";
+import { useId, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { ArrowUpRight, Check, Crosshair, MapPin, Sun } from "lucide-react";
 import { kwh, kwp, m2, rupiah, tahun, ucapan } from "@petasurya/ui";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export function DemoPotensi({
   }
 
   return (
-    <div className={s.demo}>
+    <div className={s.demo} data-reveal="demo">
       <div className={s.demoBar}>
         <span className={s.demoLokasi}><MapPin size={14} aria-hidden="true" /> {nama}</span>
         <span className={s.demoTag}>CONTOH BENGKULU</span>
@@ -83,6 +83,7 @@ export function DemoPotensi({
             <path className={s.jejakOsm} d={pathRing(footprint)} />
             {mask.map((poly, i) => <path key={i} className={s.maskAtap} d={poly.map(pathRing).join(" ")} fillRule="evenodd" />)}
             {mask.map((poly, i) => <path key={i} d={poly.map(pathRing).join(" ")} fill={`url(#sel-${id})`} fillRule="evenodd" />)}
+            {mask.map((poly, i) => <path key={i} className={s.konturSorot} d={poly.map(pathRing).join(" ")} pathLength="1" fillRule="evenodd" aria-hidden="true" />)}
             <path className={s.sumbuDiagram} d={`M${lebar / 2} 20V${tinggi - 20}M20 ${tinggi / 2}H${lebar - 20}`} />
           </svg>
           <span className={s.utara} aria-label="Utara">↑<span>U</span></span>
@@ -94,7 +95,7 @@ export function DemoPotensi({
               <button key={tahap} id={`tab-${tahap}-${id}`} role="tab" aria-selected={babak === tahap} aria-controls={`panel-${id}`} tabIndex={babak === tahap ? 0 : -1} onClick={() => setBabak(tahap)} onKeyDown={(e) => pindahTab(e, i)}>{teks}</button>
             ))}
           </div>
-          <div id={`panel-${id}`} role="tabpanel" aria-labelledby={`tab-${babak}-${id}`} tabIndex={0} className={s.hasilDemo}>
+          <div key={babak} id={`panel-${id}`} role="tabpanel" aria-labelledby={`tab-${babak}-${id}`} tabIndex={0} className={s.hasilDemo}>
             <p className={s.labelHasil}>{label}</p>
             <p className={s.angkaHasil} aria-label={ucapan(nilai)}>{nilai}</p>
             <p className={s.keteranganHasil}>{keterangan}</p>
@@ -102,7 +103,7 @@ export function DemoPotensi({
               <div className={s.grafikDemo}>
                 <span className={s.labelGrafik}>PRODUKSI BULANAN · kWh</span>
                 <svg viewBox="0 0 288 100" role="img" aria-label={`Produksi bulanan: ${bulanan.map((n, i) => `${BULAN[i]} ${ucapan(kwh(n))}`).join(", ")}`}>
-                  {bulanan.map((n, i) => <rect key={i} x={i * 24 + 2} y={96 - n / tertinggi * 80} width="15" height={n / tertinggi * 80} rx="2"><title>{BULAN[i]}: {kwh(n)}</title></rect>)}
+                  {bulanan.map((n, i) => <rect key={i} x={i * 24 + 2} y={96 - n / tertinggi * 80} width="15" height={n / tertinggi * 80} rx="2" style={{ "--batang-i": i } as CSSProperties}><title>{BULAN[i]}: {kwh(n)}</title></rect>)}
                 </svg>
                 <div className={s.bulanGrafik}><span>JAN</span><span>DES</span></div>
               </div>
