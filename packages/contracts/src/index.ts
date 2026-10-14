@@ -1,4 +1,5 @@
 import type { ZodType } from "zod";
+import { HasilAgregasi, PermintaanAgregasi, RingkasanAgregasi, SumberAgregasi, UrutanAgregasi, WilayahAgregasi } from "./agregasi.ts";
 import { AnalisisAtap, CitraAnalisis, MetodeAnalisis, TipeAtap } from "./analisis.ts";
 import { BangunanRingkas, SumberBangunan } from "./bangunan.ts";
 import { GalatApi, KodeGalat } from "./galat.ts";
@@ -21,6 +22,7 @@ export * from "./galat.ts";
 export * from "./geojson.ts";
 export * from "./simulasi.ts";
 export * from "./pemindaian.ts";
+export * from "./agregasi.ts";
 
 // Registri skema yang di-generate ke JSON Schema lalu pydantic.
 // Kunci = nama kelas di sisi Python (services/engine/app/contracts.py).
@@ -46,4 +48,10 @@ export const registri: Record<string, ZodType> = {
   BingkaiPemindaian,
   PaketPemindaian,
   TilePemindaian,
+  HasilAgregasi,
+  PermintaanAgregasi,
+  RingkasanAgregasi,
+  SumberAgregasi,
+  UrutanAgregasi,
+  WilayahAgregasi,
 };

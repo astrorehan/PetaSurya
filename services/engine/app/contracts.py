@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date as date_aliased
 from enum import StrEnum
 from typing import Literal
 
@@ -98,6 +99,15 @@ class DerateSimulasi(BaseModel):
     """
     Rugi ketersediaan, fraksi
     """
+
+
+class Cakupan(BaseModel):
+    n_tercatat: int = Field(..., ge=0, le=9007199254740991)
+    n_layak: int = Field(..., ge=0, le=9007199254740991)
+    n_terlalu_kecil: int = Field(..., ge=0, le=9007199254740991)
+    n_tanpa_wilayah: int = Field(..., ge=0, le=9007199254740991)
+    n_batas_wilayah: int = Field(..., ge=0, le=9007199254740991)
+    catatan: str
 
 
 class JejakDerate(BaseModel):
@@ -228,6 +238,54 @@ class ParameterFisika(BaseModel):
     """
 
 
+class Asumsi(BaseModel):
+    golongan_tarif: str
+    """
+    Golongan tarif PLN, mis. 'R-1/TR'
+    """
+    daya_va: int = Field(..., gt=0, le=9007199254740991)
+    """
+    Daya tersambung, VA
+    """
+    tarif_rp_kwh: float = Field(..., gt=0.0)
+    """
+    Tarif yang dipakai dalam skenario, Rp/kWh
+    """
+    scr: float = Field(..., ge=0.0, le=1.0)
+    """
+    Self-consumption ratio, fraksi 0–1
+    """
+    biaya_per_kwp: float = Field(..., gt=0.0)
+    """
+    Biaya terpasang, Rp/kWp
+    """
+    opex_frac: float | None = Field(0.01, ge=0.0, le=0.1)
+    """
+    O&M per tahun, fraksi capex
+    """
+    diskonto: float | None = Field(0.09, ge=0.0, le=0.3)
+    """
+    Tingkat diskonto nominal, fraksi
+    """
+    eskalasi_tarif: float | None = Field(0, ge=0.0, le=0.2)
+    """
+    Kenaikan tarif per tahun, fraksi
+    """
+    degradasi_thn: float | None = Field(0.006, ge=0.0, le=0.02)
+    """
+    Degradasi modul per tahun, fraksi
+    """
+    umur_tahun: int | None = Field(25, gt=0, le=9007199254740991)
+    ef_grid_tco2_mwh: float = Field(..., gt=0.0)
+    """
+    Faktor emisi jaringan, tCO2e/MWh
+    """
+    faktor_ekspor: float | None = Field(0, ge=0.0, le=1.0)
+    """
+    Nilai ekspor relatif terhadap tarif; 0 bila net-metering dihapus
+    """
+
+
 class Coordinate1ItemItem(RootModel[float]):
     root: float = Field(..., ge=-180.0, le=180.0)
 
@@ -252,6 +310,46 @@ class PolygonGeoJSON(BaseModel):
     coordinates: list[Coordinate1] = Field(..., min_length=1)
 
 
+class PaybackMedianYears(RootModel[float]):
+    root: float = Field(..., ge=0.0)
+    """
+    Median hanya atap yang balik modal; null bila tidak ada
+    """
+
+
+class RingkasanAgregasi(BaseModel):
+    n_bangunan: int = Field(..., ge=0, le=9007199254740991)
+    module_count: int = Field(..., ge=0, le=9007199254740991)
+    footprint_m2: float = Field(..., ge=0.0)
+    usable_area_m2: float = Field(..., ge=0.0)
+    kwp: float = Field(..., ge=0.0)
+    e_ac_kwh_yr1: float = Field(..., ge=0.0)
+    """
+    Energi AC tahun pertama, kWh
+    """
+    co2_ton_yr1: float = Field(..., ge=0.0)
+    """
+    Emisi grid terhindar tahun pertama, tCO2; faktor ESDM mengukur CO2
+    """
+    capex_idr: float = Field(..., ge=0.0)
+    savings_idr_yr1: float = Field(..., ge=0.0)
+    payback_median_years: PaybackMedianYears | None
+    """
+    Median hanya atap yang balik modal; null bila tidak ada
+    """
+
+
+class SumberAgregasi(BaseModel):
+    penerbit: str
+    url: AnyUrl
+    diambil: date_aliased = Field(
+        ...,
+        pattern="^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+    )
+    timestamp_osm: str
+    catatan: str
+
+
 class SumberBangunan(StrEnum):
     osm = "osm"
     ms_footprints = "ms_footprints"
@@ -269,6 +367,23 @@ class TipeAtap(StrEnum):
     pelana = "pelana"
     limas = "limas"
     kompleks = "kompleks"
+
+
+class UrutanAgregasi(StrEnum):
+    kwp = "kwp"
+    payback = "payback"
+    lcoe = "lcoe"
+
+
+class WilayahAgregasi(BaseModel):
+    id: str
+    nama: str
+    n_tercatat: int = Field(..., ge=0, le=9007199254740991)
+    """
+    Jumlah footprint pada snapshot, termasuk yang terlalu kecil
+    """
+    potensi: RingkasanAgregasi
+    skenario: RingkasanAgregasi
 
 
 class AnalisisAtap(BaseModel):
@@ -370,6 +485,14 @@ class GalatApi(BaseModel):
     error: Error
 
 
+class Jejak(BaseModel):
+    kapasitas: JejakRumus
+    energi: JejakRumus
+    ekonomi: JejakRumus
+    karbon: JejakRumus
+    adopsi: JejakRumus
+
+
 class HasilSimulasi(BaseModel):
     id: str
     """
@@ -450,3 +573,43 @@ class PaketPemindaian(BaseModel):
     bingkai: BingkaiPemindaian
     tersimpan: bool
     durasi_detik: float = Field(..., ge=0.0)
+
+
+class PermintaanAgregasi(BaseModel):
+    kode_wilayah: Literal["1771"]
+    """
+    Kode Kota Bengkulu; cakupan cuaca dan snapshot OSM
+    """
+    fraksi_layak: float = Field(..., ge=0.0, le=1.0)
+    """
+    Bagian footprint yang diasumsikan layak, fraksi; bukan hasil segmentasi
+    """
+    tilt_deg: float = Field(..., ge=0.0, le=90.0)
+    """
+    Kemiringan panel seragam, derajat; asumsi skenario
+    """
+    azimuth_deg: float = Field(..., ge=0.0, le=360.0)
+    """
+    Hadap panel dari utara, derajat; asumsi skenario
+    """
+    adopsi: float = Field(..., ge=0.0, le=1.0)
+    """
+    Fraksi jumlah atap layak yang dipilih, dibulatkan ke bawah
+    """
+    urut: UrutanAgregasi
+    asumsi: Asumsi
+    parameter_fisika: ParameterFisika
+
+
+class HasilAgregasi(BaseModel):
+    kode_wilayah: Literal["1771"]
+    engine_version: str
+    jenis_potensi: Literal["estimasi_footprint"]
+    permintaan: PermintaanAgregasi
+    sumber: SumberAgregasi
+    cakupan: Cakupan
+    potensi: RingkasanAgregasi
+    skenario: RingkasanAgregasi
+    wilayah: list[WilayahAgregasi]
+    tanpa_wilayah: WilayahAgregasi
+    jejak: Jejak

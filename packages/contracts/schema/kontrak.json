@@ -388,6 +388,124 @@
         "error"
       ]
     },
+    "HasilAgregasi": {
+      "type": "object",
+      "properties": {
+        "kode_wilayah": {
+          "type": "string",
+          "const": "1771"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "jenis_potensi": {
+          "type": "string",
+          "const": "estimasi_footprint"
+        },
+        "permintaan": {
+          "$ref": "#/$defs/PermintaanAgregasi"
+        },
+        "sumber": {
+          "$ref": "#/$defs/SumberAgregasi"
+        },
+        "cakupan": {
+          "type": "object",
+          "properties": {
+            "n_tercatat": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "n_layak": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "n_terlalu_kecil": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "n_tanpa_wilayah": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "n_batas_wilayah": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "catatan": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "n_tercatat",
+            "n_layak",
+            "n_terlalu_kecil",
+            "n_tanpa_wilayah",
+            "n_batas_wilayah",
+            "catatan"
+          ]
+        },
+        "potensi": {
+          "$ref": "#/$defs/RingkasanAgregasi"
+        },
+        "skenario": {
+          "$ref": "#/$defs/RingkasanAgregasi"
+        },
+        "wilayah": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WilayahAgregasi"
+          }
+        },
+        "tanpa_wilayah": {
+          "$ref": "#/$defs/WilayahAgregasi"
+        },
+        "jejak": {
+          "type": "object",
+          "properties": {
+            "kapasitas": {
+              "$ref": "#/$defs/JejakRumus"
+            },
+            "energi": {
+              "$ref": "#/$defs/JejakRumus"
+            },
+            "ekonomi": {
+              "$ref": "#/$defs/JejakRumus"
+            },
+            "karbon": {
+              "$ref": "#/$defs/JejakRumus"
+            },
+            "adopsi": {
+              "$ref": "#/$defs/JejakRumus"
+            }
+          },
+          "required": [
+            "kapasitas",
+            "energi",
+            "ekonomi",
+            "karbon",
+            "adopsi"
+          ]
+        }
+      },
+      "required": [
+        "kode_wilayah",
+        "engine_version",
+        "jenis_potensi",
+        "permintaan",
+        "sumber",
+        "cakupan",
+        "potensi",
+        "skenario",
+        "wilayah",
+        "tanpa_wilayah",
+        "jejak"
+      ]
+    },
     "HasilSimulasi": {
       "type": "object",
       "properties": {
@@ -755,6 +873,141 @@
         "albedo"
       ]
     },
+    "PermintaanAgregasi": {
+      "type": "object",
+      "properties": {
+        "kode_wilayah": {
+          "type": "string",
+          "const": "1771",
+          "description": "Kode Kota Bengkulu; cakupan cuaca dan snapshot OSM"
+        },
+        "fraksi_layak": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Bagian footprint yang diasumsikan layak, fraksi; bukan hasil segmentasi"
+        },
+        "tilt_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 90,
+          "description": "Kemiringan panel seragam, derajat; asumsi skenario"
+        },
+        "azimuth_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360,
+          "description": "Hadap panel dari utara, derajat; asumsi skenario"
+        },
+        "adopsi": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraksi jumlah atap layak yang dipilih, dibulatkan ke bawah"
+        },
+        "urut": {
+          "$ref": "#/$defs/UrutanAgregasi"
+        },
+        "asumsi": {
+          "type": "object",
+          "properties": {
+            "golongan_tarif": {
+              "type": "string",
+              "description": "Golongan tarif PLN, mis. 'R-1/TR'"
+            },
+            "daya_va": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Daya tersambung, VA"
+            },
+            "tarif_rp_kwh": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Tarif yang dipakai dalam skenario, Rp/kWh"
+            },
+            "scr": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Self-consumption ratio, fraksi 0–1"
+            },
+            "biaya_per_kwp": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Biaya terpasang, Rp/kWp"
+            },
+            "opex_frac": {
+              "default": 0.01,
+              "description": "O&M per tahun, fraksi capex",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.1
+            },
+            "diskonto": {
+              "default": 0.09,
+              "description": "Tingkat diskonto nominal, fraksi",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.3
+            },
+            "eskalasi_tarif": {
+              "default": 0,
+              "description": "Kenaikan tarif per tahun, fraksi",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.2
+            },
+            "degradasi_thn": {
+              "default": 0.006,
+              "description": "Degradasi modul per tahun, fraksi",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.02
+            },
+            "umur_tahun": {
+              "default": 25,
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "ef_grid_tco2_mwh": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Faktor emisi jaringan, tCO2e/MWh"
+            },
+            "faktor_ekspor": {
+              "default": 0,
+              "description": "Nilai ekspor relatif terhadap tarif; 0 bila net-metering dihapus",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "golongan_tarif",
+            "daya_va",
+            "tarif_rp_kwh",
+            "scr",
+            "biaya_per_kwp",
+            "ef_grid_tco2_mwh"
+          ]
+        },
+        "parameter_fisika": {
+          "$ref": "#/$defs/ParameterFisika"
+        }
+      },
+      "required": [
+        "kode_wilayah",
+        "fraksi_layak",
+        "tilt_deg",
+        "azimuth_deg",
+        "adopsi",
+        "urut",
+        "asumsi",
+        "parameter_fisika"
+      ]
+    },
     "PolygonGeoJSON": {
       "type": "object",
       "properties": {
@@ -795,6 +1048,105 @@
         "coordinates"
       ]
     },
+    "RingkasanAgregasi": {
+      "type": "object",
+      "properties": {
+        "n_bangunan": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "module_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "footprint_m2": {
+          "type": "number",
+          "minimum": 0
+        },
+        "usable_area_m2": {
+          "type": "number",
+          "minimum": 0
+        },
+        "kwp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "e_ac_kwh_yr1": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Energi AC tahun pertama, kWh"
+        },
+        "co2_ton_yr1": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Emisi grid terhindar tahun pertama, tCO2; faktor ESDM mengukur CO2"
+        },
+        "capex_idr": {
+          "type": "number",
+          "minimum": 0
+        },
+        "savings_idr_yr1": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payback_median_years": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Median hanya atap yang balik modal; null bila tidak ada"
+        }
+      },
+      "required": [
+        "n_bangunan",
+        "module_count",
+        "footprint_m2",
+        "usable_area_m2",
+        "kwp",
+        "e_ac_kwh_yr1",
+        "co2_ton_yr1",
+        "capex_idr",
+        "savings_idr_yr1",
+        "payback_median_years"
+      ]
+    },
+    "SumberAgregasi": {
+      "type": "object",
+      "properties": {
+        "penerbit": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "diambil": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "timestamp_osm": {
+          "type": "string"
+        },
+        "catatan": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "penerbit",
+        "url",
+        "diambil",
+        "timestamp_osm",
+        "catatan"
+      ]
+    },
     "SumberBangunan": {
       "type": "string",
       "enum": [
@@ -830,6 +1182,44 @@
         "pelana",
         "limas",
         "kompleks"
+      ]
+    },
+    "UrutanAgregasi": {
+      "type": "string",
+      "enum": [
+        "kwp",
+        "payback",
+        "lcoe"
+      ]
+    },
+    "WilayahAgregasi": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nama": {
+          "type": "string"
+        },
+        "n_tercatat": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Jumlah footprint pada snapshot, termasuk yang terlalu kecil"
+        },
+        "potensi": {
+          "$ref": "#/$defs/RingkasanAgregasi"
+        },
+        "skenario": {
+          "$ref": "#/$defs/RingkasanAgregasi"
+        }
+      },
+      "required": [
+        "id",
+        "nama",
+        "n_tercatat",
+        "potensi",
+        "skenario"
       ]
     }
   }
