@@ -33,6 +33,11 @@
   --brand-white: #f5f4f0;
   --brand-muted: #a3a6aa;
   --brand-dim: #858a90;
+  --brand-icon-top: #27292a;
+  --brand-icon-bottom: #101112;
+  --brand-icon-face: #f4f5f5;
+  --brand-icon-shade: #c3c6c8;
+  --brand-icon-eye: #080909;
   --brand-amber: #ffc46b;
   --brand-amber-ink: #211708;
   --brand-hairline: rgba(255, 255, 255, 0.12);
@@ -44,7 +49,7 @@
   --brand-glow: radial-gradient(ellipse at center, rgba(232, 146, 15, 0.16), rgba(232, 146, 15, 0.04) 45%, transparent 70%);
   --brand-signature-glow: radial-gradient(ellipse at 50% 110%, rgba(232, 146, 15, 0.2), transparent 68%);
   --brand-signature-type: linear-gradient(180deg, #f1d0a1 15%, #8c652e 100%);
-  --brand-mascot-fade: linear-gradient(to bottom, #000 54%, transparent 82%);
+  --brand-mascot-fade: linear-gradient(to bottom, #000 69%, transparent 80%);
   --brand-preview-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
   --brand-focus: 0 0 0 3px rgba(255, 196, 107, 0.48);
   --brand-hero-size: clamp(3.5rem, 8.6vw, 7rem);

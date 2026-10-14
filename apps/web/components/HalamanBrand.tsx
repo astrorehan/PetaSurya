@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@petasurya/ui";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -16,7 +17,7 @@ import contoh from "../../../data/fixtures/demo.json";
 import { DemoPotensi } from "./DemoPotensi";
 import s from "./halamanBrand.module.css";
 
-const MASCOT = "/brand/surya-mascot.png";
+const MASCOT = "/brand/surya-mascot-v2.png";
 const gedung = contoh.find((d) => d.bangunan.id === 1146141501)!;
 
 const FAQ = [
@@ -50,7 +51,7 @@ const FAQ = [
 function Merek({ ukuran = 36 }: { ukuran?: number }) {
   return (
     <Link className={s.merek} href="/" aria-label="PetaSurya, beranda">
-      <Image src={MASCOT} width={ukuran} height={ukuran} alt="" sizes={`${ukuran}px`} />
+      <Logo size={ukuran} label="" />
       <span>PetaSurya<span className={s.titikMerek}>.</span></span>
     </Link>
   );
@@ -74,7 +75,7 @@ export function HalamanBrand() {
             <span>Atapmu,</span>
             <span className={s.barisJudul}>
               <span className={s.ikonJudul} aria-hidden="true">
-                <Image src={MASCOT} width={100} height={100} sizes="(max-width: 600px) 52px, 88px" alt="" priority />
+                <Logo size={100} label="" />
               </span>
               dihitung.
             </span>
@@ -102,7 +103,7 @@ export function HalamanBrand() {
               width={1254}
               height={1254}
               sizes="(max-width: 600px) 340px, 520px"
-              alt="Surya, karakter amber berbentuk atap dengan mata gelap dan senyum kecil."
+              alt="Surya menghadap lurus ke depan, dengan dua mata gelap pada kepala berbulu amber."
               priority
             />
             <span className={`${s.pillFitur} ${s.pillAtap}`}><ScanLine size={14} aria-hidden="true" /> Batas atap</span>
