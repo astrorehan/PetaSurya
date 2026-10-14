@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { notFound } from "next/navigation";
+import { HasilAgregasi } from "@petasurya/contracts";
 import { KotaInteraktif } from "../../../components/Kota";
 import type { WilayahPeta } from "../../../components/Peta";
 
@@ -23,6 +25,8 @@ function bacaWilayah(): WilayahPeta[] {
 
 export default async function HalamanKota({ params }: { params: Promise<{ kode: string }> }) {
   const { kode } = await params;
-
-  return <KotaInteraktif kode={kode} wilayah={bacaWilayah()} />;
+  if (kode !== "1771") notFound();
+  const berkas = path.resolve(process.cwd(), "../../data/fixtures/agregasi/kota-bengkulu.json");
+  const awal = HasilAgregasi.parse(JSON.parse(fs.readFileSync(berkas, "utf8")));
+  return <KotaInteraktif kode={kode} wilayah={bacaWilayah()} awal={awal} />;
 }

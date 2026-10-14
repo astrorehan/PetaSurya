@@ -1,4 +1,4 @@
-import { BangunanRingkas, GalatApi, HasilSimulasi, PaketPemindaian, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
+import { BangunanRingkas, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PermintaanAgregasi, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
 
 // NEXT_PUBLIC_API_BASE dibaca saat build klien Next.js.
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE?.trim() || "http://localhost:8000").replace(/\/+$/, "");
@@ -12,6 +12,34 @@ export type PermintaanHitungUlang = {
 
 export class GalatSimulasi extends Error {}
 export class GalatPemindaian extends Error {}
+export class GalatAgregasi extends Error {}
+
+export async function hitungAgregasi(permintaan: PermintaanAgregasi, signal?: AbortSignal): Promise<HasilAgregasi> {
+  const masukan = PermintaanAgregasi.parse(permintaan);
+  const timeout = AbortSignal.timeout(30_000);
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/api/v1/aggregate`, {
+      method: "POST",
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(masukan),
+    });
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    throw new GalatAgregasi(timeout.aborted ? "Waktu hitung melewati 30 detik. Coba lagi." : "Mesin belum dapat dihubungi. Periksa jaringan lalu coba lagi.");
+  }
+  if (!response.ok) {
+    const data = GalatApi.safeParse(await response.json().catch(() => null));
+    throw new GalatAgregasi(data.success ? data.data.error.message : "Agregasi belum dapat dihitung. Coba lagi.");
+  }
+  const hasil = HasilAgregasi.safeParse(await response.json().catch(() => null));
+  if (!hasil.success) throw new GalatAgregasi("Hasil agregasi tidak valid.");
+  if (JSON.stringify(hasil.data.permintaan) !== JSON.stringify(masukan)) {
+    throw new GalatAgregasi("Hasil agregasi tidak cocok dengan skenario pilihan.");
+  }
+  return hasil.data;
+}
 
 async function bacaRespons(response: Response): Promise<unknown> {
   if (!response.ok) {

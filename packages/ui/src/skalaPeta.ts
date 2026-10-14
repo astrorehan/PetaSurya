@@ -14,6 +14,15 @@ export const SKALA_KWP = [
   { batas: 200, warna: "#FFC46B" },
 ] as const;
 
+/** Skala kapasitas agregat wilayah, kWp; label antarmuka dalam MWp. */
+export const SKALA_KOTA_KWP = [
+  { batas: 0, warna: SKALA_KWP[0].warna },
+  { batas: 50000, warna: SKALA_KWP[1].warna },
+  { batas: 100000, warna: SKALA_KWP[2].warna },
+  { batas: 250000, warna: SKALA_KWP[3].warna },
+  { batas: 500000, warna: SKALA_KWP[4].warna },
+] as const;
+
 /*
  * Atap berkeyakinan rendah diarsir miring, bukan diwarnai berbeda,
  * sehingga satu dimensi visual tetap berarti satu variabel.

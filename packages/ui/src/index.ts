@@ -2,7 +2,7 @@ export { Logo } from "./Logo";
 export { KATA_TERLARANG, TAGLINE } from "./bahasa";
 export { kwh, kwp, m2, pecahAngka, persen, rupiah, tahun, ton, ucapan } from "./format";
 export { kontras, luminansi, tokenTema } from "./kontras";
-export { POLA_KEYAKINAN_RENDAH, SKALA_KWP, warnaKwp } from "./skalaPeta";
+export { POLA_KEYAKINAN_RENDAH, SKALA_KOTA_KWP, SKALA_KWP, warnaKwp } from "./skalaPeta";
 
 export { Angka, DaftarData, JejakTautan, Label, type Aksen } from "./komponen/Angka";
 export { BandingLapisan } from "./komponen/BandingLapisan";

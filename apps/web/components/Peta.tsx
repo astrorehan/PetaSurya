@@ -5,7 +5,7 @@ import { Crosshair, Satellite, Search } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
-import { Logo } from "@petasurya/ui";
+import { Logo, SKALA_KOTA_KWP } from "@petasurya/ui";
 import { useTema } from "./Tema";
 import s from "./peta.module.css";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -42,6 +42,7 @@ export type WilayahPeta = {
   id: string;
   nama: string;
   geom: GeometriSorot;
+  kwp?: number | null;
 };
 type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, never>> = {
   type: "Feature";
@@ -52,7 +53,7 @@ type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, n
   };
 };
 type FiturBangunan = FiturGeoJSON<{ id: string; nama: string }>;
-type FiturWilayah = FiturGeoJSON<{ id: string; nama: string }>;
+type FiturWilayah = FiturGeoJSON<{ id: string; nama: string; kwp: number | null }>;
 
 function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
   const berkurang = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -186,14 +187,14 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=tr
   }
 }
 
-function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih: string | null) {
+function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih: string | null, sesuaikan = true) {
   if (!wilayah.length) return;
 
   const data: { type: "FeatureCollection"; features: FiturWilayah[] } = {
     type: "FeatureCollection",
     features: wilayah.map((item) => ({
       type: "Feature",
-      properties: { id: item.id, nama: item.nama },
+      properties: { id: item.id, nama: item.nama, kwp: item.kwp ?? null },
       geometry: item.geom,
     })),
   };
@@ -205,11 +206,14 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
   }
 
   if (!map.getLayer(LAPISAN_WILAYAH_ISI)) {
+    const warna = ["step", ["coalesce", ["get", "kwp"], 0], SKALA_KOTA_KWP[0].warna,
+      ...SKALA_KOTA_KWP.slice(1).flatMap((kelas) => [kelas.batas, kelas.warna])
+    ] as maplibregl.ExpressionSpecification;
     map.addLayer({
       id: LAPISAN_WILAYAH_ISI,
       type: "fill",
       source: SUMBER_WILAYAH,
-      paint: { "fill-color": "#7a4a12", "fill-opacity": 0.18 },
+      paint: { "fill-color": warna, "fill-opacity": ["case", ["==", ["get", "kwp"], null], 0.1, 0.72] },
     });
   }
   if (!map.getLayer(LAPISAN_WILAYAH_GARIS)) {
@@ -227,7 +231,7 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
       type: "fill",
       source: SUMBER_WILAYAH,
       filter,
-      paint: { "fill-color": "#e8920f", "fill-opacity": 0.5 },
+      paint: { "fill-color": "#e8920f", "fill-opacity": 0.08 },
     });
   }
   if (!map.getLayer(LAPISAN_WILAYAH_TERPILIH_GARIS)) {
@@ -242,7 +246,7 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
 
   const bounds = new maplibregl.LngLatBounds();
   wilayah.forEach((item) => titikGeometri(item.geom.coordinates, bounds));
-  if (!bounds.isEmpty()) {
+  if (sesuaikan && !bounds.isEmpty()) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     map.fitBounds(bounds, { padding: 64, maxZoom: 12.5, duration: reducedMotion ? 0 : 500 });
   }
@@ -342,7 +346,7 @@ export function Peta({
       pasangCitra(map, satelitRef.current);
       pasangSorot(map, data.geometriSorot, kameraAwal);
       pasangBangunan(map, data.bangunan, kameraAwal);
-      pasangWilayah(map, data.wilayah, data.wilayahTerpilih);
+      pasangWilayah(map, data.wilayah, data.wilayahTerpilih, kameraAwal);
       kameraAwal = false;
       if ((bangunan.length || wilayah.length) && !pendengarFiturTerpasang) {
         map.on("click", saatFiturDiklik);
@@ -386,7 +390,7 @@ export function Peta({
     if (!map?.getSource(SUMBER_BANGUNAN)) return;
     pasangBangunan(map, bangunan, !pertahankanKamera);
     pasangSorot(map, geometriSorot, !pertahankanKamera);
-    pasangWilayah(map, wilayah, wilayahTerpilih);
+    pasangWilayah(map, wilayah, wilayahTerpilih, false);
   }, [bangunan, geometriSorot, pertahankanKamera, wilayah, wilayahTerpilih]);
 
   useEffect(() => {
@@ -415,7 +419,9 @@ export function Peta({
           className={s.tombolPeta}
           type="button"
           onClick={() => {
-            if (mapRef.current) gerakKe(mapRef.current, PUSAT_BENGKULU, ZOOM_AWAL);
+            if (!mapRef.current) return;
+            if (wilayah.length) pasangWilayah(mapRef.current, wilayah, wilayahTerpilih);
+            else gerakKe(mapRef.current, PUSAT_BENGKULU, ZOOM_AWAL);
           }}
           title="Pusatkan di Bengkulu"
         >
