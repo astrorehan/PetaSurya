@@ -9,7 +9,7 @@ import { useTema } from "./Tema";
 import s from "./chrome.module.css";
 
 const NAVIGASI = [
-  { href: "/", label: "Peta" },
+  { href: "/peta", label: "Peta" },
   { href: "/pindai", label: "Pindai atap" },
   { href: "/metodologi", label: "Metodologi" },
   { href: "/sumber-data", label: "Sumber data" },
@@ -17,7 +17,7 @@ const NAVIGASI = [
 
 function FormCari({ query = "" }: { query?: string }) {
   return (
-    <form className={s.formCari} role="search" action="/" method="get">
+    <form className={s.formCari} role="search" action="/peta" method="get">
       <Ikon ikon={Search} />
       <label className={s.srOnly} htmlFor="cari-alamat">Cari nama atau ID bangunan</label>
       <input key={query} id="cari-alamat" name="q" type="search" placeholder="Cari nama atau ID bangunan" defaultValue={query} />

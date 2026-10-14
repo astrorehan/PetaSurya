@@ -12,7 +12,7 @@ export default function GalatAtap({ reset }: { error: Error & { digest?: string 
         <p className={s.teks}>Terjadi masalah saat membaca analisis. Coba ulangi atau kembali ke peta.</p>
         <div className={s.keadaanAksi}>
           <button className={s.tombolUtama} type="button" onClick={reset}>Coba lagi</button>
-          <Link className={s.tombolSekunder} href="/">Kembali ke peta</Link>
+          <Link className={s.tombolSekunder} href="/peta">Kembali ke peta</Link>
         </div>
       </section>
     </main>

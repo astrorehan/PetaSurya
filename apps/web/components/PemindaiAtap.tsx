@@ -245,7 +245,7 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
       <Judul id="judul-pemindai" className={s.judul}>Analisis atap</Judul>
       <div className={s.aksiKepala}>
         {demoAktif ? <><Tombol ikon={demoJeda ? Play : Pause} onClick={() => setDemoJeda(j => !j)}>{demoJeda ? "Lanjutkan demo" : "Jeda demo"}</Tombol><Tombol ikon={Square} onClick={hentikanDemo}>Akhiri demo</Tombol></> : <Tombol ikon={Play} disabled={!a || Boolean(sibuk)} onClick={mulaiDemo}>{demoSelesai ? "Putar ulang demo" : "Putar demo"}</Tombol>}
-        {mode === "modal" ? <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol> : <Link href="/" className={kelasTombol("sekunder")}>Pilih di peta</Link>}
+        {mode === "modal" ? <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol> : <Link href="/peta" className={kelasTombol("sekunder")}>Pilih di peta</Link>}
       </div>
     </header>
     <nav className={s.stepper} aria-label="Tahap analisis" style={{"--tahap-index": tahap-1} as CSSProperties}>

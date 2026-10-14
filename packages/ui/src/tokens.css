@@ -26,6 +26,33 @@
   --brand-surya-2: #c4551a;
   --brand-daun: #2e7d52;
 
+  /* Halaman pengenalan: grafit, cahaya amber, dan teks hangat. */
+  --brand-night: #090b0d;
+  --brand-night-panel: #101315;
+  --brand-night-raised: #191c1f;
+  --brand-white: #f5f4f0;
+  --brand-muted: #a3a6aa;
+  --brand-dim: #858a90;
+  --brand-amber: #ffc46b;
+  --brand-amber-ink: #211708;
+  --brand-hairline: rgba(255, 255, 255, 0.12);
+  --brand-grid: rgba(255, 255, 255, 0.045);
+  --brand-contour: rgba(255, 196, 107, 0.12);
+  --brand-contour-grid: rgba(255, 196, 107, 0.14);
+  --brand-light-wash: rgba(232, 146, 15, 0.12);
+  --brand-transparent: rgba(9, 11, 13, 0);
+  --brand-glow: radial-gradient(ellipse at center, rgba(232, 146, 15, 0.16), rgba(232, 146, 15, 0.04) 45%, transparent 70%);
+  --brand-signature-glow: radial-gradient(ellipse at 50% 110%, rgba(232, 146, 15, 0.2), transparent 68%);
+  --brand-signature-type: linear-gradient(180deg, #f1d0a1 15%, #8c652e 100%);
+  --brand-mascot-fade: linear-gradient(to bottom, #000 54%, transparent 82%);
+  --brand-preview-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+  --brand-focus: 0 0 0 3px rgba(255, 196, 107, 0.48);
+  --brand-hero-size: clamp(3.5rem, 8.6vw, 7rem);
+  --brand-section-size: clamp(2.25rem, 4.25vw, 3.65rem);
+  --brand-figure-size: clamp(2.25rem, 3.65vw, 3.1rem);
+  --brand-content-width: 1120px;
+  --brand-section-space: clamp(80px, 9vw, 128px);
+
   /* --- tipografi Arc, data tetap memakai mono tabular --- */
   --f-display: var(--font-geist, "Geist"), system-ui, sans-serif;
   --f-ui: var(--font-inter, "Inter"), system-ui, sans-serif;

@@ -15,6 +15,12 @@ PetaSurya adalah peta potensi PLTS atap tingkat bangunan untuk Indonesia. Pemili
 
 ## Menjalankan
 
+Halaman `/` memperkenalkan PetaSurya dengan karakter Surya dan contoh analisis
+atap. Ruang kerja peta berada di `/peta`; pencarian lama melalui `/?q=…`
+diteruskan ke sana. Halaman pengenalan memakai tema grafit dan amber tetap,
+sementara tema ruang kerja mengikuti pilihan pengguna. Aset karakter tersimpan
+di `apps/web/public/brand/`, dan warna halaman memakai token `--brand-*`.
+
 ```bash
 pnpm install
 pnpm dev            # web di :3000
