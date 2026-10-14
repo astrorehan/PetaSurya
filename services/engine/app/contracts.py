@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date as date_aliased
 from enum import StrEnum
 from typing import Literal
 
@@ -275,7 +274,7 @@ class Asumsi(BaseModel):
     """
     Degradasi modul per tahun, fraksi
     """
-    umur_tahun: int | None = Field(25, gt=0, le=9007199254740991)
+    umur_tahun: int | None = Field(25, gt=0, le=100)
     ef_grid_tco2_mwh: float = Field(..., gt=0.0)
     """
     Faktor emisi jaringan, tCO2e/MWh
@@ -342,10 +341,7 @@ class RingkasanAgregasi(BaseModel):
 class SumberAgregasi(BaseModel):
     penerbit: str
     url: AnyUrl
-    diambil: date_aliased = Field(
-        ...,
-        pattern="^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
-    )
+    diambil: str = Field(..., pattern="^\\d{4}-\\d{2}-\\d{2}$")
     timestamp_osm: str
     catatan: str
 

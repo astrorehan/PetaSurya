@@ -10,7 +10,7 @@ export const PermintaanAgregasi = z.object({
   azimuth_deg: z.number().min(0).max(360).describe("Hadap panel dari utara, derajat; asumsi skenario"),
   adopsi: z.number().min(0).max(1).describe("Fraksi jumlah atap layak yang dipilih, dibulatkan ke bawah"),
   urut: UrutanAgregasi,
-  asumsi: AsumsiSimulasi.extend({ umur_tahun: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).default(25) }),
+  asumsi: AsumsiSimulasi.extend({ umur_tahun: z.number().int().positive().max(100).default(25) }),
   parameter_fisika: ParameterFisika,
 });
 
@@ -38,7 +38,7 @@ export const WilayahAgregasi = z.object({
 export const SumberAgregasi = z.object({
   penerbit: z.string(),
   url: z.url(),
-  diambil: z.iso.date(),
+  diambil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   timestamp_osm: z.string(),
   catatan: z.string(),
 });
