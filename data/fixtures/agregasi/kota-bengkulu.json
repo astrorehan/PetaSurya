@@ -1,0 +1,223 @@
+{
+  "kode_wilayah": "1771",
+  "engine_version": "l6.2026.10.14+l3.2026.10.09+l4.2026.09.22+l5.2026.09.22",
+  "jenis_potensi": "estimasi_footprint",
+  "permintaan": {
+    "kode_wilayah": "1771",
+    "fraksi_layak": 0.7,
+    "tilt_deg": 15.0,
+    "azimuth_deg": 0.0,
+    "adopsi": 0.15,
+    "urut": "kwp",
+    "asumsi": {
+      "golongan_tarif": "R-1/TR",
+      "daya_va": 2200,
+      "tarif_rp_kwh": 1444.7,
+      "scr": 0.6,
+      "biaya_per_kwp": 14500000.0,
+      "opex_frac": 0.01,
+      "diskonto": 0.09,
+      "eskalasi_tarif": 0.0,
+      "degradasi_thn": 0.006,
+      "umur_tahun": 25,
+      "ef_grid_tco2_mwh": 0.84,
+      "faktor_ekspor": 0.0
+    },
+    "parameter_fisika": {
+      "modul": {
+        "wp": 550.0,
+        "panjang_m": 2.278,
+        "lebar_m": 1.134,
+        "gamma_p": -0.0035,
+        "t_noct": 45.0
+      },
+      "derate": {
+        "kotoran": 0.03,
+        "mismatch": 0.02,
+        "kabel_dc": 0.02,
+        "inverter": 0.965,
+        "ketersediaan": 0.02
+      },
+      "albedo": 0.2
+    }
+  },
+  "sumber": {
+    "penerbit": "OpenStreetMap contributors (ODbL 1.0), melalui Overpass API",
+    "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A90%5D%3B%28way%5B%22building%22%5D%5B%22building%22%21%3D%22no%22%5D%28area%3A3616196019%29%3Brelation%5B%22building%22%5D%5B%22building%22%21%3D%22no%22%5D%5B%22type%22%3D%22multipolygon%22%5D%28area%3A3616196019%29%3B%29%3Bout+body+geom%3B",
+    "diambil": "2026-10-14",
+    "timestamp_osm": "2026-10-14T16:04:41Z",
+    "catatan": "Snapshot footprint yang dipetakan di OSM, bukan sensus seluruh bangunan. Geometri valid dengan titik interior di batas Kota Bengkulu; lubang dipertahankan dan way anggota multipolygon tidak diduplikasi."
+  },
+  "cakupan": {
+    "n_tercatat": 121016,
+    "n_layak": 121013,
+    "n_terlalu_kecil": 3,
+    "n_tanpa_wilayah": 79394,
+    "n_batas_wilayah": 3,
+    "catatan": "Hanya footprint pada snapshot OSM; kelengkapan seluruh kota tidak diketahui. Bangunan tanpa pasangan batas kecamatan tetap masuk total kota. Kapasitas berdasarkan luas; struktur, daya, bayangan dan izin belum diperiksa."
+  },
+  "potensi": {
+    "n_bangunan": 121013,
+    "module_count": 4228690,
+    "footprint_m2": 15827859.400873037,
+    "usable_area_m2": 11079501.580611125,
+    "kwp": 2325779.5,
+    "e_ac_kwh_yr1": 2871556795.7827516,
+    "co2_ton_yr1": 2412107.7084575114,
+    "capex_idr": 33723802750000.0,
+    "savings_idr_yr1": 2489122861720.405,
+    "payback_median_years": 16.538943990883862
+  },
+  "skenario": {
+    "n_bangunan": 18151,
+    "module_count": 1551472,
+    "footprint_m2": 5758612.389043026,
+    "usable_area_m2": 4031028.6723301173,
+    "kwp": 853309.6,
+    "e_ac_kwh_yr1": 1053550855.0086805,
+    "co2_ton_yr1": 884982.7182072916,
+    "capex_idr": 12372989200000.0,
+    "savings_idr_yr1": 913238952138.6244,
+    "payback_median_years": 16.538943990883862
+  },
+  "wilayah": [
+    {
+      "id": "16196021",
+      "nama": "Muara Bangka Hulu",
+      "n_tercatat": 20090,
+      "potensi": {
+        "n_bangunan": 20090,
+        "module_count": 679735,
+        "footprint_m2": 2545596.47248787,
+        "usable_area_m2": 1781917.5307415088,
+        "kwp": 373854.25,
+        "e_ac_kwh_yr1": 461584476.1808949,
+        "co2_ton_yr1": 387730.9599919517,
+        "capex_idr": 5420886625000.0,
+        "savings_idr_yr1": 400110655643.12335,
+        "payback_median_years": 16.538943990883862
+      },
+      "skenario": {
+        "n_bangunan": 2699,
+        "module_count": 225482,
+        "footprint_m2": 837086.0229813515,
+        "usable_area_m2": 585960.216086946,
+        "kwp": 124015.1,
+        "e_ac_kwh_yr1": 153117010.09690621,
+        "co2_ton_yr1": 128618.28848140122,
+        "capex_idr": 1798218950000.0,
+        "savings_idr_yr1": 132724886692.20026,
+        "payback_median_years": 16.538943990883862
+      }
+    },
+    {
+      "id": "16196023",
+      "nama": "Singaran Pati",
+      "n_tercatat": 12690,
+      "potensi": {
+        "n_bangunan": 12690,
+        "module_count": 462389,
+        "footprint_m2": 1729746.999348597,
+        "usable_area_m2": 1210822.8995440179,
+        "kwp": 254313.95,
+        "e_ac_kwh_yr1": 313992341.6578635,
+        "co2_ton_yr1": 263753.5669926053,
+        "capex_idr": 3687552275000.0,
+        "savings_idr_yr1": 272174841595.86923,
+        "payback_median_years": 16.538943990883862
+      },
+      "skenario": {
+        "n_bangunan": 2190,
+        "module_count": 172838,
+        "footprint_m2": 641834.960331795,
+        "usable_area_m2": 449284.4722322565,
+        "kwp": 95060.9,
+        "e_ac_kwh_yr1": 117368294.54736555,
+        "co2_ton_yr1": 98589.36741978706,
+        "capex_idr": 1378383050000.0,
+        "savings_idr_yr1": 101737185079.54741,
+        "payback_median_years": 16.538943990883862
+      }
+    },
+    {
+      "id": "16196022",
+      "nama": "Sungai Serut",
+      "n_tercatat": 8842,
+      "potensi": {
+        "n_bangunan": 8842,
+        "module_count": 288601,
+        "footprint_m2": 1081182.6856181836,
+        "usable_area_m2": 756827.8799327285,
+        "kwp": 158730.55,
+        "e_ac_kwh_yr1": 195978935.04127705,
+        "co2_ton_yr1": 164622.30543467271,
+        "capex_idr": 2301592975000.0,
+        "savings_idr_yr1": 169878460472.47977,
+        "payback_median_years": 16.538943990883862
+      },
+      "skenario": {
+        "n_bangunan": 1189,
+        "module_count": 90909,
+        "footprint_m2": 337580.3302947612,
+        "usable_area_m2": 236306.23120633283,
+        "kwp": 49999.95,
+        "e_ac_kwh_yr1": 61733150.63242143,
+        "co2_ton_yr1": 51855.846531234,
+        "capex_idr": 724999275000.0,
+        "savings_idr_yr1": 53511529631.19554,
+        "payback_median_years": 16.538943990883862
+      }
+    }
+  ],
+  "tanpa_wilayah": {
+    "id": "tanpa-batas",
+    "nama": "Tanpa batas kecamatan",
+    "n_tercatat": 79394,
+    "potensi": {
+      "n_bangunan": 79391,
+      "module_count": 2797965,
+      "footprint_m2": 10471333.243418386,
+      "usable_area_m2": 7329933.2703928705,
+      "kwp": 1538880.75,
+      "e_ac_kwh_yr1": 1900001042.902716,
+      "co2_ton_yr1": 1596000.8760382815,
+      "capex_idr": 22313770875000.0,
+      "savings_idr_yr1": 1646958904008.9324,
+      "payback_median_years": 16.538943990883862
+    },
+    "skenario": {
+      "n_bangunan": 12073,
+      "module_count": 1062243,
+      "footprint_m2": 3942111.075435118,
+      "usable_area_m2": 2759477.752804582,
+      "kwp": 584233.65,
+      "e_ac_kwh_yr1": 721332399.7319872,
+      "co2_ton_yr1": 605919.2157748693,
+      "capex_idr": 8471387925000.0,
+      "savings_idr_yr1": 625265350735.6813,
+      "payback_median_years": 16.538943990883862
+    }
+  },
+  "jejak": {
+    "kapasitas": {
+      "rumus": "N_modul_atap = floor(footprint × fraksi_layak / luas_modul); kWp = Σ(N_modul_atap × Wp / 1000)",
+      "sumber": "Footprint OSM; modul Jinko F5 atau masukan pengguna. Fraksi layak adalah asumsi, bukan hasil segmentasi."
+    },
+    "energi": {
+      "rumus": "E_AC = Σ(kWp_atap × E_AC_per_kWp); basis dihitung L3 Hay-Davies/NOCT, derate satu kali",
+      "sumber": "NASA POWER Bengkulu 2024; orientasi, albedo dan rugi seragam sesuai parameter skenario."
+    },
+    "ekonomi": {
+      "rumus": "Investasi = ΣCAPEX_atap; hemat = ΣE_atap × [SCR + (1−SCR) × faktor_ekspor] × tarif",
+      "sumber": "Tarif dasar Permen ESDM 7/2024, tidak naik sejak 2024 (rujukan kebijakan hingga September 2026). Biaya acuan IESR 2020: titik tengah Rp14–15 juta/kWp; bukan penawaran 2026. Profil ekonomi seragam; tidak mengestimasi beban tiap bangunan."
+    },
+    "karbon": {
+      "rumus": "CO2_tahun1 = Σ(E_AC_atap / 1000 × EF_grid), tCO2/tahun",
+      "sumber": "Gatrik, Sumatera 2019, CM ex-ante OM/BM 0,75/0,25; komponen CO2 saja"
+    },
+    "adopsi": {
+      "rumus": "Pilih floor(N_atap_layak × adopsi) atap dari urutan prioritas seluruh cakupan kota, kemudian jumlahkan",
+      "sumber": "Kapasitas terbesar, payback terpendek, atau LCOE terendah; ID OSM mengurai seri. Profil seragam menghasilkan payback dan LCOE yang sama; bukan peringkat ekonomi hasil survei."
+    }
+  }
+}

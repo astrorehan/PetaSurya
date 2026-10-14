@@ -3,6 +3,7 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { ZodType } from "zod";
 import { AnalisisAtap } from "./analisis.ts";
+import { HasilAgregasi, PermintaanAgregasi } from "./agregasi.ts";
 import { BangunanRingkas } from "./bangunan.ts";
 import { GalatApi } from "./galat.ts";
 import { HasilSimulasi, ParameterFisika } from "./simulasi.ts";
@@ -38,6 +39,12 @@ ujiFolder("bangunan", BangunanRingkas, 3);
 ujiFolder("analisis", AnalisisAtap, 2);
 ujiFolder("simulasi", HasilSimulasi, 1);
 ujiFolder("parameter", ParameterFisika, 1);
+ujiFolder("agregasi", HasilAgregasi, 1);
+
+it("skenario awal Mode Kota lolos kontrak eksplisit", () => {
+  const data = JSON.parse(readFileSync(join(dirFixture, "kota/permintaan-bengkulu.json"), "utf-8"));
+  expect(PermintaanAgregasi.safeParse(data).success).toBe(true);
+});
 
 describe("ParameterFisika", () => {
   const contoh = bacaSemua("parameter")[0][1] as Record<string, unknown>;

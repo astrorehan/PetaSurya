@@ -5,12 +5,14 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.aggregate import PermintaanAgregasiInput, jalankan_agregasi
 from app.buildings import DiLuarCakupan, muat_katalog
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
     Error,
     GalatApi,
+    HasilAgregasi,
     HasilSimulasi,
     KodeGalat,
     PaketPemindaian,
@@ -32,7 +34,7 @@ from app.simulation import (
 from app.storage import baca
 from app.vision import MODEL_VERSION
 
-VERSION = "engine.2026.10.13.1"
+VERSION = "engine.2026.10.14"
 
 app = FastAPI(title="PetaSurya engine", version=VERSION)
 
@@ -111,6 +113,12 @@ def roof_too_small_handler(request: Request, exc: RoofTooSmallError) -> JSONResp
 def health() -> dict[str, str]:
     """Dipakai pemantau hosting dan footer web (menampilkan versi mesin)."""
     return {"status": "ok", "engine_version": VERSION}
+
+
+@app.post("/api/v1/aggregate", response_model=HasilAgregasi)
+def aggregate(permintaan: PermintaanAgregasiInput) -> HasilAgregasi:
+    """Estimasi footprint dan pemilihan atap pada snapshot Kota Bengkulu."""
+    return jalankan_agregasi(permintaan)
 
 
 @app.get("/api/v1/buildings", response_model=list[BangunanRingkas])
