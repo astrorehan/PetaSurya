@@ -49,9 +49,10 @@ async function bacaRespons(response: Response): Promise<unknown> {
   return response.json();
 }
 
-export async function bangunanDiArea(lat: number, lon: number) {
+export async function bangunanDiArea(lat: number, lon: number, signal?: AbortSignal) {
   const q = new URLSearchParams({ lat: String(lat), lon: String(lon), r: "200", live: "true" });
-  const response = await fetch(`${API_BASE}/api/v1/buildings?${q}`, { signal: AbortSignal.timeout(30_000) });
+  const timeout = AbortSignal.timeout(30_000);
+  const response = await fetch(`${API_BASE}/api/v1/buildings?${q}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
   return BangunanRingkas.array().parse(await bacaRespons(response));
 }
 

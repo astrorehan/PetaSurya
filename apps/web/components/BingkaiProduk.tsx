@@ -18,8 +18,9 @@ export function BingkaiProduk({
 
   return (
     <>
-      <Header />
-      <div className={s.isi}>{children}</div>
+      <a className={s.lewati} href="#isi">Lewati ke isi</a>
+      <Header pencarian={pathname !== "/peta"} />
+      <div id="isi" className={s.isi} tabIndex={-1}>{children}</div>
       <Footer engineVersion={engineVersion} />
     </>
   );

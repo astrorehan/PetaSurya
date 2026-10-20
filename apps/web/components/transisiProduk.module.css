@@ -1,0 +1,72 @@
+.isi { min-height: 100dvh; }
+.lapisan {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transisi);
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--paper);
+  isolation: isolate;
+  clip-path: circle(150vmax at var(--asal-x) var(--asal-y));
+  animation: tutupGerbang var(--t-gerbang-tutup) var(--ease-in-out) both;
+}
+.lapisan::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--brand-glow); opacity: 0.7; }
+.merek { position: absolute; top: var(--sp-8); left: var(--tepi); display: inline-flex; align-items: center; gap: var(--sp-2); font: 600 18px / 1.2 var(--f-display); letter-spacing: -0.04em; }
+.merek > span > span { color: var(--pri); }
+.lewati { position: absolute; top: var(--sp-6); right: var(--tepi); z-index: 2; display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--kontrol-h); padding: 0 var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--paper); color: var(--ink-2); font: 400 11px / 1.2 var(--f-ui); cursor: pointer; }
+.lewati:hover { color: var(--ink); border-color: var(--pri); }
+.lewati:focus-visible, .langsung:focus-visible { outline: 2px solid var(--pri); outline-offset: 4px; }
+.kawasan { --surya-bg: var(--brand-contour); position: absolute; width: min(1100px, 120vw); height: min(750px, 90vh); top: 45%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg); opacity: 0.2; mask-image: var(--brand-map-fade); animation: datangKawasan var(--t-gerbang-siap) var(--ease-enter) both; }
+.pusat { position: absolute; top: 36%; left: 50%; width: 250px; height: 250px; transform: translate(-50%, -50%); }
+.orbit, .orbitDalam { position: absolute; inset: 0; border: 1px solid var(--brand-orbit-line); border-radius: 50%; transform: rotateX(57deg) rotate(-25deg); }
+.orbit { animation: orbitKeLokasi var(--t-gerbang-siap) var(--ease-enter) both; }
+.orbitDalam { inset: 34px; border-color: var(--line); transform: rotateX(52deg) rotate(25deg); animation: orbitKeLokasiDalam var(--t-gerbang-siap) var(--ease-enter) both; }
+.titikOrbit { position: absolute; top: 46%; left: 0; width: 5px; height: 5px; border-radius: var(--r-pill); background: var(--pri); animation: titikKeLokasi var(--t-gerbang-siap) var(--ease-in-out) both; }
+.lambang { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 72px; height: 72px; transform: translate(-50%, -50%); border: 1px solid var(--brand-contour-grid); border-radius: 50%; background: var(--surface); color: var(--pri); }
+.lambang > svg { position: absolute; }
+.matahari { animation: suryaKePin var(--t-gerbang-siap) var(--ease-in-out) both; }
+.pin { animation: munculPin var(--t-gerbang-siap) var(--ease-enter) both; }
+.salinan { position: absolute; top: calc(36% + 98px); left: var(--sp-6); right: var(--sp-6); text-align: center; animation: datangSalinan var(--t-gerbang-tutup) var(--ease-enter) 120ms both; }
+.lokasi { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); margin: 0 0 var(--sp-5); color: var(--ink-2); font: 400 9px / 1.5 var(--f-mono); letter-spacing: 0.12em; }
+.lokasi > span { width: 4px; height: 4px; border-radius: var(--r-pill); background: var(--pri); }
+.judul { margin: 0; font: 500 clamp(38px, 5vw, 64px) / 1.06 var(--f-display); letter-spacing: -0.06em; }
+.judul > span { color: var(--pri); }
+.status { display: flex; align-items: center; justify-content: center; gap: var(--sp-3); margin: var(--sp-6) 0 0; color: var(--ink-2); font: 400 11px / 1.5 var(--f-ui); }
+.status > svg { color: var(--pri); }
+.langsung { display: inline-block; min-height: var(--kontrol-h); padding-top: var(--sp-4); color: var(--ink); font: 400 12px / 1.5 var(--f-ui); }
+.kaki { position: absolute; bottom: var(--sp-8); left: var(--tepi); right: var(--tepi); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line); color: var(--ink-3); font: 400 9px / 1.5 var(--f-mono); letter-spacing: 0.08em; }
+.kaki > span:last-child { display: flex; align-items: center; gap: var(--sp-2); }
+.lapisan[data-membuka="true"] { animation: bukaGerbang var(--t-gerbang-buka) var(--ease-in-out) both; pointer-events: none; }
+.lapisan[data-membuka="true"] :is(.salinan, .pusat, .merek, .kaki, .lewati) { animation: lepasSalinan var(--t-gerbang-buka) var(--ease-out) both; }
+.isi[data-transisi="membuka"] :global([data-tiba]) { animation: tibaProduk var(--t-gerbang-buka) var(--ease-enter) both; }
+.isi[data-transisi="membuka"] :global([data-tiba="peta"]) { animation-delay: 80ms; }
+.isi[data-transisi="membuka"] :global([data-tiba="panel"]) { animation-delay: 150ms; }
+
+@keyframes tutupGerbang { from { clip-path: circle(0 at var(--asal-x) var(--asal-y)); } to { clip-path: circle(150vmax at var(--asal-x) var(--asal-y)); } }
+@keyframes bukaGerbang { from { clip-path: circle(150vmax at var(--tujuan-x, 50vw) var(--tujuan-y, 40vh)); } to { clip-path: circle(0 at var(--tujuan-x, 50vw) var(--tujuan-y, 40vh)); } }
+@keyframes datangKawasan { from { opacity: 0; transform: translate(-50%, -50%) rotate(-20deg) scale(0.82); } to { opacity: 0.2; transform: translate(-50%, -50%) rotate(-12deg) scale(1); } }
+@keyframes datangSalinan { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
+@keyframes orbitKeLokasi { from { opacity: 0; transform: rotateX(57deg) rotate(-50deg) scale(1.65); } to { opacity: 1; transform: rotateX(0) rotate(0) scale(0.84); } }
+@keyframes orbitKeLokasiDalam { from { opacity: 0; transform: rotateX(52deg) rotate(50deg) scale(1.8); } to { opacity: 0.6; transform: rotateX(0) rotate(0) scale(0.9); } }
+@keyframes titikKeLokasi { from { transform: rotate(0) translateX(-40px); opacity: 0; } to { transform: rotate(180deg) translateX(2px); opacity: 1; } }
+@keyframes suryaKePin { 0%, 20% { opacity: 1; transform: rotate(-45deg) scale(1); } 60%, 100% { opacity: 0; transform: rotate(45deg) scale(0.5); } }
+@keyframes munculPin { 0%, 30% { opacity: 0; transform: translateY(-8px) scale(0.5); } 75%, 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes lepasSalinan { to { opacity: 0; translate: 0 -18px; } }
+@keyframes tibaProduk { from { opacity: 0.45; translate: 0 18px; } to { opacity: 1; translate: 0 0; } }
+
+@media (max-width: 560px) {
+  .merek { top: var(--sp-6); font-size: 16px; }
+  .lewati { top: var(--sp-5); padding-inline: var(--sp-3); font-size: 10px; }
+  .pusat { top: 33%; width: 220px; height: 220px; }
+  .salinan { top: calc(33% + 95px); }
+  .kaki { bottom: var(--sp-6); font-size: 7px; letter-spacing: 0.04em; }
+}
+@media (max-height: 540px) and (min-width: 561px) {
+  .pusat { top: 42%; left: 30%; width: 190px; height: 190px; }
+  .salinan { top: 29%; left: 45%; right: 8%; text-align: left; }
+  .lokasi, .status { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lapisan { display: none; }
+  .isi[data-transisi] :global([data-tiba]) { animation: none; }
+}

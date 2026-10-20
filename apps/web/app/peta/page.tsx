@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { KATALOG_BANGUNAN } from "../../lib/pemindaian";
 import { BerandaInteraktif } from "../../components/Beranda";
 import { muatKatalog } from "../../lib/api";
+import { bacaPilihanKatalog } from "../../lib/pencarian";
 
 export const metadata: Metadata = {
   title: "Peta bangunan",
@@ -11,10 +12,10 @@ export const metadata: Metadata = {
 export default async function HalamanPeta({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string | string[] }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
-  const query = Array.isArray(params.q) ? params.q[0] ?? "" : params.q ?? "";
+  const { query, filter, urutan } = bacaPilihanKatalog(params);
   const bangunan = await muatKatalog().catch(() => KATALOG_BANGUNAN);
-  return <BerandaInteraktif bangunan={bangunan} query={query} />;
+  return <BerandaInteraktif bangunan={bangunan} query={query} filterAwal={filter} urutanAwal={urutan} />;
 }

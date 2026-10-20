@@ -5,6 +5,7 @@ import contohSimulasi from "../../../data/fixtures/simulasi/contoh-3f8c.json";
 import "@petasurya/ui/tokens.css";
 import { BingkaiProduk } from "../components/BingkaiProduk";
 import { PenyediaTema } from "../components/Tema";
+import { TransisiProduk } from "../components/TransisiProduk";
 
 // Pasangan Arc di-host sendiri saat build; data memakai angka tabular mono.
 const geist = Geist({
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
     template: "%s · PetaSurya",
   },
   description: "Peta potensi PLTS atap tingkat bangunan untuk Indonesia. Atapmu, dihitung.",
+  applicationName: "PetaSurya",
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "PetaSurya",
+    title: "PetaSurya — Atapmu, dihitung.",
+    description: "Kenali potensi energi dan penghematan atap Anda. Jelajahi peta bangunan dan uji skenario PLTS atap di Bengkulu.",
+  },
+  twitter: {
+    card: "summary",
+    title: "PetaSurya — Atapmu, dihitung.",
+    description: "Peta potensi PLTS atap di Bengkulu. Pilih bangunan, tinjau atap, lalu hitung potensi energi dan penghematan.",
+  },
 };
 
 const kelasFont = [geist, inter, plexMono].map((f) => f.variable).join(" ");
@@ -39,7 +53,7 @@ const skripTemaAwal = `
 (function () {
   try {
     var tema = localStorage.getItem("petasurya-theme");
-    if (tema === "light" || tema === "dark") document.documentElement.dataset.theme = tema;
+    document.documentElement.dataset.theme = tema === "light" ? "light" : "dark";
   } catch (_) {}
 })();`;
 
@@ -51,7 +65,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <PenyediaTema>
-          <BingkaiProduk engineVersion={engineVersion}>{children}</BingkaiProduk>
+          <TransisiProduk>
+            <BingkaiProduk engineVersion={engineVersion}>{children}</BingkaiProduk>
+          </TransisiProduk>
         </PenyediaTema>
       </body>
     </html>

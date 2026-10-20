@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { HalamanBrand } from "../components/HalamanBrand";
 
 export const metadata: Metadata = {
-  title: "PetaSurya — Atapmu, dihitung.",
+  title: { absolute: "PetaSurya — Atapmu, dihitung." },
   description:
     "Kenali potensi energi dan penghematan atap Anda sebelum berinvestasi. Jelajahi analisis PLTS atap PetaSurya di Bengkulu.",
 };

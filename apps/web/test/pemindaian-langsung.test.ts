@@ -33,6 +33,21 @@ describe("bangunan dan bingkai pemindaian", () => {
 });
 
 describe("permintaan pemindaian", () => {
+  it("membatalkan pengambilan area saat pengguna berpindah atau memilih area lain", async () => {
+    const { bangunanDiArea } = await import("../lib/api");
+    let sinyal: AbortSignal | undefined;
+    vi.stubGlobal("fetch", vi.fn((_url, opsi: RequestInit) => new Promise((_resolve, reject) => {
+      sinyal = opsi.signal as AbortSignal;
+      sinyal.addEventListener("abort", () => reject(sinyal!.reason), { once: true });
+    })));
+    const permintaan = new AbortController();
+    const hasil = bangunanDiArea(-3.76, 102.26, permintaan.signal);
+    const ditolak = expect(hasil).rejects.toMatchObject({ name: "AbortError" });
+    permintaan.abort();
+    await ditolak;
+    expect(sinyal?.aborted).toBe(true);
+  });
+
   it("kapasitas rumah tidak otomatis memakai seluruh potensi atap besar", () => {
     const p=paketContoh(1146141501)!;
     expect(potensiLuas(p)).toBeGreaterThan(200);
