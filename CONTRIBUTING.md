@@ -17,14 +17,32 @@ PetaSurya adalah peta potensi PLTS atap tingkat bangunan untuk Indonesia. Pemili
 
 Halaman `/` memperkenalkan PetaSurya dengan karakter Surya dan contoh analisis
 atap. Ruang kerja peta berada di `/peta`; pencarian lama melalui `/?q=…`
-diteruskan ke sana. Halaman pengenalan memakai tema grafit dan amber tetap,
-sementara tema ruang kerja mengikuti pilihan pengguna. Aset karakter tersimpan
-di `apps/web/public/brand/`, dan warna halaman memakai token `--brand-*`.
+diteruskan ke sana. Seluruh produk memakai grafit dan amber dengan tema gelap
+sebagai awal. Tema terang memakai netral hangat; pilihan pengguna tersimpan dan
+berlaku juga di `/`. Warna halaman pengenalan memakai token semantik produk
+(`--paper`, `--surface`, `--ink`, `--pri`); efek khasnya memakai `--brand-*`
+yang mempunyai nilai per tema. Aset karakter tersimpan di `apps/web/public/brand/`.
 Karakter ditayangkan sebagai WebP dengan alpha yang sudah dikompresi, tanpa
-konversi gambar saat permintaan. Judul, orbit cahaya dan kontur contoh mempunyai
+konversi gambar saat permintaan. Badan dan kedua mata Surya adalah lapisan
+terpisah; mata melirik ke arah penunjuk dengan pegas teredam yang terasa berat, lalu kembali
+menatap depan saat penunjuk keluar, dijeda, atau reduced motion aktif. Pada
+layar sentuh, mata melirik ke titik sentuh. Judul, orbit cahaya dan kontur contoh mempunyai
 gerak presentasi. Tombol jeda menghentikan gerak; reduced motion menampilkan
 seluruh isi langsung. Orbit berhenti saat panggung keluar viewport atau tab
 tersembunyi. Angka tampil sebagai nilai akhir, tanpa hitungan naik.
+Navigasi bersama merapat saat halaman digulir dan membuka saat hover atau fokus.
+Pada layar sentuh, tombol pembuka menyediakan menu. Pencarian yang sedang fokus
+tetap terbuka; Escape dan klik di luar menutup menu. Gerak mengikuti reduced motion.
+
+Pada ponsel, `/peta` menyediakan pilihan Peta dan Daftar. Pencarian langsung
+membuka daftar agar hasilnya terlihat. Nama, ID, dan jenis bangunan seperti
+rumah, toko, atau kampus dapat digabung dalam satu kueri; setiap kata harus cocok.
+Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia.
+Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang mengetik
+pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.
+Jika peta gagal dimuat, daftar tetap tersedia dan tombol Coba muat peta
+menjalankan ulang pemuatan. Halaman yang tidak ditemukan dan galat halaman
+menyediakan tindakan pemulihan; ID pemindaian wajib berupa bilangan bulat positif.
 
 ```bash
 pnpm install
@@ -80,7 +98,7 @@ sehingga pemanggil wajib memperbesar RGB **dan** titik ke sisi panjang 1024.
 Mask diterima tanpa dipotong ke footprint; overhang yang terbaca tetap dihitung.
 Pulau terlepas di bawah 1% komponen terbesar dibuang, lubang besar dipertahankan.
 Jalur CV membutuhkan IoU terhadap OSM ≥ 0,65 dan skor heuristik ≥ 0,45.
-Ambang ini adalah penyaring konservatif, belum divalidasi pada dataset beranotasi.
+Ambang ini adalah penyaring konservatif, belum dikalibrasi terhadap acuan yang ditinjau.
 IoU ini mengukur kesesuaian dengan OSM,
 bukan akurasi terhadap anotasi atap. Skor belum dikalibrasi. Luas mask dihitung
 pada ellipsoid WGS84; tilt 15°, cadangan area 15% dan hadap panel tetap asumsi.
@@ -104,7 +122,7 @@ Alamat engine web memakai `NEXT_PUBLIC_API_BASE` di `apps/web/.env.local`; ubah 
 - **Sumber angka.** Tidak ada konstanta eksternal (tarif, faktor emisi, biaya per kWp, parameter modul) tanpa entri di `data/sources/sumber.yaml`. Tes CI menolak yang tidak punya penerbit, URL, dan tanggal.
 - **Token desain.** Tidak ada hex, px radius, atau bayangan lepas di komponen — semua lewat `packages/ui`.
 - **Gaya Arc.** Seluruh web memakai Geist untuk display, Inter untuk tubuh/prosa, serta radius 18/26/34 px dari Arc; data memakai IBM Plex Mono. Palet PetaSurya tetap menjadi sumber warna. Token motion ada di `tokens.css`, dengan perpindahan dimatikan saat gerak minimal. `BandingLapisan`, `PanelLipat`, `PilihanKartu`, dan `TombolSalin` dipakai pada alur beranda, pemindaian, dan hasil; contoh interaktif ada di `/desain#kreatif`. Lisensi sumber tercantum di `packages/ui/licenses/arc-library-MIT.txt`.
-- **Motion demo.** “Putar demo” menampilkan tiga babak pada analisis yang tersedia: bangunan, batas/luas, lalu potensi yang dihitung melalui API. Sorotan kontur, kamera, grafik, dan aliran energi menjelaskan hasil; animasi bukan progres inferensi. Pengguna dapat menjeda atau mengakhiri, interaksi manual menghentikan urutan, dan berpindah tab menjeda demo. Angka serta peringatan tetap mengikuti data; gerak dimatikan pada `prefers-reduced-motion`.
+- **Motion demo.** “Demo langsung” menjalankan inferensi baru dengan `force: true`, lalu menampilkan batas/luas dan menghitung potensi melalui API. “Putar ulang hasil” memperagakan analisis tersimpan. Waktu tunggu mengikuti permintaan nyata; sorotan kontur, kamera, grafik, dan aliran energi menjelaskan hasil. Pengguna dapat menjeda atau mengakhiri, interaksi manual menghentikan urutan, dan berpindah tab menjeda demo. Angka serta peringatan tetap mengikuti data; gerak dimatikan pada `prefers-reduced-motion`.
 - **Angka di layar.** Selalu bersatuan. Format `id-ID` eksplisit (jangan `toLocaleString()` telanjang — beda locale server/klien memicu hydration mismatch). Angka tabel memakai `tabular-nums`.
 - **Kejujuran hasil.** Payback di atas umur sistem ditulis "lebih dari 25 tahun", bukan angka. `irr` dan `payback_years` boleh `null`.
 - **Aksesibilitas.** Kontras ≥ 4,5:1 di kedua tema, diuji atas token. Semua kontrol bisa lewat keyboard. `prefers-reduced-motion` dihormati.
@@ -127,3 +145,17 @@ Alamat engine web memakai `NEXT_PUBLIC_API_BASE` di `apps/web/.env.local`; ubah 
 ## Pesan commit
 
 `<lapisan>: <apa yang berubah>` — contoh: `l3: transposisi POA lolos pvlib`, `web: kartu hasil`, `ui: token tema gelap`, `repo: CI pytest`.
+
+## Evaluasi dan deployment engine
+
+Protokol dan acuan kontur berada di [data/evaluasi/README.md](data/evaluasi/README.md).
+Halaman `/evaluasi` membandingkan keluaran terhadap garis visual yang dibuat
+tanpa melihat prediksi. Seluruh acuan masih perlu ditinjau anggota tim; hasil
+awal tidak membuktikan ketepatan lapangan. Sampel ambigu dan fallback tetap
+dilaporkan. Skor penyaringan bukan persentase akurasi.
+
+Engine menyediakan `/api/v1/ready` untuk memeriksa pemuatan model. Satu worker
+dan antrean inferensi membatasi pemakaian memori. Konfigurasi CORS dan thread
+diatur melalui environment. Panduan [Botkeep](deploy/panel/README.md) memakai
+`python main.py` dari akar repositori atau ZIP; panduan [VPS](deploy/README.md)
+memakai Docker Compose. `requirements.txt` di akar berasal dari lock engine.

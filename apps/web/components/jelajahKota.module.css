@@ -1,0 +1,45 @@
+.bagian { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: var(--sp-16); width: min(calc(100% - var(--sp-16)), var(--brand-content-width)); margin-inline: auto; padding-block: var(--brand-section-space); border-top: 1px solid var(--line); }
+.salinan { min-width: 0; }
+.label { color: var(--ink-3); font: 400 10px / 1.5 var(--f-mono); letter-spacing: 0.12em; }
+.salinan h2 { margin-top: var(--sp-5); font: 500 var(--brand-section-size) / 1.08 var(--f-display); letter-spacing: -0.06em; }
+.salinan h2 > span { color: var(--ink-2); }
+.salinan .deskripsi { max-width: 370px; margin-top: var(--sp-6); color: var(--ink-2); font: 400 var(--fs-s) / 1.8 var(--f-ui); }
+.angka { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--sp-5); margin: var(--sp-8) 0; padding-top: var(--sp-6); border-top: 1px solid var(--line); }
+.angka > div { display: flex; flex-direction: column-reverse; gap: var(--sp-2); }
+.angka dt { color: var(--ink-2); font: 400 11px / 1.5 var(--f-ui); }
+.angka dd { margin: 0; color: var(--pri); font: 500 clamp(1.75rem, 3vw, 2.5rem) / 1.1 var(--f-display); font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+.tombol { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-5); min-height: 50px; padding: var(--sp-3) var(--sp-5); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface-2); color: var(--ink); font: 500 var(--fs-s) / 1.4 var(--f-ui); transition: color var(--t-base), border-color var(--t-base), background var(--t-base); }
+.tombol > svg { color: var(--pri); }
+.tombol:hover { color: var(--pri); border-color: var(--pri); background: var(--brand-light-wash); }
+.salinan .catatan { margin-top: var(--sp-4); color: var(--ink-2); font: 400 10px / 1.6 var(--f-ui); }
+.visual { min-width: 0; margin: 0; padding: var(--sp-5); border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.visual figcaption { display: flex; align-items: center; gap: var(--sp-2); color: var(--pri); font: 400 9px / 1.5 var(--f-mono); letter-spacing: 0.06em; }
+.visual figcaption > span:last-child { margin-left: auto; color: var(--ink-2); font-size: 8px; }
+.wadahPeta { position: relative; margin-block: var(--sp-4); }
+.peta { display: block; width: 100%; max-height: 340px; }
+.peta defs path { stroke: var(--brand-grid); stroke-width: 1; }
+.wilayah { stroke: var(--pri); stroke-width: 1; fill: var(--pri); fill-opacity: 0.08; stroke-opacity: 0.75; }
+.wilayah[data-wilayah="1"] { fill-opacity: 0.3; }
+.wilayah[data-wilayah="2"] { fill-opacity: 0.17; }
+.utara { position: absolute; top: var(--sp-2); right: var(--sp-2); display: grid; justify-items: center; gap: var(--sp-1); color: var(--ink-2); font: 400 20px / 1 var(--f-ui); }
+.utara > span { font: 400 8px / 1 var(--f-mono); }
+.legenda { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: 0; padding: var(--sp-4) 0 0; border-top: 1px solid var(--line); list-style: none; }
+.legenda li { display: flex; align-items: center; gap: var(--sp-2); color: var(--ink-2); font: 400 10px / 1.5 var(--f-ui); }
+.legenda i { width: 8px; height: 8px; border: 1px solid var(--pri); border-radius: var(--r-bar); background: var(--brand-light-wash); }
+.legenda i[data-wilayah="1"] { background: color-mix(in srgb, var(--pri) 45%, transparent); }
+.legenda i[data-wilayah="2"] { background: color-mix(in srgb, var(--pri) 25%, transparent); }
+.visual .catatanPeta { margin-top: var(--sp-3); color: var(--ink-2); font: 400 10px / 1.6 var(--f-ui); }
+@media (max-width: 900px) { .bagian { gap: var(--sp-8); } }
+@media (max-width: 640px) {
+  .bagian { grid-template-columns: 1fr; gap: var(--sp-8); width: calc(100% - var(--sp-10)); padding-block: var(--sp-16); }
+  .label { font-size: 8px; }
+  .salinan .deskripsi { margin-top: var(--sp-5); font-size: var(--fs-xs); }
+  .angka { margin-block: var(--sp-6); }
+  .angka dt { font-size: 10px; }
+  .tombol { min-height: 48px; font-size: var(--fs-xs); }
+  .visual { padding: var(--sp-4); border-radius: var(--r-s); }
+  .peta { max-height: 280px; }
+  .visual figcaption { font-size: 8px; }
+  .visual figcaption > span:last-child { font-size: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .bagian * { transition: none !important; } }

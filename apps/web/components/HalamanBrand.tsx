@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@petasurya/ui";
 import {
@@ -17,16 +16,19 @@ import contoh from "../../../data/fixtures/demo.json";
 import { DemoPotensi } from "./DemoPotensi";
 import { GerakBrand, KontrolGerak } from "./GerakBrand";
 import { OrbitSurya } from "./OrbitSurya";
+import { Header } from "./Header";
+import { JelajahKota } from "./JelajahKota";
+import { JejakKawasan, JUMLAH_BANGUNAN_AWAL } from "./JejakKawasan";
+import { MaskotSurya } from "./MaskotSurya";
 import s from "./halamanBrand.module.css";
 
-const MASCOT = "/brand/surya-mascot-v2.webp";
 const gedung = contoh.find((d) => d.bangunan.id === 1146141501)!;
 
 const FAQ = [
   {
     pertanyaan: "Untuk siapa PetaSurya?",
     jawaban:
-      "Untuk pemilik bangunan, pelaku UMKM, dan pengelola aset yang ingin menilai potensi PLTS atap. Mulai dari satu bangunan, lalu uji skenario yang sesuai kebutuhan listrik Anda.",
+      "Pemilik bangunan dan UMKM dapat menilai satu atap. Perencana wilayah dapat memakai Mode Kota untuk menguji adopsi PLTS, membandingkan kecamatan, serta meninjau energi, investasi, dan emisi.",
   },
   {
     pertanyaan: "Apakah hasilnya sudah bisa menjadi rancangan pemasangan?",
@@ -63,54 +65,39 @@ export function HalamanBrand() {
   return (
     <GerakBrand>
       <a className={s.lewati} href="#isi">Lewati ke isi</a>
-      <header className={s.header}>
-        <Merek />
-        <div className={s.aksiHeader}>
-          <Link className={s.tautanHeader} href="/metodologi">
-            Di balik hitungan <ArrowUpRight size={15} aria-hidden="true" />
-          </Link>
-          <KontrolGerak />
-        </div>
-      </header>
+      <Header pencarian={false} tambahan={<KontrolGerak />} />
 
       <main id="isi">
         <section className={s.hero} aria-labelledby="judul-brand">
-          <p className={s.eyebrow}>POTENSI SURYA, DARI ATAP ANDA</p>
-          <h1 id="judul-brand" className={s.judul}>
-            <span>Atapmu,</span>
-            <span className={s.barisJudul}>
-              <span className={s.ikonJudul} aria-hidden="true">
-                <Logo size={100} label="" />
+          <div className={s.salinanHero}>
+            <p className={s.eyebrow}>POTENSI SURYA, DARI ATAP ANDA</p>
+            <h1 id="judul-brand" className={s.judul}>
+              <span>Atapmu,</span>
+              <span className={s.barisJudul}>
+                <span className={s.ikonJudul} aria-hidden="true">
+                  <Logo size={100} label="" />
+                </span>
+                dihitung.
               </span>
-              dihitung.
-            </span>
-          </h1>
-          <p className={s.deskripsiHero}>
-            Kenali potensi energi dan penghematan atap Anda sebelum berinvestasi.
-          </p>
-          <div className={s.aksiHero}>
-            <Link className={s.tombolPrimer} href="/peta">
-              Coba PetaSurya <ArrowRight size={17} aria-hidden="true" />
-            </Link>
-            <Link className={s.tombolDemo} href="/pindai?id=1146141501">
-              <Play size={13} fill="currentColor" aria-hidden="true" /> Lihat demo
-            </Link>
+            </h1>
+            <p className={s.deskripsiHero}>
+              Kenali potensi energi dan penghematan atap Anda sebelum berinvestasi.
+            </p>
+            <div className={s.aksiHero}>
+              <Link className={s.tombolPrimer} href="/peta">
+                Temukan atap Anda <span className={s.ikonMasuk}><ArrowUpRight size={17} aria-hidden="true" /></span>
+              </Link>
+              <Link className={s.tombolDemo} href="/pindai?id=1146141501">
+                <Play size={13} fill="currentColor" aria-hidden="true" /> Lihat demo
+              </Link>
+            </div>
+            <p className={s.statusHero}><span aria-hidden="true" /> Demo Bengkulu · Tanpa akun</p>
           </div>
-          <p className={s.statusHero}><span aria-hidden="true" /> Demo tersedia · Kota Bengkulu</p>
 
           <div className={s.panggung} data-panggung>
             <OrbitSurya />
             <div className={s.cahayaMascot} aria-hidden="true" />
-            <div className={s.lapisanMascot}><div className={s.layangMascot}><Image
-              className={s.mascotHero}
-              src={MASCOT}
-              width={1254}
-              height={1254}
-              sizes="(max-width: 600px) 340px, 520px"
-              alt="Surya menghadap lurus ke depan, dengan dua mata gelap pada kepala berbulu amber."
-              priority
-              unoptimized
-            /></div></div>
+            <div className={s.lapisanMascot}><div className={s.layangMascot}><MaskotSurya /></div></div>
             <span className={`${s.pillFitur} ${s.pillAtap}`}><ScanLine size={14} aria-hidden="true" /> Batas atap</span>
             <span className={`${s.pillFitur} ${s.pillEnergi}`}><Sun size={14} aria-hidden="true" /> Potensi energi</span>
             <span className={`${s.pillFitur} ${s.pillBiaya}`}><ChartNoAxesCombined size={14} aria-hidden="true" /> Skenario biaya</span>
@@ -168,6 +155,8 @@ export function HalamanBrand() {
           </ol>
         </section>
 
+        <JelajahKota />
+
         <section id="faq" className={s.bagianFaq} aria-labelledby="judul-faq">
           <div data-reveal="judul">
             <p className={s.eyebrow}>SEBELUM ANDA MULAI</p>
@@ -185,9 +174,21 @@ export function HalamanBrand() {
         </section>
 
         <section className={s.penutup} aria-labelledby="judul-penutup" data-reveal="penutup">
-          <Image src={MASCOT} width={112} height={112} sizes="112px" alt="" unoptimized />
-          <h2 id="judul-penutup">Atap Anda.<br /><span>Langkah berikutnya.</span></h2>
-          <Link className={s.tombolPrimer} href="/peta">Jelajahi peta <ArrowRight size={17} aria-hidden="true" /></Link>
+          <div className={s.gerbangSalinan}>
+            <p className={s.eyebrow}>DARI POTENSI, KE LOKASI</p>
+            <h2 id="judul-penutup">Sekarang,<br /><span>giliran atap Anda.</span></h2>
+            <p>Peta Bengkulu sudah menanti.<br />Mulai dari satu bangunan.</p>
+            <Link className={s.tombolPrimer} href="/peta">Masuk ke peta <span className={s.ikonMasuk}><ArrowUpRight size={17} aria-hidden="true" /></span></Link>
+            <span className={s.gerbangCatatan}>{JUMLAH_BANGUNAN_AWAL} bangunan di katalog awal · Tanpa akun</span>
+          </div>
+          <div className={s.gerbangVisual} aria-hidden="true">
+            <JejakKawasan className={s.jejakGerbang} dekoratif />
+            <div className={s.cincinGerbang} /><div className={s.cincinGerbangDalam} />
+            <div className={s.pinGerbang}><MapPin size={28} strokeWidth={1.4} /></div>
+            <span className={s.labelGerbang}>BENGKULU<span>3°45′ LS · 102°16′ BT</span></span>
+            <span className={s.gerbangArah}>U <ArrowUpRight size={13} /></span>
+            <span className={s.gerbangBawah}><span /> JEJAK BANGUNAN OSM <ArrowUpRight size={13} /></span>
+          </div>
         </section>
       </main>
 
@@ -195,7 +196,7 @@ export function HalamanBrand() {
         <div className={s.footerAtas}>
           <div><Merek ukuran={30} /><p>Atapmu, dihitung.</p></div>
           <nav aria-label="Navigasi footer">
-            <Link href="/peta">Peta</Link><Link href="/metodologi">Metodologi</Link><Link href="/sumber-data">Sumber data</Link>
+            <Link href="/peta">Peta</Link><Link href="/kota/1771">Mode Kota</Link><Link href="/metodologi">Metodologi</Link><Link href="/sumber-data">Sumber data</Link>
           </nav>
         </div>
         <div className={s.footerBawah}><span>© 2026 PETASURYA</span><span>DIBANGUN UNTUK POTENSI INDONESIA</span></div>

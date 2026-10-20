@@ -42,58 +42,35 @@ export function GerakBrand({ children }: { children: ReactNode }) {
     });
     if (panggung) panggungTerlihat.observe(panggung);
 
-    let bingkai = 0;
-    let x = 0;
-    let y = 0;
-    const gerakkan = (event: PointerEvent) => {
-      if (!panggung || preferensi.matches || elemen.dataset.gerak !== "jalan" || event.pointerType !== "mouse") return;
-      const batas = panggung.getBoundingClientRect();
-      x = ((event.clientX - batas.left) / batas.width - 0.5) * 18;
-      y = ((event.clientY - batas.top) / batas.height - 0.5) * 12;
-      if (bingkai) return;
-      bingkai = requestAnimationFrame(() => {
-        panggung.style.setProperty("--gerak-x", `${x.toFixed(2)}px`);
-        panggung.style.setProperty("--gerak-y", `${y.toFixed(2)}px`);
-        bingkai = 0;
-      });
-    };
-    const pulihkan = () => {
-      cancelAnimationFrame(bingkai);
-      bingkai = 0;
-      panggung?.style.setProperty("--gerak-x", "0px");
-      panggung?.style.setProperty("--gerak-y", "0px");
-    };
     const terjaga = () => { elemen.dataset.terjaga = String(!document.hidden); };
     terjaga();
     document.addEventListener("visibilitychange", terjaga);
-    panggung?.addEventListener("pointermove", gerakkan);
-    panggung?.addEventListener("pointerleave", pulihkan);
     return () => {
       preferensi.removeEventListener("change", tampilkan);
       pengamat.disconnect();
       panggungTerlihat.disconnect();
       document.removeEventListener("visibilitychange", terjaga);
-      panggung?.removeEventListener("pointermove", gerakkan);
-      panggung?.removeEventListener("pointerleave", pulihkan);
-      cancelAnimationFrame(bingkai);
     };
   }, []);
 
   function ubah() {
     setJeda((sebelumnya) => !sebelumnya);
     akar.current?.querySelectorAll<HTMLElement>("[data-reveal]").forEach((target) => { target.dataset.terlihat = "ya"; });
-    const panggung = akar.current?.querySelector<HTMLElement>("[data-panggung]");
-    panggung?.style.setProperty("--gerak-x", "0px");
-    panggung?.style.setProperty("--gerak-y", "0px");
   }
 
   return (
     <KendaliGerak.Provider value={{ jeda, kurangi, ubah }}>
-      <div ref={akar} className={s.halaman} data-theme="dark" data-gerak={jeda || kurangi ? "jeda" : "jalan"}>
+      <div ref={akar} className={s.halaman} data-gerak={jeda || kurangi ? "jeda" : "jalan"}>
         {children}
       </div>
     </KendaliGerak.Provider>
   );
+}
+
+/** Status gerak landing: dijeda pengguna atau dikurangi oleh preferensi sistem. */
+export function useGerakBrand() {
+  const { jeda, kurangi } = useContext(KendaliGerak);
+  return { jeda, kurangi };
 }
 
 export function KontrolGerak() {

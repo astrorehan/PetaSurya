@@ -4,49 +4,37 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 const KUNCI_TEMA = "petasurya-theme";
 
-type PilihanTema = "light" | "dark" | "system";
+type PilihanTema = "light" | "dark";
 export type TemaTerpilih = "light" | "dark";
 
 type KonteksTema = {
   pilihan: PilihanTema;
   terpilih: TemaTerpilih;
   siap: boolean;
-  setPilihan: (tema: Exclude<PilihanTema, "system">) => void;
+  setPilihan: (tema: PilihanTema) => void;
 };
 
 const TemaContext = createContext<KonteksTema | null>(null);
 
-function temaSistem(): TemaTerpilih {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function PenyediaTema({ children }: { children: ReactNode }) {
-  const [pilihan, setPilihanState] = useState<PilihanTema>("system");
-  const [terpilih, setTerpilih] = useState<TemaTerpilih>("light");
+  const [pilihan, setPilihanState] = useState<PilihanTema>("dark");
+  const [terpilih, setTerpilih] = useState<TemaTerpilih>("dark");
   const [siap, setSiap] = useState(false);
 
   useEffect(() => {
-    const tersimpan = window.localStorage.getItem(KUNCI_TEMA);
-    const awal: PilihanTema = tersimpan === "light" || tersimpan === "dark" ? tersimpan : "system";
+    let tersimpan: string | null = null;
+    try { tersimpan = window.localStorage.getItem(KUNCI_TEMA); } catch { /* Pilihan tetap bisa dipakai tanpa penyimpanan browser. */ }
+    const awal: PilihanTema = tersimpan === "light" ? "light" : "dark";
     setPilihanState(awal);
-    setTerpilih(awal === "system" ? temaSistem() : awal);
+    setTerpilih(awal);
     setSiap(true);
 
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const saatSistemBerubah = () => {
-      if (awal === "system") setTerpilih(media.matches ? "dark" : "light");
-    };
-    media.addEventListener("change", saatSistemBerubah);
-    return () => media.removeEventListener("change", saatSistemBerubah);
   }, []);
 
   useEffect(() => {
-    if (pilihan === "system") {
-      document.documentElement.removeAttribute("data-theme");
-      return;
-    }
+    if (!siap) return;
     document.documentElement.dataset.theme = pilihan;
-  }, [pilihan]);
+  }, [pilihan, siap]);
 
   const nilai = useMemo<KonteksTema>(
     () => ({
@@ -54,7 +42,7 @@ export function PenyediaTema({ children }: { children: ReactNode }) {
       terpilih,
       siap,
       setPilihan: (tema) => {
-        window.localStorage.setItem(KUNCI_TEMA, tema);
+        try { window.localStorage.setItem(KUNCI_TEMA, tema); } catch { /* Tema berlaku pada halaman meski penyimpanan ditolak. */ }
         setPilihanState(tema);
         setTerpilih(tema);
       },

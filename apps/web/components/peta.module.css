@@ -13,6 +13,13 @@
   height: 100%;
 }
 
+.pratinjau { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: var(--surface-2); pointer-events: none; }
+.pratinjau > div { position: absolute; inset: 0; opacity: 0.45; }
+.statusPeta { position: absolute; bottom: var(--sp-5); left: var(--sp-4); right: var(--sp-4); display: grid; justify-items: center; gap: var(--sp-2); width: fit-content; max-width: calc(100% - 2 * var(--sp-4)); margin: 0 auto; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface); color: var(--ink-2); text-align: center; font: 400 var(--fs-xs) / 1.6 var(--f-ui); }
+.statusPeta p { margin: 0; }
+.statusPeta button { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--kontrol-h); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line-2); border-radius: var(--r-pill); background: var(--pri-bg); color: var(--pri); font: var(--tipe-ui); cursor: pointer; pointer-events: auto; }
+.statusPeta button:hover { border-color: var(--pri); }
+
 .arsiranKosong {
   position: absolute;
   z-index: 1;
@@ -100,6 +107,8 @@
   border-color: var(--pri);
   color: var(--pri);
 }
+
+.tombolPeta:disabled { opacity: 0.5; cursor: wait; }
 
 .tombolPeta[aria-pressed="true"] {
   background: var(--pri-bg);

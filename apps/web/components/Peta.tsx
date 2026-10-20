@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Crosshair, Satellite, Search } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Crosshair, RotateCw, Satellite, Search } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
@@ -130,7 +130,7 @@ function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefine
       type: "line",
       source: SUMBER_ATAP,
       paint: {
-        "line-color": "#17204a",
+        "line-color": getComputedStyle(document.documentElement).getPropertyValue("--surya").trim(),
         "line-width": 3,
         "line-opacity": 0.92,
       },
@@ -268,6 +268,7 @@ type PetaProps = {
   batasPencarian?: [number, number, number, number];
   pertahankanKamera?: boolean;
   satelitAwal?: boolean;
+  pratinjau?: ReactNode;
 };
 
 export function Peta({
@@ -286,6 +287,7 @@ export function Peta({
   batasPencarian,
   pertahankanKamera = false,
   satelitAwal = false,
+  pratinjau,
 }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -294,8 +296,17 @@ export function Peta({
   const satelitRef = useRef(satelitAwal);
   const [satelit, setSatelit] = useState(satelitAwal);
   const [petaSiap, setPetaSiap] = useState(false);
+  const [citraLambat, setCitraLambat] = useState(false);
+  const [petaGagal, setPetaGagal] = useState(false);
+  const [percobaan, setPercobaan] = useState(0);
   const terkini = useRef({bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera});
   terkini.current = {bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera};
+
+  useEffect(() => {
+    if (petaSiap) return;
+    const jadwal = setTimeout(() => setCitraLambat(true), 8000);
+    return () => clearTimeout(jadwal);
+  }, [petaSiap, percobaan]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -304,16 +315,27 @@ export function Peta({
     gayaRef.current = GAYA_PETA[terpilih];
     maplibregl.setWorkerUrl(URL_WORKER_PETA);
 
-    const map = new maplibregl.Map({
-      container,
-      style: gayaRef.current,
-      center: PUSAT_BENGKULU,
-      zoom: ZOOM_AWAL,
-      attributionControl: false,
-      keyboard: true,
-      maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
-    });
+    let map: MapLibreMap;
+    try {
+      map = new maplibregl.Map({
+        container,
+        style: gayaRef.current,
+        center: PUSAT_BENGKULU,
+        zoom: ZOOM_AWAL,
+        attributionControl: false,
+        keyboard: true,
+        maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
+      });
+    } catch {
+      setPetaGagal(true);
+      return;
+    }
     mapRef.current = map;
+    // Peta dapat dimulai saat panel ponsel tersembunyi; ukur ulang saat dibuka.
+    const ukuran = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0 && entry.contentRect.height > 0) map.resize();
+    });
+    ukuran.observe(container);
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
     map.addControl(
       new maplibregl.AttributionControl({ compact: true }),
@@ -338,7 +360,17 @@ export function Peta({
         if (typeof idBangunan === "string") data.onPilihBangunan(Number(idBangunan));
       }
     };
-    let pendengarFiturTerpasang = false;
+    const saatPenunjukBergerak = (event: MapMouseEvent) => {
+      const data = terkini.current;
+      const lapisan = [
+        ...(data.onPilihBangunan ? [LAPISAN_BANGUNAN_ISI] : []),
+        ...(data.onPilihWilayah ? [LAPISAN_WILAYAH_ISI, LAPISAN_WILAYAH_TERPILIH_ISI] : []),
+      ].filter((id) => map.getLayer(id));
+      map.getCanvas().style.cursor = lapisan.length && map.queryRenderedFeatures(event.point, { layers: lapisan }).length ? "pointer" : "";
+    };
+    // Pendengar tetap aktif ketika pencarian awal kosong lalu menghasilkan bangunan.
+    map.on("click", saatFiturDiklik);
+    map.on("mousemove", saatPenunjukBergerak);
     let kameraAwal = true;
 
     const siapGaya = () => {
@@ -348,26 +380,23 @@ export function Peta({
       pasangBangunan(map, data.bangunan, kameraAwal);
       pasangWilayah(map, data.wilayah, data.wilayahTerpilih, kameraAwal);
       kameraAwal = false;
-      if ((bangunan.length || wilayah.length) && !pendengarFiturTerpasang) {
-        map.on("click", saatFiturDiklik);
-        if (wilayah.length) {
-          map.on("mouseenter", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = ""; });
-          map.on("mouseenter", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = ""; });
-        }
-        if (bangunan.length) {
-          map.on("mouseenter", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = ""; });
-        }
-        pendengarFiturTerpasang = true;
-      }
     };
     map.on("style.load", siapGaya);
     map.once("load", () => {
       const canvas = map.getCanvas();
       canvas.tabIndex = 0;
       canvas.setAttribute("aria-label", `${label}. Gunakan tombol panah untuk menggeser peta.`);
+      const labelKontrol: Record<string, string> = {
+        ".maplibregl-ctrl-zoom-in": "Perbesar peta",
+        ".maplibregl-ctrl-zoom-out": "Perkecil peta",
+        ".maplibregl-ctrl-compass": "Kembalikan arah utara",
+        ".maplibregl-ctrl-attrib-button": "Sumber peta",
+      };
+      Object.entries(labelKontrol).forEach(([selector, teks]) => {
+        const tombol = container.querySelector<HTMLButtonElement>(selector);
+        tombol?.setAttribute("aria-label", teks);
+        tombol?.setAttribute("title", teks);
+      });
       // Atribusi ringkas terbuka saat muat; tutup agar tidak menutupi peta. Tombol (i) tetap membukanya.
       container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
       siapGaya();
@@ -375,15 +404,15 @@ export function Peta({
     });
 
     return () => {
-      if (bangunan.length || wilayah.length) {
-        map.off("click", saatFiturDiklik);
-      }
+      ukuran.disconnect();
+      map.off("click", saatFiturDiklik);
+      map.off("mousemove", saatPenunjukBergerak);
       map.remove();
       mapRef.current = null;
     };
   // Geometri dan pilihan diperbarui tanpa menghapus kamera yang sedang ditelusuri.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siap]);
+  }, [siap, percobaan]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -418,6 +447,7 @@ export function Peta({
         <button
           className={s.tombolPeta}
           type="button"
+          disabled={!petaSiap}
           onClick={() => {
             if (!mapRef.current) return;
             if (wilayah.length) pasangWilayah(mapRef.current, wilayah, wilayahTerpilih);
@@ -431,6 +461,7 @@ export function Peta({
         <button
           className={`${s.tombolPeta} ${s.tombolSatelit}`}
           type="button"
+          disabled={!petaSiap}
           aria-pressed={satelit}
           onClick={() => setSatelit((aktif) => !aktif)}
           title={satelit ? "Gunakan peta jalan" : "Tampilkan citra satelit"}
@@ -440,6 +471,13 @@ export function Peta({
         </button>
       </div>
       <div ref={containerRef} className={s.kanvas} />
+      {!petaSiap && <div className={s.pratinjau}>
+        {pratinjau && <div aria-hidden="true">{pratinjau}</div>}
+        <section className={s.statusPeta} aria-label="Status peta">
+          <p role="status">{petaGagal ? "Peta tidak dapat ditampilkan di browser ini." : citraLambat ? "Peta belum termuat. Periksa koneksi atau pilih bangunan dari daftar." : "Menyiapkan peta…"}</p>
+          {(petaGagal || citraLambat) && <button type="button" onClick={() => { setPetaSiap(false); setPetaGagal(false); setCitraLambat(false); setPercobaan((nilai) => nilai + 1); }}><RotateCw size={14} aria-hidden="true" /> Coba muat peta</button>}
+        </section>
+      </div>}
       {tampilanKosong ? <div className={s.arsiranKosong} aria-hidden="true" /> : null}
       <div className={s.watermark} aria-hidden="true">
         <Logo size={48} mono label="" />
