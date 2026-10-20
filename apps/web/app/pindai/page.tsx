@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PemindaiAtap } from "../../components/PemindaiAtap";
 
 export const metadata: Metadata = {
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
 export default async function HalamanPindai({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string | string[] }>;
 }) {
-  const { id } = await searchParams;
-  const targetId = id ? Number(id) : undefined;
+  const params = await searchParams;
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  if (id !== undefined && (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id)) || Number(id) <= 0)) notFound();
+  const targetId = id === undefined ? undefined : Number(id);
 
   return <PemindaiAtap bangunanAwalId={targetId} mode="halaman" />;
 }

@@ -19,7 +19,7 @@ const LAPIS = [
 /*
  * Pasangan dan ambang = kontras.test.ts. Yang ditampilkan rasio terendah:
  * tinta di atas keempat permukaan, warna semantik di atas --surface dan
- * latarnya sendiri, --on-pri di atas isian primer dalam tiga keadaannya.
+ * latarnya sendiri, dan label aksi di atas isian dalam tiga keadaannya.
  */
 const KONTRAS = [
   { token: "--ink", tugas: "Teks dan angka", ambang: 4.5, alas: PERMUKAAN },
@@ -29,14 +29,15 @@ const KONTRAS = [
   { token: "--surya", tugas: "Energi", ambang: 3, alas: ["--surface", "--surya-bg"] },
   { token: "--daun", tugas: "Uang dan CO₂", ambang: 3, alas: ["--surface", "--daun-bg"] },
   { token: "--merah", tugas: "Peringatan", ambang: 3, alas: ["--surface", "--merah-bg"] },
-  { token: "--on-pri", tugas: "Label tombol primer", ambang: 4.5, alas: ["--pri", "--pri-hover", "--pri-tekan"] },
+  { token: "--on-pri", tugas: "Label di atas amber", ambang: 4.5, alas: ["--pri", "--pri-hover", "--pri-tekan"] },
+  { token: "--on-action", tugas: "Label tombol utama", ambang: 4.5, alas: ["--action-fill", "--action-hover", "--action-pressed"] },
 ] as const;
 
 const PERAN = [
   {
     token: "--pri",
     tugas: "Aksi",
-    pakai: "Tombol primer, garis bawah tautan, cincin fokus, butir aktif",
+    pakai: "Tautan, cincin fokus, butir aktif",
     bukan: "Angka, grafik, hiasan",
   },
   {
@@ -115,7 +116,7 @@ export function BagianWarna() {
       id="warna"
       nomor="02"
       judul="Warna"
-      aturan="Palet diturunkan dari modul surya: sel biru gelap, perak busbar, amber cahaya, hijau daun. Tema gelap punya token sendiri, bukan inversi."
+      aturan="Grafit dan amber menyatukan halaman merek dan produk. Tema terang memakai netral hangat; hijau dan merah mempertahankan makna data."
     >
       <Pelat
         nomor="2.1"

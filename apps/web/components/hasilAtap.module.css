@@ -1,5 +1,5 @@
 .halaman {
-  width: min(100% - 2 * var(--tepi), 1200px);
+  width: min(100% - 2 * var(--tepi), var(--lebar-isi));
   margin: 0 auto;
   padding: var(--sp-8) 0 var(--sp-12);
 }
@@ -50,13 +50,15 @@
 }
 
 .tombolUtama {
-  border-color: var(--pri);
-  background: var(--pri);
-  color: var(--on-pri);
+  border-color: var(--action-fill);
+  background: var(--action-fill);
+  color: var(--on-action);
+  border-radius: var(--r-pill);
+  font-weight: 600;
 }
 
 .tombolUtama:hover {
-  background: var(--pri-hover);
+  background: var(--action-hover);
 }
 
 .tombolUtama:disabled {

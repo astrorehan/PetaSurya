@@ -1,5 +1,5 @@
 .halaman {
-  width: min(100% - var(--sp-8), 960px);
+  width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi));
   margin: 0 auto;
   padding: var(--sp-10) 0 var(--sp-12);
 }
@@ -65,7 +65,7 @@
 
 @media (max-width: 900px) {
   .halaman {
-    width: min(100% - var(--sp-6), 960px);
+    width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi));
     padding-top: var(--sp-8);
   }
 
@@ -76,7 +76,7 @@
 
 @media (max-width: 560px) {
   .halaman {
-    width: min(100% - var(--sp-4), 960px);
+    width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi));
     padding-top: var(--sp-6);
   }
 }

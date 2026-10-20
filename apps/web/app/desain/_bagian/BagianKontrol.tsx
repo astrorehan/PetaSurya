@@ -85,7 +85,7 @@ export function BagianKontrol() {
         <Pelat
           nomor="8.2"
           judul="Anatomi tombol"
-          keterangan="Kontrol Arc: tinggi 44 px, radius 18 px, label Inter 14 px / 500. Ikon 16 px, jarak ke label 8 px."
+          keterangan="Tinggi 44 px. Primer berkapsul, sekunder memakai radius 18 px. Label Inter 14 px, ikon 16 px, jarak 8 px."
           kisi
           statis
         >

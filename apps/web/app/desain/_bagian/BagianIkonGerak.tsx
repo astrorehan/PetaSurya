@@ -223,7 +223,7 @@ export function BagianIkonGerak() {
           </tbody>
         </Tabel>
       </Pelat>
-      <Pelat nomor="7.4" judul="Kosakata motion · Arc" keterangan="Durasi panjang hanya untuk perubahan yang dipicu pengguna. Tanpa animasi otomatis saat muat atau gulir." polos>
+      <Pelat nomor="7.4" judul="Kosakata motion · Arc" keterangan="Landing memakai entrance dan orbit yang bisa dijeda. Navbar merapat saat scroll dan membuka lewat hover atau fokus. Reduced motion mematikan perpindahan." polos>
         <Tabel judul="Token motion Arc" gulir>
           <thead><tr><th scope="col">Token</th><th scope="col">Nilai</th><th scope="col">Peran</th></tr></thead>
           <tbody>
