@@ -1,3 +1,4 @@
+import Link from "next/link";
 import s from "./metodologi.module.css";
 
 export const metadata = { title: "Metodologi" };
@@ -41,6 +42,13 @@ export default function Metodologi() {
       </section>
 
       <section className={s.rumusGrid} aria-label="Rumus lapisan mesin">
+        <article className={s.rumusKartu}>
+          <p className={s.label}>L2 · PEMBACAAN ATAP</p>
+          <h2>Dari citra menjadi batas dan luas.</h2>
+          <p className={s.prosa}>MobileSAM membaca citra dengan bantuan lokasi bangunan OSM. Kontur yang diterima menjadi luas proyeksi atap pada WGS84; hasil yang kurang sesuai memakai perkiraan footprint.</p>
+          <p className={s.prosa}>Acuan visual terpisah digunakan untuk memeriksa kontur dan kesalahan luas. Kemiringan, cadangan area, dan hadap panel masih asumsi; halangan serta bayangan belum diukur.</p>
+          <Link href="/evaluasi">Periksa hasil pengujian kontur →</Link>
+        </article>
         <article className={s.rumusKartu}>
           <p className={s.label}>L3 · FISIKA</p>
           <h2>Energi AC dari matahari.</h2>

@@ -1,9 +1,9 @@
 .wadah {
   display: grid;
   gap: var(--sp-6);
-  max-width: 1280px;
+  width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi));
   margin: 0 auto;
-  padding: var(--sp-6);
+  padding: var(--sp-8) 0 var(--sp-12);
   color: var(--ink);
 }
 
@@ -391,7 +391,7 @@
 @media (max-width: 560px) {
   .wadah {
     --kontrol-h: 44px;
-    padding: var(--sp-4);
+    padding: var(--sp-4) 0 var(--sp-8);
   }
 
   .pilihBangunan {

@@ -9,13 +9,14 @@ import s from "./motionAtap.module.css";
 const jalur = (ring: number[][]) => `M${ring.map(p => p.join(",")).join(" L")}Z`;
 
 /** Citra, sorotan, dan kontur bergerak dalam koordinat yang sama. */
-export function PanggungAtap({ frame, footprint, mask, bbox, viewBox, osm, demo, memindai, citraGagal, onCitraGagal, label, fokus, nilai }: {
+export function PanggungAtap({ frame, footprint, mask, bbox, viewBox, osm, asli = false, demo, memindai, citraGagal, onCitraGagal, label, fokus, nilai }: {
   frame: PaketPemindaian["bingkai"];
   footprint: number[][];
   mask: string;
   bbox: [number, number, number, number];
   viewBox: string;
   osm: boolean;
+  asli?: boolean;
   demo: boolean;
   memindai: boolean;
   citraGagal: boolean;
@@ -42,7 +43,7 @@ export function PanggungAtap({ frame, footprint, mask, bbox, viewBox, osm, demo,
         </defs>
         <g className={s.kamera} style={gaya}>
           {frame.tiles.map(t => <image key={t.url} href={t.url} x={t.x} y={t.y} width="256" height="256" onError={onCitraGagal}/>)}
-          <rect className={s.luarSorot} x={vx} y={vy} width={vw} height={vh} mask={`url(#${id}-sorot)`} />
+          {!asli && <><rect className={s.luarSorot} x={vx} y={vy} width={vw} height={vh} mask={`url(#${id}-sorot)`} />
           {osm ? <path id="jejak-osm" className={s.jejak} d={jalur(footprint)} /> : <g id="batas-atap">
             <path className={s.bidangAtap} d={kontur} fill={mask ? "var(--surya)" : `url(#${id}-arsir)`} fillRule="evenodd" />
           </g>}
@@ -51,10 +52,10 @@ export function PanggungAtap({ frame, footprint, mask, bbox, viewBox, osm, demo,
           {(demo && osm || memindai) && <g className={s.scan} style={gaya} aria-hidden="true">
             <rect className={s.scanPita} x={x-12} y={y-12} width={w+24} height={16}/>
             <path className={s.scanGaris} d={`M${x-12} ${y-12}H${x+w+12}`} />
-          </g>}
+          </g>}</>}
         </g>
       </svg>
-      <div className={s.keterangan} aria-hidden="true"><Ikon ikon={Crosshair}/><span>{osm ? "Bangunan terpilih" : mask ? "Kontur atap" : "Perkiraan OSM"}<strong>{nilai}</strong></span></div>
+      {!asli && <div className={s.keterangan} aria-hidden="true"><Ikon ikon={Crosshair}/><span>{osm ? "Bangunan terpilih" : mask ? "Kontur atap" : "Perkiraan OSM"}<strong>{nilai}</strong></span></div>}
       {citraGagal && <span className={s.citraKosong} aria-hidden="true">Citra tidak tersedia</span>}
     </div>
   );

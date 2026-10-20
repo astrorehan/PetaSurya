@@ -1,0 +1,24 @@
+.halaman { max-width: var(--lebar-konten, 1280px); margin: 0 auto; padding: var(--sp-8) var(--sp-6) var(--sp-16); }
+.kepala { max-width: 760px; margin-bottom: var(--sp-6); }
+.kepala h1 { font: var(--tipe-display); font-size: clamp(2.3rem, 5vw, 4.5rem); letter-spacing: -.04em; line-height: 1.08; margin: var(--sp-3) 0; }
+.label { font: var(--tipe-data); color: var(--ink-2); font-size: var(--fs-xs); letter-spacing: .08em; }
+.peringatan { padding: var(--sp-4) var(--sp-5); border: 1px solid var(--surya); border-radius: var(--r-m); background: var(--surface); line-height: 1.5; }
+.kontrol { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-5); margin-block: var(--sp-6); }
+.kontrol label, .pilihan { display: grid; gap: var(--sp-2); font-weight: 500; }
+.kontrol select, .pilihan select { min-height: 44px; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-s); color: var(--ink); background: var(--surface); font: inherit; max-width: 100%; }
+.kontrol p { color: var(--ink-2); font: var(--tipe-data); font-size: var(--fs-s); }
+.angka { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-6); border-block: 1px solid var(--line); padding-block: var(--sp-6); }
+.pemeriksaan { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: var(--sp-8); margin-block: var(--sp-8); }
+.pemeriksaan > div { min-width: 0; }
+.pemeriksaan h2 { margin-top: 0; font: var(--tipe-judul); font-size: var(--fs-xl); }
+.pemeriksaan p { color: var(--ink-2); line-height: 1.6; }
+.citra { display: block; width: 100%; aspect-ratio: 1; margin-top: var(--sp-3); overflow: hidden; border-radius: var(--r-m); background: var(--surface-3); }
+.citra path { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.prediksi { stroke: var(--surya); }
+.acuan { stroke: white; stroke-dasharray: 6 3; filter: drop-shadow(0 0 1px black); }
+.legenda { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-3); font: var(--tipe-data); font-size: var(--fs-s); }
+.legenda span:first-child { color: var(--surya); }
+.sumber { font-size: var(--fs-xs); }
+.hash { font: var(--tipe-data); font-size: var(--fs-xs); overflow-wrap: anywhere; color: var(--ink-2); }
+.kembali { margin-top: var(--sp-6); }
+@media(max-width:760px) { .halaman { padding: var(--sp-5) var(--sp-4) var(--sp-10); } .angka { grid-template-columns: 1fr; gap: var(--sp-5); } .pemeriksaan { grid-template-columns: 1fr; gap: var(--sp-5); } .kontrol label { width: 100%; } }

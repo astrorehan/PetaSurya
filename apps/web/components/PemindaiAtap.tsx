@@ -21,6 +21,16 @@ const langgananSempit = (ubah: () => void) => {
 const cekSempit = () => window.matchMedia(KUERI_SEMPIT).matches;
 const pathRing = (ring: number[][]) => `M${ring.map(p => p.join(",")).join(" L")}Z`;
 
+function WaktuBerjalan() {
+  const [detik, setDetik] = useState(0);
+  useEffect(() => {
+    const mulai = performance.now();
+    const timer = window.setInterval(() => setDetik(Math.floor((performance.now() - mulai) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return <span aria-hidden="true"> · {detik.toLocaleString("id-ID")} dtk</span>;
+}
+
 type Props = {
   bangunanAwalId?: number;
   paketAwal?: PaketPemindaian;
@@ -123,10 +133,17 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
     return () => { window.removeEventListener("keydown", keydown); };
   }, [a, mode, onTutup, sibuk, simulasi, tahap]);
 
-  async function analisisBaru(force=false) {
+  async function analisisBaru(force=false, demoLangsung=false) {
     if (sibuk) return;
     setSibuk("analisis"); setGalat(null);
-    try { const data = await pindaiBangunan(id, force); setPaket(data); setSimulasi(undefined); setKapasitas(String(Math.min(potensiLuas(data),PROFIL_SIMULASI[profil].data.asumsi.daya_va/1000))); setTahap(2); }
+    if (demoLangsung) { setDemoAktif(false); setDemoSelesai(false); setTahap(1); }
+    try {
+      const data = await pindaiBangunan(id, force);
+      setPaket(data); setSimulasi(undefined);
+      setKapasitas(String(Math.min(potensiLuas(data),PROFIL_SIMULASI[profil].data.asumsi.daya_va/1000)));
+      setTahap(2);
+      if (demoLangsung) { setDemoJeda(false); setBandingkanOSM(true); setDemoAktif(true); setPutaranDemo(n => n + 1); }
+    }
     catch (error) { setGalat(error instanceof GalatPemindaian ? error.message : "Analisis belum berhasil. Cek koneksi dan coba lagi."); }
     finally { setSibuk(null); }
   }
@@ -180,10 +197,11 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
   const viewBox = sempit && frame ? `${frame.lebar/2-width/2} ${frame.tinggi/2-width*3/8} ${width} ${width*3/4}` : demoAktif && frame ? `0 ${(frame.tinggi-tinggiDemo)/2} ${frame.lebar} ${tinggiDemo}` : `0 0 ${frame?.lebar ?? 640} ${frame?.tinggi ?? 480}`;
   const masque = gambar?.mask_rings.map(poly => poly.map(pathRing).join(" ")).join(" ") ?? "";
   const Judul = mode === "halaman" ? "h1" : "h2";
-  const citraAtap = (osm: boolean) => frame && gambar ? <PanggungAtap key={`${id}-${tahap}-${osm}-${putaranDemo}`}
+  const citraAtap = (osm: boolean, asli=false) => frame && gambar ? <PanggungAtap key={`${id}-${tahap}-${osm}-${asli}-${putaranDemo}`}
     frame={frame} footprint={gambar.footprint} mask={masque} bbox={gambar.bbox} viewBox={viewBox} osm={osm}
+    asli={asli}
     demo={demoAktif} memindai={sibuk === "analisis"} citraGagal={citraGagal} onCitraGagal={() => setCitraGagal(true)}
-    fokus={!bandingkanOSM || tahap !== 2} nilai={m2(osm ? aktif?.bangunan.footprint_m2 ?? 0 : a?.roof_area_m2 ?? 0)} label={`Citra ${aktif ? namaBangunan(aktif.bangunan) : "bangunan"}; ${osm ? "jejak OSM" : "batas atap"}`} /> : null;
+    fokus={!bandingkanOSM || tahap !== 2} nilai={m2(osm ? aktif?.bangunan.footprint_m2 ?? 0 : a?.roof_area_m2 ?? 0)} label={`Citra ${aktif ? namaBangunan(aktif.bangunan) : "bangunan"}; ${asli ? "citra asli" : osm ? "jejak OSM" : "batas atap"}`} /> : null;
 
   const kanvas = (<section className={s.kolomKanvas} aria-label={tahap === 3 ? "Produksi energi" : "Citra dan batas bangunan"}>
         {tahap === 3 && simulasi ? <div className={s.hasilGrafik} key={`${id}-${putaranDemo}`}>
@@ -193,10 +211,10 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
           <p className={s.penjelasanTahap}>Energi dihitung dari kapasitas skenario, orientasi asumsi, cuaca, dan faktor rugi.</p>
         </div> : <>
           <div className={s.labelBaris}><strong>{tahap === 1 ? "Jejak bangunan OSM" : a?.mask_geojson ? "Batas atap hasil model" : "Perkiraan dari jejak OSM"}</strong>{a && <Lencana>{aktif?.tersimpan ? "Hasil tersimpan" : "Analisis baru"}</Lencana>}</div>
-          {tahap === 2 && bandingkanOSM ? <BandingLapisan sebelum={citraAtap(true)} sesudah={citraAtap(false)} labelSebelum="Jejak OSM" labelSesudah={a?.mask_geojson ? "Mask atap" : "Perkiraan atap"} label="Batas perbandingan OSM dan atap" rasio="4 / 3" /> : citraAtap(tahap === 1)}
+          {tahap === 2 && bandingkanOSM ? <BandingLapisan sebelum={citraAtap(true,true)} sesudah={citraAtap(false)} labelSebelum="Citra asli" labelSesudah={a?.mask_geojson ? "Kontur model" : "Perkiraan atap"} label="Perbandingan citra asli dan batas atap" rasio="4 / 3" /> : citraAtap(tahap === 1)}
           <p className={s.bantuan}>Esri · Vantor · Earthstar Geographics · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p>
           {citraGagal && <p role="status" className={s.penjelasanTahap}>Citra tidak tersedia. Batas dan hasil tersimpan tetap dapat dibaca.</p>}
-          {tahap === 2 && <label className={s.itemLapisan}><input type="checkbox" checked={bandingkanOSM} onChange={e => {hentikanDemo();setBandingkanOSM(e.target.checked);}}/>Bandingkan dengan jejak OSM</label>}
+          {tahap === 2 && <label className={s.itemLapisan}><input type="checkbox" checked={bandingkanOSM} onChange={e => {hentikanDemo();setBandingkanOSM(e.target.checked);}}/>Bandingkan dengan citra asli</label>}
         </>}
       </section>);
   const panel = (<aside key={`${id}-${tahap}-${putaranDemo}`} className={s.panelTelemetri} aria-label="Hasil tahap analisis" data-babak={tahap}>
@@ -235,8 +253,10 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
           <Tombol varian="sekunder" ikon={ArrowLeft} onClick={() => {hentikanDemo();setTahap(2);}}>Kembali ke batas dan luas</Tombol>
         </>}
         {a && <PanelLipat judul="Rincian analisis">
+          {aktif && !aktif.tersimpan && <DaftarData baris={[{label:"Waktu proses engine",nilai:`${aktif.durasi_detik.toLocaleString("id-ID",{maximumFractionDigits:2})} dtk`}]}/>}
           <DaftarData baris={[{label:"Sumber batas",nilai:a.mask_geojson ? "Model pada citra satelit" : "Perkiraan OSM"},{label:"Sumbu atap",nilai:`${a.azimuth_deg.toLocaleString("id-ID")}°; hadap panel asumsi`},{label:"Kemiringan",nilai:`${a.tilt_deg}° · asumsi`},{label:"Model",nilai:a.model_version},{label:"Skor penyaringan",nilai:a.confidence.toLocaleString("id-ID",{maximumFractionDigits:3})}]}/>
           <p className={s.penjelasanTahap}>Skor belum dikalibrasi sebagai akurasi atap.</p>
+          <Link href="/evaluasi">Lihat hasil pengujian kontur</Link>
         </PanelLipat>}
       </aside>);
 
@@ -244,7 +264,7 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
     <header className={s.kepala}>
       <Judul id="judul-pemindai" className={s.judul}>Analisis atap</Judul>
       <div className={s.aksiKepala}>
-        {demoAktif ? <><Tombol ikon={demoJeda ? Play : Pause} onClick={() => setDemoJeda(j => !j)}>{demoJeda ? "Lanjutkan demo" : "Jeda demo"}</Tombol><Tombol ikon={Square} onClick={hentikanDemo}>Akhiri demo</Tombol></> : <Tombol ikon={Play} disabled={!a || Boolean(sibuk)} onClick={mulaiDemo}>{demoSelesai ? "Putar ulang demo" : "Putar demo"}</Tombol>}
+        {demoAktif ? <><Tombol ikon={demoJeda ? Play : Pause} onClick={() => setDemoJeda(j => !j)}>{demoJeda ? "Lanjutkan demo" : "Jeda demo"}</Tombol><Tombol ikon={Square} onClick={hentikanDemo}>Akhiri demo</Tombol></> : <><Tombol ikon={Scan} disabled={!aktif || Boolean(sibuk)} onClick={() => void analisisBaru(true,true)}>Demo langsung</Tombol><Tombol ikon={Play} disabled={!a || Boolean(sibuk)} onClick={mulaiDemo}>{demoSelesai ? "Putar ulang hasil" : "Putar hasil"}</Tombol></>}
         {mode === "modal" ? <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol> : <Link href="/peta" className={kelasTombol("sekunder")}>Pilih di peta</Link>}
       </div>
     </header>
@@ -260,7 +280,7 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
       {pilihan.map(b => <option key={b.id} value={b.id}>{namaBangunan(b)}{simulasiContoh(b.id) ? " · hasil tersimpan" : ""}</option>)}
     </select></label>
     {galat && <div role="alert" className={s.kotakPeringatan}><Ikon ikon={AlertTriangle}/><span>{galat}</span></div>}
-    {sibuk && <p role="status" className={s.statusProses}>{sibuk === "analisis" ? "Membaca citra dan menjalankan analisis atap…" : sibuk === "hitung" ? "Menghitung energi dan penghematan…" : "Memuat bangunan dan hasil tersimpan…"}</p>}
+    {sibuk && <p role="status" className={s.statusProses}>{sibuk === "analisis" ? "Membaca citra dan menjalankan analisis atap…" : sibuk === "hitung" ? "Menghitung energi dan penghematan…" : "Memuat bangunan dan hasil tersimpan…"}{sibuk === "analisis" && <WaktuBerjalan/>}</p>}
     <div className={s.gridPemindai} data-tahap={tahap} aria-busy={Boolean(sibuk)}>
       {tahap === 3 ? <>{panel}{kanvas}</> : <>{kanvas}{panel}</>}
     </div>
