@@ -13,7 +13,7 @@ from PIL import Image
 from pyproj import Geod
 from shapely import transform
 from shapely.affinity import translate
-from shapely.geometry import MultiPolygon, Polygon, box, mapping, shape
+from shapely.geometry import MultiPolygon, Point, Polygon, box, mapping, shape
 from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
 
@@ -166,7 +166,7 @@ def _sesi():
     )
 
 
-def _inferensi(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
+def _inferensi(tile: np.ndarray, footprint, *, perkuat=False) -> tuple[np.ndarray, float]:
     """Kotak OSM dan centroid positif; pilih mask dengan tiga sinyal kesesuaian."""
     enc, dec = _sesi()
     rgb, skala = _resize_rgb(tile)
@@ -174,7 +174,36 @@ def _inferensi(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
     if not footprint.covers(pusat):
         pusat = footprint.representative_point()
     xmin, ymin, xmax, ymax = footprint.bounds
-    titik = np.array([[[pusat.x, pusat.y], [xmin, ymin], [xmax, ymax]]], np.float32)
+    koordinat = [[pusat.x, pusat.y], [xmin, ymin], [xmax, ymax]]
+    label = [1, 2, 3]
+    if perkuat:
+        # Titik interior tersebar membantu sayap atap; titik negatif berada jauh
+        # di luar footprint agar tidak memaksa overhang mengikuti garis OSM.
+        calon = [
+            Point(x, y)
+            for x in np.linspace(xmin, xmax, 7)[1:-1]
+            for y in np.linspace(ymin, ymax, 7)[1:-1]
+            if footprint.contains(Point(x, y))
+        ]
+        terpilih = [pusat]
+        for _ in range(min(3, len(calon))):
+            p = max(calon, key=lambda c: min(c.distance(t) for t in terpilih))
+            terpilih.append(p)
+            calon.remove(p)
+            koordinat.append([p.x, p.y])
+            label.append(1)
+        jarak = max(8, max(xmax - xmin, ymax - ymin) * 0.15)
+        h, w = tile.shape[:2]
+        for x, y in [
+            (xmin - jarak, ymin - jarak),
+            (xmax + jarak, ymin - jarak),
+            (xmin - jarak, ymax + jarak),
+            (xmax + jarak, ymax + jarak),
+        ]:
+            if 0 <= x < w and 0 <= y < h:
+                koordinat.append([x, y])
+                label.append(0)
+    titik = np.array([koordinat], np.float32)
     titik *= np.array(skala, np.float32)
     masukan = enc.get_inputs()[0]
     # Ekspor Acly hanya menormalisasi dan memberi padding, tanpa resize.
@@ -186,7 +215,7 @@ def _inferensi(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
         {
             "image_embeddings": emb,
             "point_coords": titik,
-            "point_labels": np.array([[1, 2, 3]], np.float32),
+            "point_labels": np.array([label], np.float32),
             "mask_input": np.zeros((1, 1, 256, 256), np.float32),
             "has_mask_input": np.zeros(1, np.float32),
             "orig_im_size": np.array(tile.shape[:2], np.float32),
@@ -201,7 +230,7 @@ def _inferensi(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
     return bersihkan_mask(mask), float(nilai)
 
 
-def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
+def segmentasi_atap(tile: np.ndarray, footprint, *, perkuat=False) -> tuple[np.ndarray, float]:
     """Baca ROI atap dengan konteks 25%; pulihkan kanvas saat ROI kurang konsisten."""
     h, w = tile.shape[:2]
     xmin, ymin, xmax, ymax = footprint.bounds
@@ -211,13 +240,14 @@ def segmentasi_atap(tile: np.ndarray, footprint) -> tuple[np.ndarray, float]:
     if x1 <= x0 or y1 <= y0:
         raise ValueError("Batas bangunan berada di luar citra.")
     lokal = translate(footprint, xoff=-x0, yoff=-y0)
-    potongan, skor = _inferensi(tile[y0:y1, x0:x1], lokal)
+    opsi = {"perkuat": True} if perkuat else {}
+    potongan, skor = _inferensi(tile[y0:y1, x0:x1], lokal, **opsi)
     mask = np.zeros((h, w), np.uint8)
     mask[y0:y1, x0:x1] = potongan
     metrik = nilai_mask(mask, skor, footprint)
     if _mask_layak(metrik) or (x0, y0, x1, y1) == (0, 0, w, h):
         return mask, skor
-    mask_penuh, skor_penuh = _inferensi(tile, footprint)
+    mask_penuh, skor_penuh = _inferensi(tile, footprint, **opsi)
     metrik_penuh = nilai_mask(mask_penuh, skor_penuh, footprint)
     if _mask_layak(metrik_penuh) or metrik_penuh["iou_footprint"] > metrik["iou_footprint"]:
         return mask_penuh, skor_penuh

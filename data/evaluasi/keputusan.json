@@ -1,0 +1,19 @@
+{
+  "tanggal": "2026-10-19",
+  "kriteria_utama": "Rata-rata IoU seluruh hasil yang memiliki acuan, termasuk fallback, pada kelompok pengembangan.",
+  "dipilih": "kotak-centroid",
+  "baseline": {
+    "n": 8,
+    "mean_iou": 0.6209547911426178,
+    "mean_galat_luas_persen": 31.914081030184644,
+    "median_galat_luas_persen": 31.051496866051323
+  },
+  "titik_tersebar": {
+    "n": 8,
+    "mean_iou": 0.6120096672169276,
+    "mean_galat_luas_persen": 28.696071463036493,
+    "median_galat_luas_persen": 19.745519531185344
+  },
+  "alasan": "Rata-rata IoU pola titik tambahan menurun meskipun galat luas membaik; strategi kotak-centroid dipertahankan sebelum hasil kelompok uji diperiksa.",
+  "acuan": "awal-belum-ditinjau"
+}

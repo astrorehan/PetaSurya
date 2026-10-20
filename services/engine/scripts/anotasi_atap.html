@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acuan visual atap · PetaSurya</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#151719;color:#f3f0e9;font:16px system-ui}main{max-width:1160px;margin:24px auto;padding:16px}h1{font-size:28px;margin:0 0 16px}.grid{display:grid;grid-template-columns:minmax(0,640px) minmax(260px,1fr);gap:24px}svg{display:block;width:100%;background:#262a2d;cursor:crosshair;touch-action:none}button,select,textarea{font:inherit;min-height:44px;border:1px solid #777;background:#24282a;color:inherit;border-radius:8px;padding:10px}button{cursor:pointer}button:hover{border-color:#f7af45}button:focus-visible,textarea:focus-visible{outline:3px solid #f7af45}textarea{width:100%;min-height:160px;font:13px monospace}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}p{line-height:1.5;color:#d6d4ce}#status{min-height:24px;color:#ffc56c}#koordinat{font:14px monospace}small{display:block;color:#d6d4ce}path{fill:#ffbc4b22;stroke:#ffbc4b;stroke-width:1;vector-effect:non-scaling-stroke}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style><main><h1>Acuan visual atap</h1>
+<div class="actions"><button id="prev">Sebelumnya</button><select id="pilih" aria-label="Sampel bangunan"></select><button id="next">Berikutnya</button><span id="jumlah"></span></div>
+<div class="grid"><div><svg id="kanvas" viewBox="0 0 640 480" role="img" aria-label="Citra asli untuk menggambar batas atap"><image id="gambar" href="" width="640" height="480"/><g id="acuan"></g><circle id="penanda" r="1.5" fill="white" stroke="black" stroke-width=".5"/></svg><p id="koordinat"></p><small>Esri · Vantor · Earthstar Geographics. Citra hanya berada dalam memori. Titik putih menandai bangunan yang dinilai.</small></div>
+<div><p>Gambar tepi atap yang terlihat. OSM dan hasil model disembunyikan. Klik titik-titik, lalu Tutup cincin. Lubang ditempatkan setelah cincin luar pada komponen yang sama.</p>
+<div class="actions"><button id="undo">Urungkan titik</button><button id="close">Tutup cincin</button><button id="component">Komponen baru</button></div>
+<label for="rings">Koordinat piksel [[[cincin luar, lubang]]]</label><textarea id="rings" spellcheck="false" placeholder="[[[[100,100],[160,100],[160,160],[100,160]]]]"></textarea>
+<div class="actions"><button id="preview">Tinjau kontur</button><button id="save">Simpan acuan</button><button id="ambiguous">Tandai ambigu</button><button id="review" hidden>Simpan tinjauan</button></div>
+<label for="note">Catatan keterbacaan atau alasan ambigu</label><textarea id="note" style="min-height:80px"></textarea>
+<p id="status" role="status"></p><p>Acuan berstatus belum ditinjau. Anggota tim perlu memeriksa ulang batas sebelum hasil dipakai sebagai klaim lomba.</p></div></div></main>
+<script>
+let samples=[],index=0,components=[[]],current=[];const $=id=>document.getElementById(id);
+function update(){const rings=components.map(c=>c.slice());if(current.length)rings[rings.length-1].push(current);$('rings').value=JSON.stringify(rings);draw(rings)}
+function draw(rings){$('acuan').innerHTML='';for(const component of rings){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',component.map(r=>'M'+r.map(x=>x.join(',')).join('L')+'Z').join(' '));p.setAttribute('fill-rule','evenodd');$('acuan').appendChild(p)}}
+async function load(){
+  const s=samples[index];components=[[]];current=[];
+  $('rings').value='';$('note').value='';$('acuan').innerHTML='';
+  $('gambar').setAttribute('href','/citra/'+s.id);$('kanvas').setAttribute('viewBox',s.crop.join(' '));
+  $('penanda').setAttribute('cx',s.penanda[0]);$('penanda').setAttribute('cy',s.penanda[1]);
+  $('pilih').value=String(index);$('koordinat').textContent='Crop: '+s.crop.join(', ')+' · pusat: '+s.penanda.map(x=>x.toFixed(1)).join(', ');
+  $('status').textContent='Status: '+s.status;$('jumlah').textContent=samples.filter(x=>x.status!=='belum').length+'/'+samples.length+' selesai';
+  const tinjau=new URLSearchParams(location.search).get('tinjau')==='1';$('review').hidden=!tinjau;
+  if(tinjau){const a=await fetch('/acuan/'+s.id).then(r=>r.json());if(samples[index].id!==s.id)return;if(a){components=a.rings.length?a.rings:[[]];$('note').value=a.catatan;update();$('status').textContent='Tinjauan acuan · '+a.status+' · '+a.review}}
+}
+$('kanvas').addEventListener('click',e=>{const p=new DOMPoint(e.clientX,e.clientY).matrixTransform($('kanvas').getScreenCTM().inverse());current.push([Math.round(p.x*10)/10,Math.round(p.y*10)/10]);update()});
+$('undo').onclick=()=>{current.pop();update()};$('close').onclick=()=>{if(current.length>=3){components.at(-1).push(current);current=[];update()}};$('component').onclick=()=>{if(current.length>=3){components.at(-1).push(current);current=[]}components.push([]);update()};
+$('preview').onclick=()=>{try{draw(JSON.parse($('rings').value));$('status').textContent='Kontur ditampilkan untuk diperiksa.'}catch{$('status').textContent='Koordinat belum valid.'}};
+async function save(status,review=false){try{const res=await fetch('/acuan/'+samples[index].id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status,rings:status==='digambar'?JSON.parse($('rings').value):[],catatan:$('note').value,review:review?'ditinjau':'belum'})});const data=await res.json();if(!res.ok)throw Error(data.detail);samples[index].status=status;$('status').textContent='Acuan tersimpan · '+samples[index].id+' · '+(review?'ditinjau':'belum ditinjau');$('jumlah').textContent=samples.filter(x=>x.status!=='belum').length+'/'+samples.length+' selesai'}catch(e){$('status').textContent=String(e.message)}}
+$('save').onclick=()=>save('digambar');$('ambiguous').onclick=()=>save('ambigu');$('prev').onclick=()=>{index=Math.max(0,index-1);load()};$('next').onclick=()=>{index=Math.min(samples.length-1,index+1);load()};$('pilih').onchange=e=>{index=Number(e.target.value);load()};
+$('review').onclick=()=>save(samples[index].status,true);
+fetch('/sampel').then(r=>r.json()).then(data=>{samples=data;samples.forEach((s,i)=>{const opt=new Option((i+1)+' · '+s.id,i);$('pilih').add(opt)});const identitas=Number(new URLSearchParams(location.search).get('id'));const pilihan=samples.findIndex(s=>s.id===identitas);if(pilihan>=0)index=pilihan;load()});
+</script></html>
