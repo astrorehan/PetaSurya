@@ -2,15 +2,12 @@
 
 import time
 from dataclasses import asdict
-from threading import Lock
 
 from app.buildings import cari_bangunan
 from app.contracts import PaketPemindaian
 from app.geodata import analisis_tersimpan, proses_analisis_atap
 from app.imagery import bingkai_bangunan, daftar_tile
 from app.simulation import BuildingNotFoundError
-
-_kunci_model = Lock()
 
 
 def paket_pemindaian(building_id: int, jalankan=False, force=False) -> PaketPemindaian:
@@ -20,8 +17,7 @@ def paket_pemindaian(building_id: int, jalankan=False, force=False) -> PaketPemi
     sebelumnya = analisis_tersimpan(building_id)
     mulai = time.monotonic()
     if jalankan:
-        with _kunci_model:
-            analisis = proses_analisis_atap(building_id, force=force)
+        analisis = proses_analisis_atap(building_id, force=force)
     else:
         analisis = sebelumnya
     bingkai = bingkai_bangunan(bangunan)

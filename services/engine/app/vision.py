@@ -18,6 +18,7 @@ from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
 
 from app.contracts import AnalisisAtap, BangunanRingkas
+from app.settings import thread_model
 
 MODEL_VERSION = "mobilesam-osm-v4"
 DIR_MODEL = Path(__file__).resolve().parents[1] / "models"
@@ -158,7 +159,7 @@ def _sesi():
     ):
         raise FileNotFoundError("Bobot ONNX belum tersedia; jalankan scripts.unduh_model_vision.")
     opsi = ort.SessionOptions()
-    opsi.intra_op_num_threads = 2
+    opsi.intra_op_num_threads = thread_model()
     return tuple(
         ort.InferenceSession(str(DIR_MODEL / nama), opsi, providers=["CPUExecutionProvider"])
         for nama in ["mobilesam_encoder.onnx", "mobilesam_decoder.onnx"]

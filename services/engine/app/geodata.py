@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+from threading import Lock
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -24,6 +25,11 @@ from app.vision import analisis_dari_mask, segmentasi_atap
 DIR_ROOT = Path(__file__).resolve().parents[3]
 DIR_BANGUNAN = DIR_ROOT / "data" / "fixtures" / "bangunan"
 DIR_ANALISIS = DIR_ROOT / "data" / "fixtures" / "analisis"
+_kunci_analisis = Lock()
+
+
+class MesinSibuk(Exception):
+    """Antrean inferensi terbatas agar permintaan tidak menumpuk pada VPS CPU."""
 
 
 class HasilGeocode(BaseModel):
@@ -152,6 +158,18 @@ def analisis_tersimpan(building_id: int) -> AnalisisAtap | None:
 
 def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
     """Ambil atau hitung analisis atap untuk bangunan OSM di Bengkulu."""
+    tersimpan = analisis_tersimpan(building_id)
+    if tersimpan and not force:
+        return tersimpan
+    if not _kunci_analisis.acquire(timeout=10):
+        raise MesinSibuk("Mesin sedang menganalisis atap lain. Coba lagi sebentar.")
+    try:
+        return _analisis_tunggal(building_id, force)
+    finally:
+        _kunci_analisis.release()
+
+
+def _analisis_tunggal(building_id: int, force: bool) -> AnalisisAtap:
     tersimpan = analisis_tersimpan(building_id)
     if tersimpan and not force:
         return tersimpan

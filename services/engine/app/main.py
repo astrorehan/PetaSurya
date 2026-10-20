@@ -1,5 +1,8 @@
 """Titik masuk FastAPI. Satu service: rute, CORS, health, simulasi, geodata."""
 
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Path, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,12 +22,14 @@ from app.contracts import (
 )
 from app.geodata import (
     HasilGeocode,
+    MesinSibuk,
     PermintaanAnalisis,
     cari_bangunan_radius,
     geocode_pencarian_lokal,
     proses_analisis_atap,
 )
 from app.scans import paket_pemindaian
+from app.settings import asal_web
 from app.simulation import (
     BuildingNotFoundError,
     PermintaanSimulasi,
@@ -32,18 +37,37 @@ from app.simulation import (
     jalankan_simulasi,
 )
 from app.storage import baca
-from app.vision import MODEL_VERSION
+from app.vision import MODEL_VERSION, _sesi
 
-VERSION = "engine.2026.10.14"
+VERSION = "engine.2026.10.19"
 
-app = FastAPI(title="PetaSurya engine", version=VERSION)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if os.getenv("PETASURYA_PRELOAD_MODEL", "0") == "1":
+        _sesi()
+    yield
+
+
+app = FastAPI(title="PetaSurya engine", version=VERSION, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=asal_web(),
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(MesinSibuk)
+def mesin_sibuk(request: Request, error: MesinSibuk):
+    return JSONResponse(
+        status_code=503,
+        headers={"Retry-After": "10"},
+        content={
+            "error": {"code": "GEODATA_UNAVAILABLE", "message": str(error), "retriable": True}
+        },
+    )
 
 
 @app.exception_handler(DiLuarCakupan)
@@ -113,6 +137,18 @@ def roof_too_small_handler(request: Request, exc: RoofTooSmallError) -> JSONResp
 def health() -> dict[str, str]:
     """Dipakai pemantau hosting dan footer web (menampilkan versi mesin)."""
     return {"status": "ok", "engine_version": VERSION}
+
+
+@app.get("/api/v1/ready")
+def ready():
+    """Kesiapan inferensi memuat encoder dan decoder; tidak bergantung sumber citra."""
+    try:
+        _sesi()
+    except Exception:
+        return JSONResponse(
+            status_code=503, content={"status": "not_ready", "model_version": MODEL_VERSION}
+        )
+    return {"status": "ready", "model_version": MODEL_VERSION, "provider": "CPUExecutionProvider"}
 
 
 @app.post("/api/v1/aggregate", response_model=HasilAgregasi)
