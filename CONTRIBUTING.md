@@ -16,8 +16,10 @@ PetaSurya adalah peta potensi PLTS atap tingkat bangunan untuk Indonesia. Pemili
 ## Menjalankan
 
 Halaman `/` memperkenalkan PetaSurya dengan karakter Surya dan contoh analisis
-atap. Ruang kerja peta berada di `/peta`; pencarian lama melalui `/?q=…`
-diteruskan ke sana. Seluruh produk memakai grafit dan amber dengan tema gelap
+atap; halaman ini statis dan berada di grup rute `app/(merek)`. Halaman produk
+berada di `app/(produk)` dan berbagi kerangka header/footer (`KerangkaProduk`),
+termasuk halaman galat dan tidak ditemukan. Ruang kerja peta berada di `/peta`;
+pencarian lama melalui `/?q=…` diteruskan ke sana oleh `next.config.ts`. Seluruh produk memakai grafit dan amber dengan tema gelap
 sebagai awal. Tema terang memakai netral hangat; pilihan pengguna tersimpan dan
 berlaku juga di `/`. Warna halaman pengenalan memakai token semantik produk
 (`--paper`, `--surface`, `--ink`, `--pri`); efek khasnya memakai `--brand-*`
@@ -33,6 +35,11 @@ tersembunyi. Angka tampil sebagai nilai akhir, tanpa hitungan naik.
 Navigasi bersama merapat saat halaman digulir dan membuka saat hover atau fokus.
 Pada layar sentuh, tombol pembuka menyediakan menu. Pencarian yang sedang fokus
 tetap terbuka; Escape dan klik di luar menutup menu. Gerak mengikuti reduced motion.
+Navigasi utama selalu tepat di tengah header, dengan atau tanpa kolom pencarian.
+Perpindahan halaman memakai View Transitions API (`TransisiHalaman`,
+`app/transisi.css`): isi lama memudar lebih dulu, isi baru naik searah alur dan
+turun saat kembali ke tahap sebelumnya, sedangkan header tetap di tempat.
+Peramban tanpa API ini dan reduced motion berpindah halaman seperti biasa.
 
 Pada ponsel, `/peta` menyediakan pilihan Peta dan Daftar. Pencarian langsung
 membuka daftar agar hasilnya terlihat. Nama, ID, dan jenis bangunan seperti
