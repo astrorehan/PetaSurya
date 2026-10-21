@@ -48,6 +48,8 @@ Pencarian langsung membuka daftar agar hasilnya terlihat dan mencakup katalog,
 hasil tersimpan, serta area yang sudah dimuat. Nama, ID, dan jenis bangunan
 seperti rumah, toko, atau kampus dapat digabung dalam satu kueri; setiap kata
 harus cocok. Bangunan tanpa nama seukuran rumah berlabel Perkiraan rumah.
+Enter juga mencari kueri sebagai alamat; memilih alamat memindahkan peta ke
+titiknya dan menyorot bangunan yang memuat titik itu, lengkap dengan tautan analisis.
 Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia di
 seluruh kota. Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang
 mengetik pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.

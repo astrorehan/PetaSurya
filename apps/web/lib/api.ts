@@ -1,4 +1,4 @@
-import { BangunanRingkas, FootprintArea, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PermintaanAgregasi, PermintaanFootprintArea, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
+import { BangunanRingkas, FootprintArea, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PencarianAlamat, PermintaanAgregasi, PermintaanAlamat, PermintaanFootprintArea, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
 
 // NEXT_PUBLIC_API_BASE dibaca saat build klien Next.js.
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE?.trim() || "http://localhost:8000").replace(/\/+$/, "");
@@ -50,6 +50,16 @@ async function bacaRespons(response: Response): Promise<unknown> {
 }
 
 /** Footprint snapshot kota yang memotong bbox peta; dibatalkan saat peta bergerak lagi. */
+// Geocoder dipanggil hanya saat kueri dikirim; engine menjeda dan menyimpan hasilnya.
+export async function cariAlamat(q: string, signal?: AbortSignal): Promise<PencarianAlamat> {
+  const masukan = PermintaanAlamat.parse({ q });
+  const timeout = AbortSignal.timeout(15_000);
+  const response = await fetch(`${API_BASE}/api/v1/alamat?${new URLSearchParams(masukan)}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  const hasil = PencarianAlamat.safeParse(await bacaRespons(response));
+  if (!hasil.success) throw new GalatPemindaian("Hasil pencarian alamat tidak valid.");
+  return hasil.data;
+}
+
 export async function muatFootprintArea(permintaan: PermintaanFootprintArea, signal?: AbortSignal): Promise<FootprintArea> {
   const masukan = PermintaanFootprintArea.parse(permintaan);
   const q = new URLSearchParams(Object.entries(masukan).map(([kunci, nilai]) => [kunci, String(nilai)]));
