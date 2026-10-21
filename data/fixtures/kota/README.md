@@ -17,7 +17,9 @@ memiliki pasangan batas kecamatan; tetap masuk jumlah kota dalam kelompok
 terpisah. Snapshot ini bukan sensus atau ukuran kelengkapan seluruh atap
 kota. Identitas OSM, luas dan pasangan wilayah tersimpan; geometri asli
 dapat diperiksa dalam respons mentah. Hash batas kecamatan mengikat hasil
-pemasangan wilayah ke berkas batas yang dipakai.
+pemasangan wilayah ke berkas batas yang dipakai. Hash dihitung setelah CRLF
+dinormalkan menjadi LF, sehingga checkout Windows dan Linux memuat snapshot
+yang sama.
 
 `permintaan-bengkulu.json` berisi skenario contoh dan parameter eksplisit.
 Fraksi layak, tilt, hadap, SCR, albedo dan rugi merupakan asumsi seragam.

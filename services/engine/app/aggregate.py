@@ -65,6 +65,15 @@ class AtapAgregasi:
     lcoe_idr_kwh: float
 
 
+def sha256_teks(berkas: Path) -> str:
+    """SHA-256 isi teks setelah CRLF → LF.
+
+    Git menyimpan berkas teks dengan LF, tetapi checkout Windows dapat menulis
+    CRLF. Hash bytes mentah membuat snapshot hanya cocok dengan satu checkout.
+    """
+    return sha256(berkas.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 @lru_cache(maxsize=1)
 def muat_wilayah() -> list[dict]:
     data = json.loads(BERKAS_WILAYAH.read_text("utf-8"))
@@ -78,7 +87,7 @@ def muat_wilayah() -> list[dict]:
 def muat_data_kota() -> dict:
     """Baca snapshot tetap; tidak memanggil OSM atau model segmentasi."""
     data = json.loads(gzip.decompress(BERKAS_KOTA.read_bytes()))
-    if data["sha256_batas_kecamatan"] != sha256(BERKAS_WILAYAH.read_bytes()).hexdigest():
+    if data["sha256_batas_kecamatan"] != sha256_teks(BERKAS_WILAYAH):
         raise OSError("Batas kecamatan berubah; bentuk ulang snapshot Mode Kota.")
     ids = [b["source_ref"] for b in data["bangunan"]]
     if len(ids) != len(set(ids)):

@@ -10,12 +10,14 @@ from fastapi.testclient import TestClient
 from shapely.geometry import box
 
 from app.aggregate import (
+    BERKAS_WILAYAH,
     PermintaanAgregasiInput,
     hitung_bangunan,
     jalankan_agregasi,
     jumlahkan,
     muat_data_kota,
     pilih_atap,
+    sha256_teks,
 )
 from app.main import app
 from scripts.ambil_bangunan_kota import normalkan
@@ -179,6 +181,27 @@ def test_api_menolak_nonfinite_pada_parameter_bersarang():
     )
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_snapshot_dimuat_sama_pada_checkout_lf_dan_crlf(tmp_path, monkeypatch):
+    """CI Linux menulis LF, Windows dengan autocrlf menulis CRLF; isi batasnya sama."""
+    teks = BERKAS_WILAYAH.read_bytes().replace(b"\r\n", b"\n")
+    berkas = tmp_path / "kecamatan.geojson"
+    monkeypatch.setattr("app.aggregate.BERKAS_WILAYAH", berkas)
+    try:
+        jumlah = []
+        for isi in (teks, teks.replace(b"\n", b"\r\n")):
+            berkas.write_bytes(isi)
+            muat_data_kota.cache_clear()
+            jumlah.append(len(muat_data_kota()["bangunan"]))
+        assert jumlah[0] == jumlah[1] > 1000
+        assert muat_data_kota()["sha256_batas_kecamatan"] == sha256_teks(berkas)
+        berkas.write_bytes(teks.replace(b"Sungai Serut", b"Sungai Serut Baru", 1))
+        muat_data_kota.cache_clear()
+        with pytest.raises(OSError, match="Batas kecamatan berubah"):
+            muat_data_kota()
+    finally:
+        muat_data_kota.cache_clear()
 
 
 def test_snapshot_memiliki_sumber_dan_objek_unik():

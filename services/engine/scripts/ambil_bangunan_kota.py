@@ -8,7 +8,6 @@ Respons mentah dan keluaran dikompresi gzip deterministik tanpa cap waktu.
 import argparse
 import gzip
 import json
-from hashlib import sha256
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -17,6 +16,7 @@ from shapely import prepare
 from shapely.geometry import LineString, MultiPolygon, Polygon, mapping, shape
 from shapely.ops import polygonize, unary_union
 
+from app.aggregate import sha256_teks
 from app.buildings import batas_kota
 from app.vision import luas_geodesik
 
@@ -146,7 +146,7 @@ def main():
     }
     paket = {
         "sumber": sumber,
-        "sha256_batas_kecamatan": sha256(berkas_batas.read_bytes()).hexdigest(),
+        "sha256_batas_kecamatan": sha256_teks(berkas_batas),
         "ditolak": ditolak,
         "bangunan": bangunan,
     }
