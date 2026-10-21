@@ -100,6 +100,11 @@ permintaan dengan yang terdekat dari pusat bbox lebih dahulu. Bbox di luar Kota
 Bengkulu ditolak. Bangunan snapshot dipindai tanpa memanggil OSM dan masuk
 katalog setelah dianalisis. `perkiraan_jenis: "rumah"` adalah tebakan dari luas
 footprint, bukan tag OSM; rinciannya ada di `data/fixtures/kota/README.md`.
+`GET /api/v1/alamat?q=…` mencari alamat di Kota Bengkulu lewat Nominatim saat
+kueri dikirim (bukan saat mengetik), paling banyak satu permintaan per detik dengan
+cache memori, lalu memasangkan titik alamat ke footprint snapshot yang memuatnya
+atau yang tepinya ≤ 30 m. Titik jalan tidak dipasangkan ke rumah; banyak rumah di
+OSM Bengkulu belum bernomor, sehingga hasil sering hanya memindahkan peta.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
 
