@@ -160,6 +160,10 @@ def _sesi():
         raise FileNotFoundError("Bobot ONNX belum tersedia; jalankan scripts.unduh_model_vision.")
     opsi = ort.SessionOptions()
     opsi.intra_op_num_threads = thread_model()
+    # Arena CPU menahan buffer aktivasi encoder 1024² setelah inferensi (RSS ±740 MiB);
+    # tanpa arena dan pola memori, RSS ±270 MiB dengan mask identik bit demi bit.
+    opsi.enable_cpu_mem_arena = False
+    opsi.enable_mem_pattern = False
     return tuple(
         ort.InferenceSession(str(DIR_MODEL / nama), opsi, providers=["CPUExecutionProvider"])
         for nama in ["mobilesam_encoder.onnx", "mobilesam_decoder.onnx"]
