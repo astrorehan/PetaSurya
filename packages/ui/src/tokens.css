@@ -49,7 +49,7 @@
   --brand-glow: radial-gradient(ellipse at center, rgba(232, 146, 15, 0.16), rgba(232, 146, 15, 0.04) 45%, transparent 70%);
   --brand-signature-glow: radial-gradient(ellipse at 50% 110%, rgba(232, 146, 15, 0.2), transparent 68%);
   --brand-signature-type: linear-gradient(180deg, #f1d0a1 15%, #8c652e 100%);
-  --brand-mascot-fade: linear-gradient(to bottom, #000 69%, transparent 80%);
+  --brand-mascot-fade: linear-gradient(to bottom, #000 66%, transparent 88%);
   --brand-map-fade: radial-gradient(ellipse at center, #000 25%, transparent 75%);
   --brand-preview-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
   /* Bayang kontak mata Surya di atas bulu; sama pada kedua tema karena maskot tidak berganti warna. */
@@ -166,7 +166,6 @@
   --z-header: 30;
   --z-lembar: 40;
   --z-tooltip: 50;
-  --z-transisi: 60;
 
   /* --- gerak: durasi dan kurva adaptasi Arc Library --- */
   --t-instant: 120ms;
@@ -188,9 +187,14 @@
   --t-flow: 2600ms;
   --t-stagger: 45ms;
   --t-navbar: 500ms;
-  --t-gerbang-tutup: 420ms;
-  --t-gerbang-siap: 720ms;
-  --t-gerbang-buka: 680ms;
+  /*
+   * Perpindahan halaman (fade through): isi lama habis dalam 150 ms, isi baru
+   * mulai pada 110 ms. Tumpang tindih 40 ms terjadi saat isi lama di bawah 30%
+   * opacity, sehingga dua halaman tidak terbaca bertumpuk. Total 470 ms.
+   */
+  --t-halaman-keluar: 150ms;
+  --t-halaman-masuk: 360ms;
+  --t-halaman-jeda: 110ms;
 
   /*
    * Arsir miring 8 px untuk keyakinan rendah (POLA_KEYAKINAN_RENDAH).
