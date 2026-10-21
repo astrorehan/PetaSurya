@@ -48,6 +48,8 @@ Pencarian langsung membuka daftar agar hasilnya terlihat dan mencakup katalog,
 hasil tersimpan, serta area yang sudah dimuat. Nama, ID, dan jenis bangunan
 seperti rumah, toko, atau kampus dapat digabung dalam satu kueri; setiap kata
 harus cocok. Bangunan tanpa nama seukuran rumah berlabel Perkiraan rumah.
+Enter juga mencari kueri sebagai alamat; memilih alamat memindahkan peta ke
+titiknya dan menyorot bangunan yang memuat titik itu, lengkap dengan tautan analisis.
 Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia di
 seluruh kota. Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang
 mengetik pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.
@@ -100,6 +102,11 @@ permintaan dengan yang terdekat dari pusat bbox lebih dahulu. Bbox di luar Kota
 Bengkulu ditolak. Bangunan snapshot dipindai tanpa memanggil OSM dan masuk
 katalog setelah dianalisis. `perkiraan_jenis: "rumah"` adalah tebakan dari luas
 footprint, bukan tag OSM; rinciannya ada di `data/fixtures/kota/README.md`.
+`GET /api/v1/alamat?q=…` mencari alamat di Kota Bengkulu lewat Nominatim saat
+kueri dikirim (bukan saat mengetik), paling banyak satu permintaan per detik dengan
+cache memori, lalu memasangkan titik alamat ke footprint snapshot yang memuatnya
+atau yang tepinya ≤ 30 m. Titik jalan tidak dipasangkan ke rumah; banyak rumah di
+OSM Bengkulu belum bernomor, sehingga hasil sering hanya memindahkan peta.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
 

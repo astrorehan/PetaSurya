@@ -127,7 +127,11 @@ function titikGeometri(koordinat: unknown, bounds: maplibregl.LngLatBounds) {
 }
 
 function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefined, sesuaikan=true) {
-  if (!geometri) return;
+  if (!geometri) {
+    const sumber = map.getSource(SUMBER_ATAP);
+    if (sumber instanceof maplibregl.GeoJSONSource) sumber.setData({ type: "FeatureCollection", features: [] });
+    return;
+  }
 
   const data: FiturGeoJSON = {
     type: "Feature",
@@ -297,6 +301,8 @@ type PetaProps = {
   onKameraBerubah?: (kamera: KameraPeta) => void;
   zoomAwal?: number;
   kunciKamera?: string;
+  /** Pindahkan kamera ke titik ini; objek baru memicu perpindahan. */
+  fokus?: { pusat: [number, number]; zoom: number } | null;
   batasPencarian?: [number, number, number, number];
   pertahankanKamera?: boolean;
   satelitAwal?: boolean;
@@ -317,6 +323,7 @@ export function Peta({
   onKameraBerubah,
   zoomAwal = ZOOM_AWAL,
   kunciKamera,
+  fokus = null,
   batasPencarian,
   pertahankanKamera = false,
   satelitAwal = false,
@@ -467,6 +474,11 @@ export function Peta({
     pasangSorot(map, geometriSorot, !pertahankanKamera);
     pasangWilayah(map, wilayah, wilayahTerpilih, false);
   }, [bangunan, geometriSorot, pertahankanKamera, wilayah, wilayahTerpilih]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map && petaSiap && fokus) gerakKe(map, fokus.pusat, fokus.zoom);
+  }, [fokus, petaSiap]);
 
   useEffect(() => {
     const map = mapRef.current;

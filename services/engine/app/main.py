@@ -11,6 +11,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 from app.aggregate import PermintaanAgregasiInput, jalankan_agregasi
+from app.alamat import cari_alamat
 from app.buildings import (
     DiLuarCakupan,
     PermintaanFootprintInput,
@@ -27,6 +28,8 @@ from app.contracts import (
     HasilSimulasi,
     KodeGalat,
     PaketPemindaian,
+    PencarianAlamat,
+    PermintaanAlamat,
 )
 from app.geodata import (
     HasilGeocode,
@@ -47,7 +50,7 @@ from app.simulation import (
 from app.storage import baca
 from app.vision import MODEL_VERSION, _sesi
 
-VERSION = "engine.2026.10.21"
+VERSION = "engine.2026.10.21.1"
 
 
 @asynccontextmanager
@@ -187,6 +190,12 @@ def get_buildings(
 def footprint_area(permintaan: Annotated[PermintaanFootprintInput, Query()]) -> FootprintArea:
     """Footprint snapshot OSM Kota Bengkulu dalam bbox peta; tanpa jaringan."""
     return footprint_di_area(permintaan)
+
+
+@app.get("/api/v1/alamat", response_model=PencarianAlamat, response_model_exclude_unset=True)
+def alamat(permintaan: Annotated[PermintaanAlamat, Query()]) -> PencarianAlamat:
+    """Alamat di Kota Bengkulu dari Nominatim beserta footprint snapshot di titiknya."""
+    return cari_alamat(permintaan.q)
 
 
 @app.get("/api/v1/catalog", response_model=list[BangunanRingkas], response_model_exclude_unset=True)

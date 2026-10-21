@@ -457,3 +457,21 @@ sumber:
       multipolygon belum dapat dipilih. Perkiraan rumah adalah persentil 5–95
       luas 257 way bertag building=house di snapshot yang sama, diterapkan
       pada building=yes tanpa nama; tebakan ukuran, bukan klasifikasi.
+
+  - id: nominatim_pencarian_alamat
+    nama: Geocoder Nominatim untuk pencarian alamat di /peta
+    nilai: {permintaan_per_detik_maks: 1}
+    satuan: permintaan per detik per aplikasi
+    penerbit: OpenStreetMap Foundation; data alamat OpenStreetMap contributors, ODbL 1.0
+    url: https://operations.osmfoundation.org/policies/nominatim/
+    tahun: 2026
+    diambil: 2026-10-21
+    dipakai_untuk: L1 pencarian alamat Kota Bengkulu (GET /api/v1/alamat)
+    status: terverifikasi
+    catatan: >-
+      Kebijakan pemakaian meminta paling banyak satu permintaan per detik,
+      User-Agent yang mengenali aplikasi, atribusi OSM, cache hasil, dan
+      tanpa pelengkapan otomatis saat mengetik. Engine mencari hanya saat
+      kueri dikirim, membatasi viewbox ke batas Kota Bengkulu, dan menyimpan
+      hasil di memori. Banyak rumah di OSM Bengkulu belum memiliki nomor;
+      hasil sering setingkat jalan atau tempat sehingga hanya memindahkan peta.

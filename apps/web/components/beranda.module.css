@@ -84,6 +84,21 @@
 .keadaanKosong p { margin: 0; }
 .keadaanKosong button { display: inline-flex; align-items: center; justify-self: start; gap: var(--sp-2); min-height: var(--kontrol-h); padding: 0; border: none; background: transparent; color: var(--pri); font: inherit; cursor: pointer; }
 
+/* Alamat: geocoder dipanggil saat kueri dikirim, hasilnya di atas bangunan yang cocok. */
+.bagianAlamat { display: grid; gap: var(--sp-1); padding-bottom: var(--sp-2); margin-bottom: var(--sp-2); border-bottom: 1px solid var(--line); }
+button.bangunan { width: 100%; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.bagianAlamat .ringkasanBangunan > span { font: 400 10px / 1.4 var(--f-ui); }
+.pesanAlamat { margin: 0; padding: var(--sp-2) 0; color: var(--ink-2); font: 400 var(--fs-xs) / 1.6 var(--f-ui); }
+.pesanAlamat button, .tombolAlamat { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--kontrol-h); padding: 0; border: none; background: transparent; color: var(--pri); font: 500 var(--fs-xs) / 1.4 var(--f-ui); cursor: pointer; }
+.atribusiAlamat { margin: 0; color: var(--ink-2); font: 400 10px / 1.4 var(--f-ui); }
+.kartuAlamat { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: var(--sp-2); padding: var(--sp-3); margin-bottom: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); }
+.kartuAlamat > svg { margin-top: 2px; color: var(--surya); }
+.kartuAlamat strong { display: block; font: 500 12px / 1.4 var(--f-ui); overflow-wrap: anywhere; }
+.kartuAlamat p { margin: var(--sp-1) 0; color: var(--ink-2); font: 400 11px / 1.5 var(--f-ui); }
+.kartuAlamat a { font-size: 11px; }
+.kartuAlamat > button { display: grid; place-items: center; width: var(--kontrol-h); height: var(--kontrol-h); margin: calc(-1 * var(--sp-2)); border: none; border-radius: var(--r-pill); background: transparent; color: var(--ink-2); cursor: pointer; }
+.kartuAlamat > button:hover { background: var(--surface); }
+
 /* Rincian cakupan: baris tenang di kaki panel, bukan kartu kedua. */
 .tentangData { color: var(--ink-2); font: 400 11px / 1.6 var(--f-ui); }
 .tentangData > section { border: none; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }

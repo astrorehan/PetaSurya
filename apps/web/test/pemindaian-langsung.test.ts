@@ -114,3 +114,31 @@ describe("footprint area peta", () => {
     await expect(muatFootprintArea(BBOX)).rejects.toBeInstanceOf(GalatPemindaian);
   });
 });
+
+describe("pencarian alamat", () => {
+  const hasilAlamat = {
+    kueri: "Jl. Kapuas",
+    hasil: [{ nama: "Masjid Jamik", alamat: "Masjid Jamik, Jalan Sudirman, Kota Bengkulu", lat: -3.7929, lon: 102.2655, presisi: "amenity", bangunan: { ...katalog.bangunan[0] }, kecocokan: "memuat", jarak_m: 0 }],
+    atribusi: "Alamat © kontributor OpenStreetMap (ODbL)",
+  };
+
+  it("mengirim kueri yang dipangkas dan membaca bangunan di titik alamat", async () => {
+    const { cariAlamat } = await import("../lib/api");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(hasilAlamat)));
+    vi.stubGlobal("fetch", fetchMock);
+    const data = await cariAlamat("  Jl. Kapuas ");
+    const url = new URL(fetchMock.mock.calls[0][0]);
+    expect(url.pathname).toBe("/api/v1/alamat");
+    expect(url.searchParams.get("q")).toBe("Jl. Kapuas");
+    expect(data.hasil[0].kecocokan).toBe("memuat");
+  });
+
+  it("tidak memanggil geocoder untuk kueri pendek dan menolak respons tidak sah", async () => {
+    const { GalatPemindaian, cariAlamat } = await import("../lib/api");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ kueri: "x", hasil: "bukan daftar", atribusi: "" })));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(cariAlamat("ab")).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(cariAlamat("jalan kapuas")).rejects.toBeInstanceOf(GalatPemindaian);
+  });
+});
