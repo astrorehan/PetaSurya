@@ -29,17 +29,19 @@
 .pencarian kbd { flex-shrink: 0; display: grid; place-items: center; width: 26px; height: 26px; margin-right: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-bar); color: var(--ink-2); font: 400 12px / 1 var(--f-mono); }
 .pencarian button { flex-shrink: 0; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: none; border-radius: var(--r-pill); background: var(--surface-3); color: var(--ink-2); cursor: pointer; }
 .pencarian button:hover { color: var(--ink); }
-.cakupanPeta { display: flex; align-items: center; gap: var(--sp-2); color: var(--ink-2); font: 400 11px / 1.4 var(--f-ui); white-space: nowrap; }
-.cakupanPeta > span { width: 5px; height: 5px; border-radius: var(--r-pill); background: var(--surya); }
 
 /* Peta dan daftar mengisi satu layar; daftar bergulir di panelnya sendiri. */
 .barisPeta { --tinggi-ruang: clamp(460px, calc(100dvh - 330px), 720px); display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: var(--tinggi-ruang); }
 .pilihanTampilan { display: none; }
 .kolomPeta { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: var(--sp-3); background: var(--paper); }
 .petaBeranda { --tinggi-peta: auto; flex: 1 1 0; min-height: 0; margin: 0; border-radius: var(--r-s); }
-.kakiPeta { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin: 0; padding: var(--sp-3) var(--sp-2) 0; color: var(--ink-2); font: 400 10px / 1.4 var(--f-ui); }
-.kakiPeta > span { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.kakiPeta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); min-height: 40px; padding: var(--sp-2) var(--sp-2) 0; color: var(--ink-2); font: 400 10px / 1.4 var(--f-ui); }
+.legenda { display: inline-flex; align-items: center; gap: var(--sp-4); }
+.legenda > span { display: inline-flex; align-items: center; gap: var(--sp-2); }
 .kakiPeta i { display: inline-block; width: 10px; height: 10px; border: 1px solid var(--surya); border-radius: var(--r-bar); background: var(--surya-bg); }
+.kakiPeta i[data-tersimpan] { background: var(--surya); }
+.statusArea { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 var(--sp-2); color: var(--ink); font-size: 11px; }
+.statusArea button { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: 32px; padding: 0 var(--sp-2); border: none; border-radius: var(--r-pill); background: transparent; color: var(--pri); font: 500 11px / 1.4 var(--f-ui); cursor: pointer; }
 
 .status { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4) var(--sp-4) var(--sp-2); border-left: 1px solid var(--line); }
 .contohCepat { display: flex; align-items: center; gap: var(--sp-2); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); }
@@ -60,11 +62,10 @@
 .filterDaftar button:hover { color: var(--ink); }
 .filterDaftar button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-s), 0 0 0 1px var(--line-2); }
 .filterDaftar button > span { color: var(--ink-2); font: 400 10px / 1 var(--f-mono); font-variant-numeric: tabular-nums; }
-.statusTeks { margin: 0; color: var(--ink-2); font: 400 11px / 1.5 var(--f-ui); overflow-wrap: anywhere; }
-.kembaliKatalog { display: inline-flex; align-items: center; align-self: flex-start; gap: var(--sp-2); min-height: 36px; padding: 0; border: none; background: transparent; color: var(--pri); font: 500 var(--fs-xs) / 1.3 var(--f-ui); cursor: pointer; }
-.galat { margin: 0; padding: var(--sp-3); border-left: var(--sp-1) solid var(--merah); border-radius: var(--r-s); color: var(--ink); background: var(--merah-bg); font: var(--tipe-kecil); }
 
-.gulirDaftar { flex: 1 1 auto; min-height: 0; margin: 0 calc(-1 * var(--sp-2)); padding: 0 var(--sp-2); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.gulirDaftar { flex: 1 1 auto; min-height: 0; margin: 0 calc(-1 * var(--sp-2)); padding: 0 var(--sp-2); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; transition: opacity var(--t-fast); }
+/* Daftar meredup hanya bila area dimuat lebih dari 300 ms; respons cepat tidak berkedip. */
+.gulirDaftar[aria-busy="true"] { opacity: 0.6; transition: opacity var(--t-base) 300ms; }
 .daftarBangunan { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .bangunan { display: flex; align-items: center; gap: var(--sp-3); min-height: 60px; padding: var(--sp-2); border-radius: var(--r-s); color: var(--ink); text-decoration: none; transition: background var(--t-fast) var(--ease-out); }
 .bangunan:hover { background: var(--surface-2); }
@@ -73,7 +74,7 @@
 .ringkasanBangunan { display: grid; min-width: 0; gap: var(--sp-1); }
 .ringkasanBangunan strong { font: 500 12px / 1.4 var(--f-ui); overflow-wrap: anywhere; }
 .ringkasanBangunan > span { color: var(--ink-2); font: 400 10px / 1.4 var(--f-mono); }
-.tersimpan { font-family: var(--f-ui); }
+.label { font-family: var(--f-ui); }
 .kakiDaftar { display: grid; gap: var(--sp-2); padding: var(--sp-3) 0 var(--sp-2); }
 .kakiDaftar > button { min-height: 40px; font-size: 11px; }
 .jumlahTampil { margin: 0; color: var(--ink-2); font: 400 10px / 1.5 var(--f-mono); font-variant-numeric: tabular-nums; text-align: center; }
@@ -101,11 +102,10 @@
 .halaman :is(a, button, select):focus-visible { outline: 2px solid var(--pri); outline-offset: 3px; }
 
 @media (pointer: coarse) {
-  .contohCepat a, .filterDaftar button, .pilihanUrutan select, .kembaliKatalog { min-height: var(--kontrol-h); }
+  .contohCepat a, .filterDaftar button, .pilihanUrutan select, .statusArea button { min-height: var(--kontrol-h); }
 }
 @media (max-width: 1000px) {
   .barisPeta { grid-template-columns: minmax(0, 1fr) 310px; }
-  .cakupanPeta { font-size: 10px; }
 }
 @media (max-width: 800px) {
   .halaman { padding-top: var(--sp-5); }
@@ -117,11 +117,9 @@
   .pilihanTampilan button > span { font: 400 10px / 1 var(--f-mono); }
   .ruangKerja[data-tampilan="peta"] .status, .ruangKerja[data-tampilan="daftar"] .kolomPeta { display: none; }
   .petaBeranda { --tinggi-peta: clamp(340px, 58dvh, 500px); flex: none; }
-  .kakiPeta > span:last-child { display: none; }
   .status { padding: var(--sp-4); border-left: none; }
   .gulirDaftar { flex: none; overflow: visible; }
   .bilahPeta { min-height: 64px; }
-  .cakupanPeta { display: none; }
   .pencarian { width: 100%; }
   .pencarian input, .pilihanUrutan select { font-size: var(--fs-b); }
 }
@@ -134,9 +132,13 @@
   .alur strong { font-size: 11px; }
   .bilahPeta { padding-inline: var(--sp-3); }
   .kolomPeta { padding: var(--sp-2); }
-  .kakiPeta { font-size: 9px; padding-inline: var(--sp-1); }
+  .kakiPeta { padding-inline: var(--sp-1); }
+  .legenda { gap: var(--sp-3); }
   .contohCepat { flex-wrap: wrap; }
   .contohCepat > span { width: 100%; }
   .catatan > p { font-size: 10px; }
 }
-@media (prefers-reduced-motion: reduce) { .halaman *, .halaman *::before { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .halaman *, .halaman *::before { transition: none !important; animation: none !important; }
+  .gulirDaftar[aria-busy="true"] { opacity: 1; }
+}

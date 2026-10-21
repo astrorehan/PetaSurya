@@ -41,15 +41,20 @@ Perpindahan halaman memakai View Transitions API (`TransisiHalaman`,
 turun saat kembali ke tahap sebelumnya, sedangkan header tetap di tempat.
 Peramban tanpa API ini dan reduced motion berpindah halaman seperti biasa.
 
-Pada ponsel, `/peta` menyediakan pilihan Peta dan Daftar. Pencarian langsung
-membuka daftar agar hasilnya terlihat. Nama, ID, dan jenis bangunan seperti
-rumah, toko, atau kampus dapat digabung dalam satu kueri; setiap kata harus cocok.
-Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia.
-Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang mengetik
-pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.
+Pada ponsel, `/peta` menyediakan pilihan Peta dan Daftar. Tanpa kueri, daftar
+berisi bangunan yang terlihat di peta: perbesar peta untuk memuat bangunan, lalu
+geser ke area lain. Area terakhir dipulihkan saat kembali dari pemindai.
+Pencarian langsung membuka daftar agar hasilnya terlihat dan mencakup katalog,
+hasil tersimpan, serta area yang sudah dimuat. Nama, ID, dan jenis bangunan
+seperti rumah, toko, atau kampus dapat digabung dalam satu kueri; setiap kata
+harus cocok. Bangunan tanpa nama seukuran rumah berlabel Perkiraan rumah.
+Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia di
+seluruh kota. Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang
+mengetik pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.
 Jika peta gagal dimuat, daftar tetap tersedia dan tombol Coba muat peta
-menjalankan ulang pemuatan. Halaman yang tidak ditemukan dan galat halaman
-menyediakan tindakan pemulihan; ID pemindaian wajib berupa bilangan bulat positif.
+menjalankan ulang pemuatan; bila bangunan area gagal dimuat, Coba lagi mengulang
+permintaan. Halaman yang tidak ditemukan dan galat halaman menyediakan tindakan
+pemulihan; ID pemindaian wajib berupa bilangan bulat positif.
 
 ```bash
 pnpm install
@@ -77,9 +82,12 @@ dapat dibentuk ulang dari respons OSM mentah dengan
 
 Katalog awal berisi 181 bangunan nyata dari cuplikan OSM dan sembilan contoh
 awal. `uv run python -m scripts.buat_katalog_bangunan` membentuk ulang katalog
-tanpa membuat analisis. Beranda mengambil bangunan lain di sekitar pusat peta
-melalui OSM Map API, pada radius maksimal 200 m. Cakupan dibatasi batas Kota
-Bengkulu karena cuaca simulasi memakai acuan Bengkulu 2024.
+tanpa membuat analisis. `/peta` memuat footprint snapshot kota untuk area yang
+terlihat melalui `GET /api/v1/footprints` mulai zoom 15,5, 250 ms setelah peta
+berhenti bergeser; peramban menahan paling banyak 6.000 bangunan dari area yang
+pernah dibuka. Pencarian OSM daring `GET /api/v1/buildings` (radius maksimal
+200 m) tetap tersedia bagi pemanggil API. Cakupan dibatasi batas Kota Bengkulu
+karena cuaca simulasi memakai acuan Bengkulu 2024.
 
 `GET /api/v1/catalog` membaca katalog lokal, `GET /api/v1/scans/{building_id}`
 menyiapkan citra dan hasil tersimpan, dan `POST /api/v1/scans` menjalankan model

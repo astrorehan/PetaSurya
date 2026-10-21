@@ -1,4 +1,4 @@
-import { BangunanRingkas, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PermintaanAgregasi, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
+import { BangunanRingkas, FootprintArea, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PermintaanAgregasi, PermintaanFootprintArea, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
 
 // NEXT_PUBLIC_API_BASE dibaca saat build klien Next.js.
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE?.trim() || "http://localhost:8000").replace(/\/+$/, "");
@@ -49,11 +49,15 @@ async function bacaRespons(response: Response): Promise<unknown> {
   return response.json();
 }
 
-export async function bangunanDiArea(lat: number, lon: number, signal?: AbortSignal) {
-  const q = new URLSearchParams({ lat: String(lat), lon: String(lon), r: "200", live: "true" });
-  const timeout = AbortSignal.timeout(30_000);
-  const response = await fetch(`${API_BASE}/api/v1/buildings?${q}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
-  return BangunanRingkas.array().parse(await bacaRespons(response));
+/** Footprint snapshot kota yang memotong bbox peta; dibatalkan saat peta bergerak lagi. */
+export async function muatFootprintArea(permintaan: PermintaanFootprintArea, signal?: AbortSignal): Promise<FootprintArea> {
+  const masukan = PermintaanFootprintArea.parse(permintaan);
+  const q = new URLSearchParams(Object.entries(masukan).map(([kunci, nilai]) => [kunci, String(nilai)]));
+  const timeout = AbortSignal.timeout(15_000);
+  const response = await fetch(`${API_BASE}/api/v1/footprints?${q}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  const hasil = FootprintArea.safeParse(await bacaRespons(response));
+  if (!hasil.success) throw new GalatPemindaian("Data bangunan area ini tidak valid.");
+  return hasil.data;
 }
 
 export async function muatKatalog() {

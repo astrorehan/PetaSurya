@@ -55,17 +55,29 @@ function normalisasi(teks: string): string {
   return teks.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("id-ID").trim();
 }
 
-/** Setiap kata boleh cocok dengan nama, jenis, atau ID bangunan. */
-export function cariBangunan(daftar: BangunanRingkas[], kueri: string): BangunanRingkas[] {
-  const kata = normalisasi(kueri).split(/\s+/).filter(Boolean);
-  if (!kata.length) return [...daftar];
+// Area peta dapat menahan ribuan bangunan; teks cari dibentuk sekali per objek.
+const teksCari = new WeakMap<BangunanRingkas, string>();
 
-  return daftar.filter((bangunan) => {
+function teksBangunan(bangunan: BangunanRingkas): string {
+  let teks = teksCari.get(bangunan);
+  if (teks === undefined) {
     const jenis = bangunan.building_tag ?? "";
     const nama = namaBangunan(bangunan);
     const kampus = /\b(unib|universitas|fakultas|dekanat)\b/i.test(nama) ? "kampus universitas pendidikan" : "";
     const usaha = /\b(toko|warung|minimarket|indomaret|alfamart)\b/i.test(nama) ? "toko usaha umkm perdagangan" : "";
-    const teks = normalisasi([nama, bangunan.id, jenis, JENIS_BANGUNAN[jenis], kampus, usaha].join(" "));
+    const perkiraan = bangunan.perkiraan_jenis === "rumah" ? "perkiraan rumah" : "";
+    teks = normalisasi([nama, bangunan.id, jenis, JENIS_BANGUNAN[jenis], kampus, usaha, perkiraan].join(" "));
+    teksCari.set(bangunan, teks);
+  }
+  return teks;
+}
+
+/** Setiap kata boleh cocok dengan nama, jenis, perkiraan jenis, atau ID bangunan. */
+export function cariBangunan(daftar: BangunanRingkas[], kueri: string): BangunanRingkas[] {
+  const kata = normalisasi(kueri).split(/\s+/).filter(Boolean);
+  if (!kata.length) return [...daftar];
+  return daftar.filter((bangunan) => {
+    const teks = teksBangunan(bangunan);
     return kata.every((bagian) => teks.includes(bagian));
   });
 }

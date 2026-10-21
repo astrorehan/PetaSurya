@@ -4,6 +4,8 @@ import demo from "../../../data/fixtures/demo.json";
 import katalog from "../../../data/fixtures/katalog-bangunan.json";
 import { areaSkenario, paketContoh, tampilanPaket, paketBangunan, potensiLuas, PROFIL_SIMULASI } from "../lib/pemindaian";
 
+const BBOX = { barat: 102.26, selatan: -3.77, timur: 102.27, utara: -3.76 };
+
 afterEach(() => { vi.unstubAllGlobals(); });
 
 describe("bangunan dan bingkai pemindaian", () => {
@@ -33,15 +35,15 @@ describe("bangunan dan bingkai pemindaian", () => {
 });
 
 describe("permintaan pemindaian", () => {
-  it("membatalkan pengambilan area saat pengguna berpindah atau memilih area lain", async () => {
-    const { bangunanDiArea } = await import("../lib/api");
+  it("membatalkan pengambilan area saat peta bergerak lagi", async () => {
+    const { muatFootprintArea } = await import("../lib/api");
     let sinyal: AbortSignal | undefined;
     vi.stubGlobal("fetch", vi.fn((_url, opsi: RequestInit) => new Promise((_resolve, reject) => {
       sinyal = opsi.signal as AbortSignal;
       sinyal.addEventListener("abort", () => reject(sinyal!.reason), { once: true });
     })));
     const permintaan = new AbortController();
-    const hasil = bangunanDiArea(-3.76, 102.26, permintaan.signal);
+    const hasil = muatFootprintArea(BBOX, permintaan.signal);
     const ditolak = expect(hasil).rejects.toMatchObject({ name: "AbortError" });
     permintaan.abort();
     await ditolak;
@@ -74,10 +76,41 @@ describe("permintaan pemindaian", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ building_id: p.bangunan.id, force: true });
   });
   it("menolak hasil bangunan lain dan mempertahankan pesan gagal sumber", async () => {
-    const { pindaiBangunan, bangunanDiArea } = await import("../lib/api");
+    const { pindaiBangunan, muatFootprintArea } = await import("../lib/api");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(paketContoh(demo[0].bangunan.id)))));
     await expect(pindaiBangunan(999)).rejects.toThrow();
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({error:{code:"GEODATA_UNAVAILABLE",message:"Data OSM belum tersedia",retriable:true}}),{status:503})));
-    await expect(bangunanDiArea(-3.76,102.26)).rejects.toThrow("Data OSM belum tersedia");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({error:{code:"OUT_OF_COVERAGE",message:"Analisis tersedia di Kota Bengkulu",retriable:false}}),{status:422})));
+    await expect(muatFootprintArea(BBOX)).rejects.toThrow("Analisis tersedia di Kota Bengkulu");
+  });
+});
+
+describe("footprint area peta", () => {
+  const area = {
+    permintaan: { ...BBOX, batas: 1500 },
+    jumlah: 2,
+    terpotong: false,
+    bangunan: [{ ...katalog.bangunan[0], building_tag: "yes", nama: null, perkiraan_jenis: "rumah" }],
+    perkiraan_rumah: { min_m2: 56.3, max_m2: 372.3, dasar: "Persentil luas building=house" },
+    sumber: { penerbit: "OpenStreetMap contributors", url: "https://overpass-api.de/api/interpreter", diambil: "2026-10-14", timestamp_osm: "2026-10-14T16:04:41Z", catatan: "Snapshot" },
+  };
+
+  it("mengirim bbox dan batas jumlah sebagai parameter kueri", async () => {
+    const { muatFootprintArea } = await import("../lib/api");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(area)));
+    vi.stubGlobal("fetch", fetchMock);
+    const hasil = await muatFootprintArea(BBOX);
+    const url = new URL(fetchMock.mock.calls[0][0]);
+    expect(url.pathname).toBe("/api/v1/footprints");
+    expect(Object.fromEntries(url.searchParams)).toEqual({ barat: "102.26", selatan: "-3.77", timur: "102.27", utara: "-3.76", batas: "1500" });
+    expect(hasil.bangunan[0].perkiraan_jenis).toBe("rumah");
+  });
+
+  it("menolak bbox di luar WGS84 sebelum memanggil engine dan respons yang tidak sah", async () => {
+    const { GalatPemindaian, muatFootprintArea } = await import("../lib/api");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...area, jumlah: -1 })));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(muatFootprintArea({ ...BBOX, barat: -200 })).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(muatFootprintArea(BBOX)).rejects.toBeInstanceOf(GalatPemindaian);
   });
 });

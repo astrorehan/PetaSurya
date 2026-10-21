@@ -38,6 +38,13 @@ describe("pencarian bangunan", () => {
     expect(cariBangunan([bangunan], "rumah")).toEqual([]);
     expect(cariBangunan([bangunan], "toko")).toEqual([]);
   });
+
+  it("menemukan perkiraan rumah sebagai perkiraan, bukan sebagai jenis OSM", () => {
+    const bangunan = { ...katalog[0], nama: null, building_tag: "yes", perkiraan_jenis: "rumah" as const };
+    expect(cariBangunan([bangunan], "rumah")).toEqual([bangunan]);
+    expect(cariBangunan([bangunan], "perkiraan rumah")).toEqual([bangunan]);
+    expect(cariBangunan([bangunan], "hunian")).toEqual([]);
+  });
 });
 
 describe("urutan katalog", () => {
