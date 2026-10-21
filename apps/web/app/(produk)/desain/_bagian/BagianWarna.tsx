@@ -49,7 +49,7 @@ const PERAN = [
   {
     token: "--daun",
     tugas: "Uang dan CO₂",
-    pakai: "Kunci hemat dan tCO₂e, tahun hemat bersih di meter balik modal",
+    pakai: "Kunci hemat dan tCO₂, tahun hemat bersih di meter balik modal",
     bukan: "Energi, tanda “berhasil” umum",
   },
   {

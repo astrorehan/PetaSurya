@@ -38,7 +38,7 @@ export default function Metodologi() {
       <section className={s.rantai} aria-label="Rantai perhitungan">
         <div><span className={s.nomor}>L3</span><strong>Fisika</strong><span>iradiansi → kWh AC</span></div>
         <div><span className={s.nomor}>L4</span><strong>Ekonomi</strong><span>kWh → rupiah</span></div>
-        <div><span className={s.nomor}>L5</span><strong>Karbon</strong><span>kWh → tCO₂e</span></div>
+        <div><span className={s.nomor}>L5</span><strong>Karbon</strong><span>kWh → tCO₂</span></div>
       </section>
 
       <section className={s.rumusGrid} aria-label="Rumus lapisan mesin">
