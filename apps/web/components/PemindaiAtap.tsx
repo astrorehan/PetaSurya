@@ -218,9 +218,8 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
         </>}
       </section>);
   const panel = (<aside key={`${id}-${tahap}-${putaranDemo}`} className={s.panelTelemetri} aria-label="Hasil tahap analisis" data-babak={tahap}>
-        <h2 className={s.kartuInfoJudul}>{TAHAP_INFO[tahap-1].subjudul}</h2>
+        <h2 className={s.kartuInfoJudul}>{tahap === 1 ? (aktif ? namaBangunan(aktif.bangunan) : `Bangunan ${id}`) : TAHAP_INFO[tahap-1].subjudul}</h2>
         {tahap === 1 && <>
-          <p className={s.penjelasanTahap}>{aktif ? namaBangunan(aktif.bangunan) : `Bangunan ${id}`}</p>
           {aktif && <div className={s.fokusJawaban}><Angka label="Luas jejak bangunan" nilai={m2(aktif.bangunan.footprint_m2)} ukuran="display"/></div>}
           <p className={s.penjelasanTahap}>{a ? "Hasil tersedia. Tinjau batasnya atau jalankan analisis baru." : "Analisis membaca citra satelit untuk menentukan batas dan luas atap."}</p>
           <Tombol varian="primer" ikon={a ? ArrowRight : Scan} disabled={Boolean(sibuk) || !aktif} onClick={() => { hentikanDemo(); if (a) setTahap(2); else void analisisBaru(); }}>{a ? "Tinjau batas dan luas" : "Analisis atap"}</Tombol>
@@ -262,10 +261,13 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
 
   const isi = <div ref={wadahRef} className={s.wadah} data-demo-jeda={demoJeda || undefined} role={mode === "modal" ? "dialog" : undefined} aria-modal={mode === "modal" ? true : undefined} aria-labelledby="judul-pemindai">
     <header className={s.kepala}>
-      <Judul id="judul-pemindai" className={s.judul}>Analisis atap</Judul>
+      <div className={s.kepalaJudul}>
+        {mode !== "modal" && <Link href="/peta" className={s.kembali}><Ikon ikon={ArrowLeft}/>Pilih di peta</Link>}
+        <Judul id="judul-pemindai" className={s.judul}>Analisis atap</Judul>
+      </div>
       <div className={s.aksiKepala}>
         {demoAktif ? <><Tombol ikon={demoJeda ? Play : Pause} onClick={() => setDemoJeda(j => !j)}>{demoJeda ? "Lanjutkan demo" : "Jeda demo"}</Tombol><Tombol ikon={Square} onClick={hentikanDemo}>Akhiri demo</Tombol></> : <><Tombol ikon={Scan} disabled={!aktif || Boolean(sibuk)} onClick={() => void analisisBaru(true,true)}>Demo langsung</Tombol><Tombol ikon={Play} disabled={!a || Boolean(sibuk)} onClick={mulaiDemo}>{demoSelesai ? "Putar ulang hasil" : "Putar hasil"}</Tombol></>}
-        {mode === "modal" ? <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol> : <Link href="/peta" className={kelasTombol("sekunder")}>Pilih di peta</Link>}
+        {mode === "modal" && <Tombol ikon={X} hanyaIkon onClick={onTutup}>Tutup pemindai</Tombol>}
       </div>
     </header>
     <nav className={s.stepper} aria-label="Tahap analisis" style={{"--tahap-index": tahap-1} as CSSProperties}>

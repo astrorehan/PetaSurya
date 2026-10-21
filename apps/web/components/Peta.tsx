@@ -443,7 +443,7 @@ export function Peta({
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
       <div className={s.toolbar} aria-label="Alat peta">
-        {onCariArea && <button className={s.tombolPeta} type="button" disabled={mencariArea || !petaSiap} onClick={() => {const pusat=mapRef.current?.getCenter();if(pusat)onCariArea(pusat.lat,pusat.lng);}}><Search size={16} aria-hidden="true"/><span>{mencariArea ? "Mencari…" : "Cari area ini · 200 m"}</span></button>}
+        {onCariArea && <button className={s.tombolPeta} type="button" disabled={mencariArea || !petaSiap} onClick={() => {const pusat=mapRef.current?.getCenter();if(pusat)onCariArea(pusat.lat,pusat.lng);}}><Search size={16} aria-hidden="true"/><span>{mencariArea ? "Mencari…" : <>Cari area ini<span className={s.radius}> · 200 m</span></>}</span></button>}
         <button
           className={s.tombolPeta}
           type="button"
@@ -456,7 +456,7 @@ export function Peta({
           title="Pusatkan di Bengkulu"
         >
           <Crosshair size={16} aria-hidden="true" />
-          <span>Pusatkan</span>
+          <span className={s.labelRingkas}>Pusatkan</span>
         </button>
         <button
           className={`${s.tombolPeta} ${s.tombolSatelit}`}
@@ -467,7 +467,7 @@ export function Peta({
           title={satelit ? "Gunakan peta jalan" : "Tampilkan citra satelit"}
         >
           <Satellite size={16} aria-hidden="true" />
-          <span>{satelit ? "Peta jalan" : "Satelit"}</span>
+          <span className={s.labelRingkas}>{satelit ? "Peta jalan" : "Satelit"}</span>
         </button>
       </div>
       <div ref={containerRef} className={s.kanvas} />

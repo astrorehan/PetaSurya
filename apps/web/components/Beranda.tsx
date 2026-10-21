@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUpRight, Building2, Check, ChevronDown, ChevronRight, GraduationCap, House, List, Map, MapPin, Search, Store, X } from "lucide-react";
-import type { BangunanRingkas } from "@petasurya/contracts";
+import { ArrowDownUp, ArrowUpRight, Building2, Check, ChevronDown, ChevronRight, GraduationCap, House, List, Map, MapPin, Search, Store, X } from "lucide-react";
 import { Ikon, PanelLipat, Tombol, kelasTautan, m2 } from "@petasurya/ui";
 import { Peta, type BangunanPeta } from "./Peta";
 import { JejakKawasan } from "./JejakKawasan";
-import { bangunanDiArea, GalatPemindaian, indeksHasil } from "../lib/api";
-import { BATAS_KOTA, namaBangunan, simulasiContoh } from "../lib/pemindaian";
+import { bangunanDiArea, GalatPemindaian, indeksHasil, muatKatalog } from "../lib/api";
+import { BATAS_KOTA, KATALOG_BANGUNAN, namaBangunan, simulasiContoh } from "../lib/pemindaian";
 import { cariBangunan, tautanKatalog, urutkanBangunan, type FilterBangunan, type PilihanKatalog, type UrutanBangunan } from "../lib/pencarian";
 import s from "./beranda.module.css";
 
@@ -19,20 +18,20 @@ const CONTOH = [
   { id: 1146141501, nama: "Kampus", ikon: GraduationCap },
 ];
 
-export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", urutanAwal = "nama" }: {
-  bangunan: BangunanRingkas[];
+export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "nama" }: {
   query: string;
   filterAwal?: FilterBangunan;
   urutanAwal?: UrutanBangunan;
 }) {
   const router = useRouter();
-  const [daftar, setDaftar] = useState(bangunan);
+  const [katalog, setKatalog] = useState(KATALOG_BANGUNAN);
+  const [daftar, setDaftar] = useState(KATALOG_BANGUNAN);
   const [pencarian, setPencarian] = useState(query);
-  const [cakupan, setCakupan] = useState("Katalog awal di sekitar UNIB");
+  const [areaPeta, setAreaPeta] = useState(false);
   const [sibuk, setSibuk] = useState(false);
   const [galat, setGalat] = useState<string | null>(null);
   const [batasDaftar, setBatasDaftar] = useState(20);
-  const [tersimpan, setTersimpan] = useState(() => new Set(bangunan.filter((b) => simulasiContoh(b.id)).map((b) => b.id)));
+  const [tersimpan, setTersimpan] = useState(() => new Set(KATALOG_BANGUNAN.filter((b) => simulasiContoh(b.id)).map((b) => b.id)));
   const [filter, setFilter] = useState<FilterBangunan>(filterAwal);
   const [urutan, setUrutan] = useState<UrutanBangunan>(urutanAwal);
   const [tampilan, setTampilan] = useState<"peta" | "daftar">(query.trim() || filterAwal !== "semua" || urutanAwal !== "nama" ? "daftar" : "peta");
@@ -42,6 +41,12 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
     let aktif = true;
     indeksHasil().then((ids) => {
       if (aktif) setTersimpan((sebelumnya) => new Set([...sebelumnya, ...ids]));
+    }).catch(() => {});
+    // Katalog engine = katalog lokal + bangunan yang pernah diambil dari OSM; gagal berarti tetap lokal.
+    muatKatalog().then((data) => {
+      if (!aktif) return;
+      setKatalog(data);
+      setDaftar((sebelumnya) => sebelumnya === KATALOG_BANGUNAN ? data : sebelumnya);
     }).catch(() => {});
     return () => { aktif = false; permintaanArea.current?.abort(); };
   }, []);
@@ -70,7 +75,7 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
       const data = await bangunanDiArea(lat, lon, permintaan.signal);
       if (permintaan.signal.aborted) return;
       setDaftar(data);
-      setCakupan("Radius 200 m dari pusat peta");
+      setAreaPeta(true);
       setBatasDaftar(20);
     } catch (e) {
       if (permintaan.signal.aborted) return;
@@ -94,23 +99,19 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
 
   return (
     <main className={s.halaman}>
-      <header className={s.kepala} data-tiba="judul">
-        <div>
-          <p className={s.label}>SETIAP ATAP PUNYA POTENSI</p>
-          <h1 className={s.judul}>Temukan <span>atap Anda.</span></h1>
-          <p className={s.pengantar}>Pilih bangunan di peta atau cari di katalog.</p>
-        </div>
-        <div className={s.lokasi}><span className={s.pinLokasi} data-tujuan-transisi><MapPin size={18} aria-hidden="true" /></span><span><strong>Bengkulu</strong><small>Indonesia · Area demo</small></span></div>
+      <header className={s.kepala}>
+        <h1 className={s.judul}>Temukan <span>atap Anda.</span></h1>
+        <p className={s.lokasi}><MapPin size={15} aria-hidden="true" /><strong>Bengkulu</strong><span>Area demo</span></p>
       </header>
 
-      <ol className={s.alur} aria-label="Langkah analisis atap" data-tiba="judul">
-        <li aria-current="step"><span>01</span><strong>Pilih bangunan</strong><ChevronRight size={14} aria-hidden="true" /></li>
-        <li><span>02</span><strong>Tinjau atap</strong><ChevronRight size={14} aria-hidden="true" /></li>
-        <li><span>03</span><strong>Hitung potensi</strong><ArrowUpRight size={14} aria-hidden="true" /></li>
+      <ol className={s.alur} aria-label="Langkah analisis atap">
+        <li aria-current="step"><span>01</span><strong>Pilih bangunan</strong></li>
+        <li><span>02</span><strong>Tinjau atap</strong></li>
+        <li><span>03</span><strong>Hitung potensi</strong></li>
       </ol>
 
       <section className={s.ruangKerja} aria-label="Peta dan pilihan bangunan" data-tampilan={tampilan}>
-        <div className={s.bilahPeta} data-tiba="judul">
+        <div className={s.bilahPeta}>
           <form className={s.pencarian} role="search" action="/peta" method="get" onSubmit={(event) => {
             event.preventDefault();
             ubahPilihan({ query: pencarian.trim() });
@@ -120,7 +121,7 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
             <input id="cari-katalog" name="q" type="search" placeholder="Cari rumah, toko, kampus…" value={pencarian} onChange={(event) => { setPencarian(event.target.value); setBatasDaftar(20); if (event.target.value.trim()) setTampilan("daftar"); }} onKeyDown={(event) => { if (event.key === "Escape" && pencarian) { event.preventDefault(); hapusPencarian(); } }} aria-controls="hasil-bangunan" aria-keyshortcuts="/" enterKeyHint="search" autoComplete="off" spellCheck={false} />
             {pencarian ? <button type="button" onClick={() => hapusPencarian()} aria-label="Hapus pencarian"><X size={16} aria-hidden="true" /></button> : <kbd aria-hidden="true">/</kbd>}
           </form>
-          <span className={s.cakupanPeta}><span /> {cakupan === "Katalog awal di sekitar UNIB" ? "Sekitar Universitas Bengkulu" : "Area pencarian · radius 200 m"}</span>
+          <span className={s.cakupanPeta}><span /> {areaPeta ? "Radius 200 m dari pusat peta" : "Sekitar Universitas Bengkulu"}</span>
         </div>
 
         <div className={s.pilihanTampilan} role="group" aria-label="Tampilan bangunan">
@@ -129,25 +130,22 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
         </div>
 
         <div className={s.barisPeta}>
-          <div id="peta-bangunan" className={s.kolomPeta} data-tiba="peta">
+          <div id="peta-bangunan" className={s.kolomPeta}>
             <Peta className={s.petaBeranda} label="Peta bangunan Kota Bengkulu" tinggi={520} bangunan={bangunanPeta} onPilihBangunan={pilih} onCariArea={cariArea} mencariArea={sibuk} batasPencarian={BATAS_KOTA} pertahankanKamera satelitAwal pratinjau={<JejakKawasan dekoratif />} />
-            <div className={s.kakiPeta}><span><i /> Bangunan yang bisa dipilih</span><span>Geser untuk menjelajah <ArrowUpRight size={13} aria-hidden="true" /></span></div>
+            <p className={s.kakiPeta}><span><i /> Bangunan yang bisa dipilih</span><span>Geser peta, lalu “Cari area ini” untuk bangunan lain</span></p>
           </div>
 
-          <aside id="daftar-bangunan" className={s.status} aria-labelledby="judul-daftar" data-tiba="panel">
-            {!pencarian.trim() && filter === "semua" && <div className={s.contohCepat}>
-              <div className={s.kepalaContoh}><span>Coba hasil tersimpan</span><ArrowDown size={13} aria-hidden="true" /></div>
-              <div className={s.pilihanContoh}>{CONTOH.map(({ id, nama, ikon: IkonContoh }) => <Link key={id} href={`/pindai?id=${id}`}><IkonContoh size={17} strokeWidth={1.5} aria-hidden="true" /><span>{nama}</span><ArrowUpRight size={12} aria-hidden="true" /></Link>)}</div>
-            </div>}
+          <aside id="daftar-bangunan" className={s.status} aria-labelledby="judul-daftar">
+            {!pencarian.trim() && filter === "semua" && <nav className={s.contohCepat} aria-label="Contoh hasil tersimpan">
+              <span>Contoh</span>
+              {CONTOH.map(({ id, nama, ikon: IkonContoh }) => <Link key={id} href={`/pindai?id=${id}`}><IkonContoh size={15} strokeWidth={1.6} aria-hidden="true" />{nama}</Link>)}
+            </nav>}
 
-            <div className={s.kepalaDaftar}><h2 id="judul-daftar" className={s.statusJudul}>{pencarian.trim() ? "Hasil pencarian" : "Pilih bangunan"}</h2><span className={s.jumlah} aria-label={`${hasil.length} bangunan`}>{hasil.length}</span></div>
-            <div className={s.filterDaftar} role="group" aria-label="Filter hasil bangunan">
-              <button type="button" aria-pressed={filter === "semua"} onClick={() => ubahPilihan({ filter: "semua" })}>Semua</button>
-              <button type="button" aria-pressed={filter === "tersimpan"} onClick={() => ubahPilihan({ filter: "tersimpan" })}><Check size={12} aria-hidden="true" /> Hasil tersimpan <span>{jumlahTersimpan}</span></button>
-            </div>
-            <div className={s.barisUrutan}>
-              <label htmlFor="urut-bangunan">Urutkan</label>
+            <div className={s.kepalaDaftar}>
+              <h2 id="judul-daftar" className={s.statusJudul}>{pencarian.trim() ? "Hasil pencarian" : "Pilih bangunan"}</h2>
               <div className={s.pilihanUrutan}>
+                <ArrowDownUp size={14} aria-hidden="true" />
+                <label className={s.srOnly} htmlFor="urut-bangunan">Urutkan bangunan</label>
                 <select id="urut-bangunan" value={urutan} onChange={(event) => ubahPilihan({ urutan: event.target.value as UrutanBangunan })}>
                   <option value="nama">Nama A–Z</option>
                   <option value="luas-terbesar">Luas terbesar</option>
@@ -156,24 +154,31 @@ export function BerandaInteraktif({ bangunan, query, filterAwal = "semua", uruta
                 <ChevronDown size={14} aria-hidden="true" />
               </div>
             </div>
-            <p className={s.statusTeks}>{cakupan}</p>
+            <div className={s.filterDaftar} role="group" aria-label="Filter hasil bangunan">
+              <button type="button" aria-pressed={filter === "semua"} onClick={() => ubahPilihan({ filter: "semua" })}>Semua <span>{cocok.length.toLocaleString("id-ID")}</span></button>
+              <button type="button" aria-pressed={filter === "tersimpan"} onClick={() => ubahPilihan({ filter: "tersimpan" })}><Check size={12} aria-hidden="true" /> Hasil tersimpan <span>{jumlahTersimpan.toLocaleString("id-ID")}</span></button>
+            </div>
             {galat && <p className={s.galat} role="alert">{galat}</p>}
             {sibuk && <p className={s.statusTeks} role="status">Mengambil bangunan dari OpenStreetMap…</p>}
+            {areaPeta && <button type="button" className={s.kembaliKatalog} onClick={() => { permintaanArea.current?.abort(); setSibuk(false); setDaftar(katalog); setAreaPeta(false); ubahPilihan({ filter: "semua" }); setGalat(null); }}><ArrowUpRight size={14} aria-hidden="true" /> Kembali ke katalog awal</button>}
             <p className={s.srOnly} role="status">{hasil.length} bangunan ditemukan.</p>
 
-            <div id="hasil-bangunan" aria-busy={sibuk}>
+            <div id="hasil-bangunan" className={s.gulirDaftar} aria-busy={sibuk}>
               {hasil.length ? <ul className={s.daftarBangunan} aria-label="Bangunan yang bisa dianalisis">{hasil.slice(0, batasDaftar).map((b) => <li key={b.id}><Link href={`/pindai?id=${b.id}`} className={s.bangunan} aria-label={`Analisis ${namaBangunan(b)}, luas bangunan ${m2(b.footprint_m2)}`}><span className={s.ikonBangunan}><Building2 size={17} strokeWidth={1.5} aria-hidden="true" /></span><span className={s.ringkasanBangunan}><strong>{namaBangunan(b)}</strong><span>{m2(b.footprint_m2)}{tersimpan.has(b.id) && <span className={s.tersimpan}> · Tersimpan</span>}</span></span><Ikon ikon={ChevronRight} /></Link></li>)}</ul> : <div className={s.keadaanKosong}><Search size={24} strokeWidth={1.5} aria-hidden="true" /><strong>{filter === "tersimpan" ? "Belum ada hasil tersimpan yang cocok." : "Bangunan belum ditemukan."}</strong><p>{filter === "tersimpan" ? "Pilih Semua untuk melihat bangunan yang dapat dianalisis." : "Coba nama lain, jenis bangunan, atau cari area pada peta."}</p>{(pencarian || filter !== "semua") && <button type="button" onClick={() => hapusPencarian(true)}>Tampilkan semua bangunan <ArrowUpRight size={14} aria-hidden="true" /></button>}</div>}
+              {hasil.length > 0 && <div className={s.kakiDaftar}>
+                <p className={s.jumlahTampil} role="status">{jumlahTampil.toLocaleString("id-ID")} dari {hasil.length.toLocaleString("id-ID")} bangunan</p>
+                {jumlahBerikut > 0 && <Tombol varian="sekunder" onClick={() => setBatasDaftar((n) => n + 20)}>Tampilkan {jumlahBerikut} lagi</Tombol>}
+              </div>}
             </div>
 
-            {hasil.length > 0 && <p className={s.jumlahTampil} role="status">Menampilkan {jumlahTampil.toLocaleString("id-ID")} dari {hasil.length.toLocaleString("id-ID")} bangunan</p>}
-            {jumlahBerikut > 0 && <Tombol varian="sekunder" onClick={() => setBatasDaftar((n) => n + 20)}>Tampilkan {jumlahBerikut} lagi</Tombol>}
-            {cakupan !== "Katalog awal di sekitar UNIB" && <Tombol varian="sekunder" onClick={() => { permintaanArea.current?.abort(); setSibuk(false); setDaftar(bangunan); setCakupan("Katalog awal di sekitar UNIB"); ubahPilihan({ filter: "semua" }); setGalat(null); }}>Kembali ke katalog awal</Tombol>}
-            <div className={s.tentangData}><PanelLipat judul="Cakupan & sumber"><p>{bangunan.length} bangunan pada katalog lokal, {tersimpan.size} hasil tersimpan. Bangunan lain dianalisis saat dipilih.</p><p>Geser peta, lalu pilih “Cari area ini” untuk bangunan lainnya. Citra dan pengambilan bangunan memerlukan internet. Cuaca memakai acuan Bengkulu 2024.</p><Link href="/sumber-data" className={kelasTautan()}>Lihat sumber data</Link></PanelLipat></div>
+            <div className={s.tentangData}><PanelLipat judul="Cakupan & sumber"><p>{katalog.length.toLocaleString("id-ID")} bangunan pada katalog, {tersimpan.size.toLocaleString("id-ID")} hasil tersimpan. Bangunan lain dianalisis saat dipilih.</p><p>Citra dan pengambilan bangunan memerlukan internet. Cuaca memakai acuan Bengkulu 2024.</p><Link href="/sumber-data" className={kelasTautan()}>Lihat sumber data</Link></PanelLipat></div>
           </aside>
         </div>
       </section>
-      <p className={s.catatan}><span>01 / PILIH BANGUNAN</span> Estimasi awal potensi PLTS. Kondisi atap perlu ditinjau di lapangan.</p>
-      <Link href="/kota/1771" className={s.tautanKota}><Map size={16} aria-hidden="true" /><span>Melihat potensi satu kota? <strong>Buka Mode Kota</strong></span><ArrowUpRight size={16} aria-hidden="true" /></Link>
+      <footer className={s.catatan}>
+        <p>Estimasi awal potensi PLTS. Kondisi atap perlu ditinjau di lapangan.</p>
+        <Link href="/kota/1771" className={s.tautanKota}><Map size={16} aria-hidden="true" /><span>Melihat potensi satu kota? <strong>Buka Mode Kota</strong></span><ArrowUpRight size={16} aria-hidden="true" /></Link>
+      </footer>
     </main>
   );
 }

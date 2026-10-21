@@ -70,7 +70,6 @@ export function HalamanBrand() {
       <main id="isi">
         <section className={s.hero} aria-labelledby="judul-brand">
           <div className={s.salinanHero}>
-            <p className={s.eyebrow}>POTENSI SURYA, DARI ATAP ANDA</p>
             <h1 id="judul-brand" className={s.judul}>
               <span>Atapmu,</span>
               <span className={s.barisJudul}>
@@ -103,13 +102,12 @@ export function HalamanBrand() {
             <span className={`${s.pillFitur} ${s.pillBiaya}`}><ChartNoAxesCombined size={14} aria-hidden="true" /> Skenario biaya</span>
             <span className={`${s.pillFitur} ${s.pillSumber}`}><ShieldCheck size={14} aria-hidden="true" /> Angka bersumber</span>
           </div>
-          <a className={s.penunjuk} href="#potensi"><span>LIHAT POTENSINYA</span><ArrowRight size={13} aria-hidden="true" /></a>
+          <a className={s.penunjuk} href="#potensi"><span>Lihat potensinya</span><ArrowRight size={13} aria-hidden="true" /></a>
         </section>
 
         <section id="potensi" className={s.bagianPotensi} aria-labelledby="judul-potensi">
           <div className={s.kepalaPotensi} data-reveal="judul">
             <div>
-              <p className={s.eyebrow}>DARI BANGUNAN KE KEPUTUSAN</p>
               <h2 id="judul-potensi">Ada potensi.<br /><span>Mari kita hitung.</span></h2>
             </div>
             <p>Satu atap, gambaran yang lebih jelas.<br />Luas, energi, dan biaya dalam satu alur.</p>
@@ -136,7 +134,6 @@ export function HalamanBrand() {
 
         <section className={s.bagianAlur} aria-labelledby="judul-alur">
           <div className={s.kepalaAlur} data-reveal="judul">
-            <p className={s.eyebrow}>SESEDERHANA ITU</p>
             <h2 id="judul-alur">Satu atap.<br /><span>Tiga langkah.</span></h2>
             <Link className={s.tautanTeks} href="/peta">Temukan bangunan Anda <ArrowUpRight size={16} aria-hidden="true" /></Link>
           </div>
@@ -159,7 +156,6 @@ export function HalamanBrand() {
 
         <section id="faq" className={s.bagianFaq} aria-labelledby="judul-faq">
           <div data-reveal="judul">
-            <p className={s.eyebrow}>SEBELUM ANDA MULAI</p>
             <h2 id="judul-faq">Pertanyaan?<br /><span>Ada jawabannya.</span></h2>
             <Link className={s.tautanTeks} href="/metodologi">Kenali cara kami menghitung <ArrowUpRight size={15} aria-hidden="true" /></Link>
           </div>
@@ -175,7 +171,6 @@ export function HalamanBrand() {
 
         <section className={s.penutup} aria-labelledby="judul-penutup" data-reveal="penutup">
           <div className={s.gerbangSalinan}>
-            <p className={s.eyebrow}>DARI POTENSI, KE LOKASI</p>
             <h2 id="judul-penutup">Sekarang,<br /><span>giliran atap Anda.</span></h2>
             <p>Peta Bengkulu sudah menanti.<br />Mulai dari satu bangunan.</p>
             <Link className={s.tombolPrimer} href="/peta">Masuk ke peta <span className={s.ikonMasuk}><ArrowUpRight size={17} aria-hidden="true" /></span></Link>

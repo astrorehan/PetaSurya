@@ -1,4 +1,4 @@
-import { EvaluasiAtap } from "../../components/EvaluasiAtap";
+import { EvaluasiAtap } from "@/components/EvaluasiAtap";
 
 export const metadata = { title: "Pengujian kontur atap" };
 

@@ -1,7 +1,7 @@
-import { HasilAtap, KeadaanAtap } from "../../../components/HasilAtap";
-import { DATA_DEMO } from "../../../lib/demo";
-import { hitungUlangAtap, muatPemindaian } from "../../../lib/api";
-import { PROFIL_SIMULASI, type ProfilSimulasi, areaSkenario, paketContoh, profilBangunan, potensiLuas } from "../../../lib/pemindaian";
+import { HasilAtap, KeadaanAtap } from "@/components/HasilAtap";
+import { DATA_DEMO } from "@/lib/demo";
+import { hitungUlangAtap, muatPemindaian } from "@/lib/api";
+import { PROFIL_SIMULASI, type ProfilSimulasi, areaSkenario, paketContoh, profilBangunan, potensiLuas } from "@/lib/pemindaian";
 
 const ALIAS: Record<string, number> = {
   contoh: 991016391, "3f8c-contoh": 991016391,

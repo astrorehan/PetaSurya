@@ -1,7 +1,0 @@
-.isi {
-  min-height: calc(100vh - 120px);
-  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
-}
-
-.lewati { position: fixed; top: var(--sp-3); left: var(--tepi); z-index: var(--z-transisi); padding: var(--sp-3) var(--sp-5); border-radius: var(--r-pill); background: var(--pri); color: var(--on-pri); font: var(--tipe-ui); text-decoration: none; transform: translateY(-180%); }
-.lewati:focus { transform: none; }

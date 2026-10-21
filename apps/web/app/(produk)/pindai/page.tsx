@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PemindaiAtap } from "../../components/PemindaiAtap";
+import { PemindaiAtap } from "@/components/PemindaiAtap";
 
 export const metadata: Metadata = {
   title: "Pindai atap",

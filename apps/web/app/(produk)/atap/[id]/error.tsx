@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import s from "../../../components/hasilAtap.module.css";
+import s from "@/components/hasilAtap.module.css";
 
 export default function GalatAtap({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (

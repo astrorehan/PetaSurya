@@ -261,8 +261,8 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       <section className={s.gridLokasi} aria-label="Lokasi dan keyakinan analisis">
         <Peta className={s.petaHasil} label={`Peta ${nama}, atap tersorot`} tinggi={300} geometriSorot={geometriSorot} />
         <aside className={s.kartuKeyakinan} aria-labelledby="judul-keyakinan">
-          <p className={s.label}>Batas atap</p>
-          <h2 id="judul-keyakinan">{analisis.method === "cv" ? "Hasil model" : "Perkiraan OSM"}</h2>
+          <h2 id="judul-keyakinan">Batas atap</h2>
+          <p className={s.sumberBatas}>{analisis.method === "cv" ? "Hasil model pada citra satelit" : "Perkiraan dari jejak OSM"}</p>
           <details className={s.rincian}>
             <summary>Sumber analisis <Ikon ikon={ChevronDown} /></summary>
             <dl className={s.ringkasKeyakinan}>

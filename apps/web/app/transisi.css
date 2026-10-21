@@ -1,0 +1,95 @@
+/*
+ * Perpindahan halaman (View Transitions API, dipicu TransisiHalaman).
+ * Isi lama dan baru tidak di-crossfade bersamaan (teks dua halaman akan
+ * terbaca bertumpuk); isi lama habis dulu, isi baru naik searah alur.
+ * Arah "mundur" (kembali ke tahap sebelumnya) membalik lintasannya.
+ * Kepala situs punya nama sendiri sehingga tetap di tempat dan hanya berubah
+ * bentuk. Hanya transform dan opacity; reduced motion tidak memulai transisi.
+ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation: halaman-keluar var(--t-halaman-keluar) var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: halaman-masuk var(--t-halaman-masuk) var(--ease-enter) var(--t-halaman-jeda) both;
+}
+
+html[data-arah-transisi="mundur"]::view-transition-old(root) {
+  animation-name: halaman-keluar-mundur;
+}
+
+html[data-arah-transisi="mundur"]::view-transition-new(root) {
+  animation-name: halaman-masuk-mundur;
+}
+
+/*
+ * Bingkai kepala bergerak; potretnya tidak diregangkan. Potret selebar bingkai,
+ * isinya berukuran asli dan rata atas-tengah, terpotong oleh bingkai: kapsul
+ * tetap di tengah saat memudar, header penuh terungkap dari tengah, dan baris
+ * pencarian ponsel muncul di bawah tanpa menggeser baris pertama.
+ */
+::view-transition-group(kepala-situs) {
+  animation-duration: calc(var(--t-halaman-jeda) + var(--t-halaman-masuk));
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(kepala-situs),
+::view-transition-new(kepala-situs) {
+  height: 100%;
+  overflow: clip;
+  object-fit: none;
+  object-position: 50% 0;
+}
+
+/*
+ * Kapsul ringkas → header penuh: isinya berbeda, jadi memakai pola yang sama
+ * dengan isi halaman. Kepala yang sama bentuknya tetap memakai crossfade bawaan
+ * agar tidak berkedip.
+ */
+html[data-kepala-transisi="berubah"]::view-transition-old(kepala-situs) {
+  mix-blend-mode: normal;
+  animation: pudar-keluar var(--t-halaman-keluar) var(--ease-out) both;
+}
+
+html[data-kepala-transisi="berubah"]::view-transition-new(kepala-situs) {
+  mix-blend-mode: normal;
+  animation: pudar-masuk var(--t-halaman-masuk) var(--ease-enter) var(--t-halaman-jeda) both;
+}
+
+@keyframes halaman-keluar {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes halaman-masuk {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+@keyframes halaman-keluar-mundur {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes halaman-masuk-mundur {
+  from { opacity: 0; transform: translateY(-16px); }
+}
+
+@keyframes pudar-keluar {
+  to { opacity: 0; }
+}
+
+@keyframes pudar-masuk {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

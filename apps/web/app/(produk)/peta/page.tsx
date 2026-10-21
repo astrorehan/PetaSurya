@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { KATALOG_BANGUNAN } from "../../lib/pemindaian";
-import { BerandaInteraktif } from "../../components/Beranda";
-import { muatKatalog } from "../../lib/api";
-import { bacaPilihanKatalog } from "../../lib/pencarian";
+import { BerandaInteraktif } from "@/components/Beranda";
+import { bacaPilihanKatalog } from "@/lib/pencarian";
 
 export const metadata: Metadata = {
   title: "Peta bangunan",
   description: "Pilih bangunan di Bengkulu, tinjau atap, lalu hitung potensi PLTS.",
 };
 
+// Katalog lokal ikut bundel klien; tambahan dari engine dimuat di peramban agar halaman tidak menunggu jaringan.
 export default async function HalamanPeta({
   searchParams,
 }: {
@@ -16,6 +15,5 @@ export default async function HalamanPeta({
 }) {
   const params = searchParams ? await searchParams : {};
   const { query, filter, urutan } = bacaPilihanKatalog(params);
-  const bangunan = await muatKatalog().catch(() => KATALOG_BANGUNAN);
-  return <BerandaInteraktif bangunan={bangunan} query={query} filterAwal={filter} urutanAwal={urutan} />;
+  return <BerandaInteraktif query={query} filterAwal={filter} urutanAwal={urutan} />;
 }

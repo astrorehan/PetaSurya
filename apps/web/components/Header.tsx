@@ -32,10 +32,12 @@ function CariBangunan() {
   return <FormCari query={params.get("q") ?? ""} />;
 }
 
-export function Header({ pencarian = true, tambahan }: { pencarian?: boolean; tambahan?: ReactNode }) {
+/** `pencarian` bawaan: tampil di semua halaman produk kecuali /peta, yang punya kolom cari sendiri. */
+export function Header({ pencarian, tambahan }: { pencarian?: boolean; tambahan?: ReactNode }) {
   const { terpilih, setPilihan } = useTema();
   const gelap = terpilih === "dark";
   const pathname = usePathname();
+  const tampilCari = pencarian ?? pathname !== "/peta";
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
   const rapatRef = useRef(false);
@@ -114,7 +116,7 @@ export function Header({ pencarian = true, tambahan }: { pencarian?: boolean; ta
       className={s.header}
       data-rapat={rapat}
       data-terbuka={terbuka}
-      data-pencarian={pencarian}
+      data-pencarian={tampilCari}
       onFocusCapture={() => setFokus(true)}
       onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFokus(false); }}
       onKeyDown={(event) => {
@@ -141,15 +143,17 @@ export function Header({ pencarian = true, tambahan }: { pencarian?: boolean; ta
               <Link key={href} href={href} onClick={tutupMenu} aria-current={saatIni(href) ? "page" : undefined}>{label}</Link>
             ))}
           </nav>
-          {pencarian && <Suspense fallback={<FormCari />}><CariBangunan /></Suspense>}
-          <div className={s.aksiHeader}>
-            <button ref={menuRef} className={s.tombolMenu} type="button" onClick={() => setMenuBuka((nilai) => !nilai)} aria-label="Menu utama" aria-expanded={menuBuka} aria-controls="menu-produk">
-              <Menu size={18} aria-hidden="true" />
-            </button>
-            <Tombol className={s.tombolTema} ikon={gelap ? Sun : Moon} hanyaIkon onClick={() => setPilihan(gelap ? "light" : "dark")} title={"Tema " + (gelap ? "terang" : "gelap")}>
-              {"Gunakan tema " + (gelap ? "terang" : "gelap")}
-            </Tombol>
-            {tambahan}
+          <div className={s.sisiKanan}>
+            {tampilCari && <Suspense fallback={<FormCari />}><CariBangunan /></Suspense>}
+            <div className={s.aksiHeader}>
+              <button ref={menuRef} className={s.tombolMenu} type="button" onClick={() => setMenuBuka((nilai) => !nilai)} aria-label="Menu utama" aria-expanded={menuBuka} aria-controls="menu-produk">
+                <Menu size={18} aria-hidden="true" />
+              </button>
+              {tambahan}
+              <Tombol className={s.tombolTema} ikon={gelap ? Sun : Moon} hanyaIkon onClick={() => setPilihan(gelap ? "light" : "dark")} title={"Tema " + (gelap ? "terang" : "gelap")}>
+                {"Gunakan tema " + (gelap ? "terang" : "gelap")}
+              </Tombol>
+            </div>
           </div>
         </div>
         <button className={s.bukaNavigasi} type="button" aria-label="Buka navigasi" aria-expanded={terbuka} aria-controls="area-navigasi" onClick={bukaNavigasi}>

@@ -3,8 +3,8 @@ import path from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HasilAgregasi } from "@petasurya/contracts";
-import { KotaInteraktif } from "../../../components/Kota";
-import { bacaWilayahKota } from "../../../lib/wilayahKota";
+import { KotaInteraktif } from "@/components/Kota";
+import { bacaWilayahKota } from "@/lib/wilayahKota";
 
 export const metadata: Metadata = {
   title: "Mode Kota Bengkulu",

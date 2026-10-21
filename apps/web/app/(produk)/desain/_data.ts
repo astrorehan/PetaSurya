@@ -3,14 +3,14 @@
  * layar hasil atap; tidak ada angka yang dibuat khusus untuk halaman ini.
  */
 import type { AnalisisAtap, BangunanRingkas, HasilSimulasi } from "@petasurya/contracts";
-import analisisKampusJson from "../../../../data/fixtures/analisis/cv-kampus-fh-unib.json";
-import analisisTokoJson from "../../../../data/fixtures/analisis/cv-toko-wr-supratman.json";
-import analisisLimunJson from "../../../../data/fixtures/analisis/fallback-rumah-kandang-limun.json";
-import bangunanLimunJson from "../../../../data/fixtures/bangunan/rumah-kandang-limun.json";
-import bangunanTokoJson from "../../../../data/fixtures/bangunan/toko-wr-supratman.json";
-import simulasiTokoJson from "../../../../data/fixtures/simulasi/contoh-3f8c.json";
-import simulasiLimunJson from "../../../../data/fixtures/simulasi/contoh-limun-1145010599.json";
-import simulasiKampusJson from "../../../../data/fixtures/simulasi/contoh-unib-1146141501.json";
+import analisisKampusJson from "../../../../../data/fixtures/analisis/cv-kampus-fh-unib.json";
+import analisisTokoJson from "../../../../../data/fixtures/analisis/cv-toko-wr-supratman.json";
+import analisisLimunJson from "../../../../../data/fixtures/analisis/fallback-rumah-kandang-limun.json";
+import bangunanLimunJson from "../../../../../data/fixtures/bangunan/rumah-kandang-limun.json";
+import bangunanTokoJson from "../../../../../data/fixtures/bangunan/toko-wr-supratman.json";
+import simulasiTokoJson from "../../../../../data/fixtures/simulasi/contoh-3f8c.json";
+import simulasiLimunJson from "../../../../../data/fixtures/simulasi/contoh-limun-1145010599.json";
+import simulasiKampusJson from "../../../../../data/fixtures/simulasi/contoh-unib-1146141501.json";
 import type { Titik } from "./_geo";
 
 export const toko = {

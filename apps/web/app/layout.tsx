@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, IBM_Plex_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
-import contohSimulasi from "../../../data/fixtures/simulasi/contoh-3f8c.json";
 import "@petasurya/ui/tokens.css";
-import { BingkaiProduk } from "../components/BingkaiProduk";
-import { PenyediaTema } from "../components/Tema";
-import { TransisiProduk } from "../components/TransisiProduk";
+import "./transisi.css";
+import { PenyediaTema } from "@/components/Tema";
+import { TransisiHalaman } from "@/components/TransisiHalaman";
 
 // Pasangan Arc di-host sendiri saat build; data memakai angka tabular mono.
 const geist = Geist({
@@ -47,7 +46,6 @@ export const metadata: Metadata = {
 };
 
 const kelasFont = [geist, inter, plexMono].map((f) => f.variable).join(" ");
-const engineVersion = contohSimulasi.engine_version;
 
 const skripTemaAwal = `
 (function () {
@@ -65,9 +63,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <PenyediaTema>
-          <TransisiProduk>
-            <BingkaiProduk engineVersion={engineVersion}>{children}</BingkaiProduk>
-          </TransisiProduk>
+          <TransisiHalaman />
+          {children}
         </PenyediaTema>
       </body>
     </html>

@@ -62,11 +62,6 @@
 
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; column-gap: var(--sp-8); width: min(calc(100% - var(--sp-16)), var(--brand-content-width)); margin-inline: auto; padding-top: var(--sp-10); }
 .salinanHero { position: relative; z-index: 2; min-width: 0; padding-block: var(--sp-10); }
-.eyebrow {
-  color: var(--ink-3);
-  font: 400 10px / 1.5 var(--f-mono);
-  letter-spacing: 0.12em;
-}
 .judul {
   display: grid;
   justify-items: start;
@@ -175,7 +170,7 @@
 .pillEnergi { top: 136px; right: 1%; --miring: 5deg; --urutan: 1; }
 .pillBiaya { top: 310px; left: 1%; --miring: -4deg; --urutan: 2; }
 .pillSumber { top: 350px; right: 0; --miring: 4deg; --urutan: 3; }
-.penunjuk { grid-column: 1 / -1; position: relative; z-index: 3; display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--kontrol-h); margin: var(--sp-5) auto var(--sp-6); color: var(--ink-2); font: 400 10px / 1.5 var(--f-mono); letter-spacing: 0.12em; }
+.penunjuk { grid-column: 1 / -1; position: relative; z-index: 3; display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--kontrol-h); margin: var(--sp-5) auto var(--sp-6); color: var(--ink-2); font: 500 var(--fs-xs) / 1.5 var(--f-ui); }
 .penunjuk svg { transform: rotate(90deg); }
 .penunjuk:hover { color: var(--pri); }
 
@@ -258,11 +253,11 @@
 .gerbangSalinan { position: relative; z-index: 1; }
 .gerbangSalinan h2 { margin-top: var(--sp-4); }
 .gerbangSalinan h2 > span { color: var(--pri); }
-.gerbangSalinan > p:not(.eyebrow) { margin-top: var(--sp-5); color: var(--ink-2); font-size: var(--fs-s); line-height: 1.75; }
+.gerbangSalinan > p { margin-top: var(--sp-5); color: var(--ink-2); font-size: var(--fs-s); line-height: 1.75; }
 .gerbangSalinan .tombolPrimer { margin-top: var(--sp-6); }
 .gerbangCatatan { display: block; margin-top: var(--sp-4); color: var(--ink-3); font: 400 10px / 1.5 var(--f-ui); }
 .gerbangVisual { position: relative; height: 390px; border: 1px solid var(--line); border-radius: var(--r-m); overflow: hidden; background: var(--surface); }
-.jejakGerbang { position: absolute; inset: 0; opacity: 0.65; transform: rotate(-12deg) scale(1.1); transition: transform var(--t-gerbang-siap) var(--ease-enter); }
+.jejakGerbang { position: absolute; inset: 0; opacity: 0.65; transform: rotate(-12deg) scale(1.1); transition: transform var(--t-considered) var(--ease-enter); }
 .penutup:has(.tombolPrimer:hover) .jejakGerbang { transform: rotate(-7deg) scale(1.22); }
 .cincinGerbang, .cincinGerbangDalam { position: absolute; top: 50%; left: 50%; width: 220px; height: 220px; transform: translate(-50%, -50%); border: 1px solid var(--brand-orbit-line); border-radius: 50%; pointer-events: none; }
 .cincinGerbangDalam { width: 150px; height: 150px; border-style: dashed; }
@@ -293,7 +288,6 @@
 .signature { display: flex; align-items: flex-start; justify-content: center; height: 14vw; max-height: 215px; padding-top: 1.7vw; overflow: hidden; background: var(--brand-signature-glow); }
 .signature > span { flex-shrink: 0; background: var(--brand-signature-type); color: transparent; background-clip: text; font: 600 19.5vw / 0.9 var(--f-display); letter-spacing: -0.075em; }
 
-.salinanHero > .eyebrow { animation: masukSalinan var(--brand-t-title) var(--ease-enter) both; }
 .judul > span { animation: masukJudul var(--brand-t-title) var(--ease-enter) both; }
 .judul > .barisJudul { animation-delay: var(--brand-stagger); }
 .ikonJudul { animation: masukMark var(--brand-t-rise) var(--ease-enter) var(--brand-delay-copy) both; }
@@ -311,7 +305,7 @@
 .signature[data-terlihat="ya"] > span { animation: masukSignature var(--brand-t-rise) var(--ease-enter) both; }
 .halaman[data-gerak="jeda"], .halaman[data-terjaga="false"], .panggung[data-aktif="false"] { --gerak-main: paused; }
 .halaman[data-gerak="jeda"] *, .halaman[data-gerak="jeda"] *::before { animation-play-state: paused !important; }
-.halaman[data-gerak="jeda"] :is(.salinanHero > .eyebrow, .judul > span, .deskripsiHero, .aksiHero, .statusHero, .penunjuk, .tubuhMascot, .hasilDemo, .daftarFaq p) { opacity: 1 !important; transform: none !important; filter: none !important; }
+.halaman[data-gerak="jeda"] :is(.judul > span, .deskripsiHero, .aksiHero, .statusHero, .penunjuk, .tubuhMascot, .hasilDemo, .daftarFaq p) { opacity: 1 !important; transform: none !important; filter: none !important; }
 .halaman[data-gerak="jeda"] .pillFitur { opacity: 1 !important; transform: rotate(var(--miring)) !important; }
 .halaman[data-gerak="jeda"] .ikonJudul { opacity: 1 !important; transform: rotate(-4deg) !important; }
 .halaman[data-gerak="jeda"] [data-reveal] { opacity: 1; transform: none; filter: none; transition: none; }
@@ -356,7 +350,6 @@
   .merek { font-size: 19px; }
   .hero { display: block; width: calc(100% - var(--sp-8)); padding-top: var(--sp-8); text-align: center; }
   .salinanHero { padding: 0; }
-  .eyebrow { font-size: 8px; letter-spacing: 0.1em; }
   .judul { display: grid; justify-items: center; gap: 0; margin-top: var(--sp-5) !important; font-size: clamp(3.25rem, 12.8vw, 5rem); }
   .barisJudul { gap: var(--sp-3); }
   .ikonJudul { border-radius: var(--r-s); }

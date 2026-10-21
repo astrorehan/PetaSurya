@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { BandingLapisan, DaftarData, Lencana, PanelLipat, TombolSalin, m2, rupiah } from "@petasurya/ui";
-import bangunanKampus from "../../../../../data/fixtures/bangunan/kampus-fh-unib.json";
+import bangunanKampus from "../../../../../../data/fixtures/bangunan/kampus-fh-unib.json";
 import { kampus, toko } from "../_data";
 import { Bagian, Kode, Pelat } from "./Lembar";
 import { DemoPilihanKartu } from "./DemoPilihanKartu";

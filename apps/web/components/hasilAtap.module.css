@@ -159,8 +159,15 @@
 }
 
 .kartuKeyakinan h2 {
-  margin: var(--sp-2) 0 var(--sp-4);
-  font: var(--tipe-judul-halaman);
+  margin: 0;
+  font: var(--tipe-ui);
+  font-weight: 600;
+}
+
+.sumberBatas {
+  margin: var(--sp-1) 0 var(--sp-4);
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
 }
 
 .rincian {
