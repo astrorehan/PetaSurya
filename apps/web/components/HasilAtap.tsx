@@ -228,7 +228,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       <header className={s.kepala}>
         <div className={s.labelBaris}><p className={s.label}>Hasil atap</p><Lencana>{tersimpanOffline ? "Skenario contoh tersimpan" : "Simulasi awal"}</Lencana></div>
         <h1 className={s.judul}>{nama}</h1>
-        <Link className={s.tombolSekunder} href="/">Kembali ke peta</Link>
+        <Link className={s.tombolSekunder} href="/peta">Kembali ke peta</Link>
       </header>
 
       {rendah ? (
@@ -261,8 +261,8 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       <section className={s.gridLokasi} aria-label="Lokasi dan keyakinan analisis">
         <Peta className={s.petaHasil} label={`Peta ${nama}, atap tersorot`} tinggi={300} geometriSorot={geometriSorot} />
         <aside className={s.kartuKeyakinan} aria-labelledby="judul-keyakinan">
-          <p className={s.label}>Batas atap</p>
-          <h2 id="judul-keyakinan">{analisis.method === "cv" ? "Hasil model" : "Perkiraan OSM"}</h2>
+          <h2 id="judul-keyakinan">Batas atap</h2>
+          <p className={s.sumberBatas}>{analisis.method === "cv" ? "Hasil model pada citra satelit" : "Perkiraan dari jejak OSM"}</p>
           <details className={s.rincian}>
             <summary>Sumber analisis <Ikon ikon={ChevronDown} /></summary>
             <dl className={s.ringkasKeyakinan}>
@@ -359,7 +359,7 @@ export function KeadaanAtap({ jenis, id }: { jenis: JenisKeadaan; id: string }) 
           {galat ? "Hasil belum dapat dimuat. Coba lagi atau kembali ke peta." : `Bangunan “${id}” belum tersedia. Pilih bangunan lain di peta.`}
         </p>
         <div className={s.keadaanAksi}>
-          <Link className={s.tombolUtama} href="/">Kembali ke peta</Link>
+          <Link className={s.tombolUtama} href="/peta">Kembali ke peta</Link>
           {galat ? <Link className={s.tombolSekunder} href="/atap/contoh">Buka contoh</Link> : null}
         </div>
       </section>

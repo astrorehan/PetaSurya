@@ -1,28 +1,43 @@
 """Titik masuk FastAPI. Satu service: rute, CORS, health, simulasi, geodata."""
 
+import os
+from contextlib import asynccontextmanager
+from typing import Annotated
+
 from fastapi import FastAPI, Path, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
-from app.buildings import DiLuarCakupan, muat_katalog
+from app.aggregate import PermintaanAgregasiInput, jalankan_agregasi
+from app.buildings import (
+    DiLuarCakupan,
+    PermintaanFootprintInput,
+    footprint_di_area,
+    muat_katalog,
+)
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
     Error,
+    FootprintArea,
     GalatApi,
+    HasilAgregasi,
     HasilSimulasi,
     KodeGalat,
     PaketPemindaian,
 )
 from app.geodata import (
     HasilGeocode,
+    MesinSibuk,
     PermintaanAnalisis,
     cari_bangunan_radius,
     geocode_pencarian_lokal,
     proses_analisis_atap,
 )
 from app.scans import paket_pemindaian
+from app.settings import asal_web
 from app.simulation import (
     BuildingNotFoundError,
     PermintaanSimulasi,
@@ -30,18 +45,39 @@ from app.simulation import (
     jalankan_simulasi,
 )
 from app.storage import baca
-from app.vision import MODEL_VERSION
+from app.vision import MODEL_VERSION, _sesi
 
-VERSION = "engine.2026.10.13.1"
+VERSION = "engine.2026.10.21"
 
-app = FastAPI(title="PetaSurya engine", version=VERSION)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if os.getenv("PETASURYA_PRELOAD_MODEL", "0") == "1":
+        _sesi()
+    yield
+
+
+app = FastAPI(title="PetaSurya engine", version=VERSION, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=asal_web(),
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+# Footprint satu tampilan peta ±0,5 MB JSON; gzip memangkasnya ±5×.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+
+@app.exception_handler(MesinSibuk)
+def mesin_sibuk(request: Request, error: MesinSibuk):
+    return JSONResponse(
+        status_code=503,
+        headers={"Retry-After": "10"},
+        content={
+            "error": {"code": "GEODATA_UNAVAILABLE", "message": str(error), "retriable": True}
+        },
+    )
 
 
 @app.exception_handler(DiLuarCakupan)
@@ -113,6 +149,24 @@ def health() -> dict[str, str]:
     return {"status": "ok", "engine_version": VERSION}
 
 
+@app.get("/api/v1/ready")
+def ready():
+    """Kesiapan inferensi memuat encoder dan decoder; tidak bergantung sumber citra."""
+    try:
+        _sesi()
+    except Exception:
+        return JSONResponse(
+            status_code=503, content={"status": "not_ready", "model_version": MODEL_VERSION}
+        )
+    return {"status": "ready", "model_version": MODEL_VERSION, "provider": "CPUExecutionProvider"}
+
+
+@app.post("/api/v1/aggregate", response_model=HasilAgregasi)
+def aggregate(permintaan: PermintaanAgregasiInput) -> HasilAgregasi:
+    """Estimasi footprint dan pemilihan atap pada snapshot Kota Bengkulu."""
+    return jalankan_agregasi(permintaan)
+
+
 @app.get("/api/v1/buildings", response_model=list[BangunanRingkas])
 def get_buildings(
     lat: float = Query(..., ge=-85, le=85, description="Lintang titik pusat pencarian"),
@@ -127,6 +181,12 @@ def get_buildings(
 ) -> list[BangunanRingkas]:
     """Kembalikan poligon bangunan di sekitar koordinat dalam radius r meter."""
     return cari_bangunan_radius(lat=lat, lon=lon, radius_m=r, live=live)
+
+
+@app.get("/api/v1/footprints", response_model=FootprintArea, response_model_exclude_unset=True)
+def footprint_area(permintaan: Annotated[PermintaanFootprintInput, Query()]) -> FootprintArea:
+    """Footprint snapshot OSM Kota Bengkulu dalam bbox peta; tanpa jaringan."""
+    return footprint_di_area(permintaan)
 
 
 @app.get("/api/v1/catalog", response_model=list[BangunanRingkas], response_model_exclude_unset=True)

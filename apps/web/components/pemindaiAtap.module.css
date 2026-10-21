@@ -1,9 +1,9 @@
 .wadah {
   display: grid;
   gap: var(--sp-6);
-  max-width: 1280px;
+  width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi));
   margin: 0 auto;
-  padding: var(--sp-6);
+  padding: var(--sp-8) 0 var(--sp-12);
   color: var(--ink);
 }
 
@@ -44,7 +44,11 @@
   justify-content: space-between;
   gap: var(--sp-3);
 }
-.kepala { flex-wrap: wrap; }
+.kepala { flex-wrap: wrap; align-items: flex-end; }
+.kepalaJudul { display: grid; justify-items: start; gap: var(--sp-1); }
+/* Kembali ke peta bukan aksi utama layar ini: tautan kecil di atas judul. */
+.kembali { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: 32px; margin-left: calc(-1 * var(--sp-1)); padding: 0 var(--sp-1); border-radius: var(--r-s); color: var(--ink-2); font: var(--tipe-kecil); text-decoration: none; }
+.kembali:hover { color: var(--ink); }
 .aksiKepala { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 
 .labelBaris {
@@ -358,6 +362,19 @@
   width: 100%;
 }
 
+/* Nama bangunan terpanjang di katalog muat dalam 520 px; lebih lebar hanya menambah jarak baca. */
+.wadah > .pilihBangunan > select {
+  width: min(100%, 520px);
+}
+
+.bantuan {
+  font-size: var(--fs-xs);
+}
+
+.bantuan a {
+  color: inherit;
+}
+
 .terminalIsi {
   display: grid;
   gap: var(--sp-3);
@@ -391,7 +408,7 @@
 @media (max-width: 560px) {
   .wadah {
     --kontrol-h: 44px;
-    padding: var(--sp-4);
+    padding: var(--sp-4) 0 var(--sp-8);
   }
 
   .pilihBangunan {

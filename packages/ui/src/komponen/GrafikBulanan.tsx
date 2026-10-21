@@ -171,6 +171,7 @@ export function GrafikBulanan({
                         className={s.labelLangsung}
                         aria-hidden="true"
                         data-tepi={i === 0 ? "kiri" : i === data.length - 1 ? "kanan" : undefined}
+                        data-jenis={i === iMaks ? "maks" : "min"}
                       >
                         {angka(v)}
                       </span>

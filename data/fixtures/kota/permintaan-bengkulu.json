@@ -1,0 +1,40 @@
+{
+  "kode_wilayah": "1771",
+  "fraksi_layak": 0.7,
+  "tilt_deg": 15,
+  "azimuth_deg": 0,
+  "adopsi": 0.15,
+  "urut": "kwp",
+  "asumsi": {
+    "golongan_tarif": "R-1/TR",
+    "daya_va": 2200,
+    "tarif_rp_kwh": 1444.7,
+    "scr": 0.6,
+    "biaya_per_kwp": 14500000.0,
+    "opex_frac": 0.01,
+    "diskonto": 0.09,
+    "eskalasi_tarif": 0.0,
+    "degradasi_thn": 0.006,
+    "umur_tahun": 25,
+    "ef_grid_tco2_mwh": 0.84,
+    "faktor_ekspor": 0.0
+  },
+  "parameter_fisika": {
+    "modul": {
+      "wp": 550.0,
+      "panjang_m": 2.278,
+      "lebar_m": 1.134,
+      "gamma_p": -0.0035,
+      "t_noct": 45.0
+    },
+    "derate": {
+      "kotoran": 0.03,
+      "mismatch": 0.02,
+      "kabel_dc": 0.02,
+      "inverter": 0.965,
+      "ketersediaan": 0.02
+    },
+    "albedo": 0.2
+  },
+  "_catatan": "Skenario contoh berbasis footprint OSM. Fraksi layak 70%, tilt 15 derajat, hadap utara, SCR 60%, albedo dan rugi adalah asumsi seragam yang dapat diubah; bukan survei atap atau pemeriksaan daya pemasangan. Modul, tarif dasar, biaya historis, cuaca dan faktor emisi mengikuti registri sumber."
+}

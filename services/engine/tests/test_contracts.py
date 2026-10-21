@@ -15,7 +15,14 @@ from pydantic import BaseModel, ValidationError
 from pyproj import Geod
 from shapely.geometry import shape
 
-from app.contracts import AnalisisAtap, BangunanRingkas, GalatApi, HasilSimulasi, ParameterFisika
+from app.contracts import (
+    AnalisisAtap,
+    BangunanRingkas,
+    GalatApi,
+    HasilAgregasi,
+    HasilSimulasi,
+    ParameterFisika,
+)
 
 DIR_FIXTURE = Path(__file__).resolve().parents[3] / "data" / "fixtures"
 
@@ -24,6 +31,7 @@ KASUS: list[tuple[str, type[BaseModel], int]] = [
     ("analisis", AnalisisAtap, 2),
     ("simulasi", HasilSimulasi, 1),
     ("parameter", ParameterFisika, 1),
+    ("agregasi", HasilAgregasi, 1),
 ]
 
 

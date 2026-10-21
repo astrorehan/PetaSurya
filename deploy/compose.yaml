@@ -1,0 +1,45 @@
+name: petasurya
+services:
+  engine:
+    build:
+      context: ..
+      dockerfile: services/engine/Dockerfile
+    restart: unless-stopped
+    environment:
+      PETASURYA_CORS_ORIGINS: ${PETASURYA_CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      PETASURYA_MODEL_THREADS: ${PETASURYA_MODEL_THREADS:-2}
+      PETASURYA_PRELOAD_MODEL: "1"
+    ports:
+      - "127.0.0.1:${PETASURYA_API_PORT:-8000}:8000"
+    volumes:
+      - hasil:/var/lib/petasurya
+    cpus: ${PETASURYA_CPU_LIMIT:-2.0}
+    mem_limit: ${PETASURYA_MEMORY_LIMIT:-2g}
+    init: true
+    stop_grace_period: 100s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  proxy:
+    image: caddy:2.10-alpine
+    profiles: [publik]
+    restart: unless-stopped
+    environment:
+      PETASURYA_DOMAIN: ${PETASURYA_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - sertifikat:/data
+      - konfigurasi:/config
+    depends_on:
+      engine:
+        condition: service_healthy
+volumes:
+  hasil:
+  sertifikat:
+  konfigurasi:

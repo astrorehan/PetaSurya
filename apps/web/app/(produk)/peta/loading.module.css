@@ -1,0 +1,27 @@
+.halaman { width: min(calc(100% - 2 * var(--tepi)), var(--lebar-isi)); margin: 0 auto; padding: var(--sp-6) 0 var(--sp-8); }
+.kepala { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-5); }
+.kepala h1 { margin: 0; font: 500 clamp(30px, 3.4vw, 44px) / 1.08 var(--f-display); letter-spacing: -0.055em; }
+.kepala h1 > span { color: var(--ink-2); }
+.kepala p { margin: 0; color: var(--ink-2); font: 400 var(--fs-xs) / 1.4 var(--f-ui); }
+.alur { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); height: 29px; margin-bottom: var(--sp-5); }
+.alur span { border-top: 1px solid var(--line); }
+.alur span:first-child { border-color: var(--surya); }
+.ruangKerja { overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.bilah { display: flex; align-items: center; min-height: 68px; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); }
+.bilah span { width: min(100%, 480px); height: var(--kontrol-h); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface-2); }
+.baris { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: clamp(460px, calc(100dvh - 330px), 720px); }
+.peta { position: relative; overflow: hidden; margin: var(--sp-3); border-radius: var(--r-s); background: var(--surface-2); }
+.peta span { position: absolute; inset: 20%; border: 1px solid var(--line); border-radius: var(--r-m); transform: rotate(-18deg); }
+.peta span:nth-child(2) { inset: 32% 30%; transform: rotate(28deg); }
+.peta span:nth-child(3) { inset: 10% 38%; transform: rotate(50deg); }
+.daftar { display: grid; align-content: start; gap: var(--sp-5); padding: var(--sp-6) var(--sp-5); border-left: 1px solid var(--line); }
+.daftar > div { display: grid; gap: var(--sp-3); }
+.daftar span { height: var(--sp-3); border-radius: var(--r-pill); background: var(--surface-3); }
+.daftar span:last-child { width: 60%; height: var(--sp-2); }
+@media (max-width: 800px) {
+  .baris { grid-template-columns: 1fr; height: clamp(340px, 58dvh, 500px); }
+  .daftar { display: none; }
+}
+@media (max-width: 560px) {
+  .kepala h1 { font-size: clamp(28px, 8.4vw, 36px); }
+}

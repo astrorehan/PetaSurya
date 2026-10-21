@@ -1,0 +1,7 @@
+.halaman { display: grid; align-content: center; justify-items: center; width: min(calc(100% - 2 * var(--tepi)), var(--lebar-teks)); min-height: 65dvh; margin: 0 auto; padding: var(--sp-16) 0; text-align: center; }
+.ikon { display: grid; place-items: center; width: 88px; height: 88px; margin-bottom: var(--sp-8); border: 1px solid var(--line); border-radius: var(--r-m); color: var(--surya); background: var(--surya-bg); }
+.label { margin: 0 0 var(--sp-3); color: var(--surya); font: var(--tipe-data); font-size: var(--fs-xs); letter-spacing: var(--track-label); }
+.judul { margin: 0; font: 500 clamp(2rem, 5vw, 3rem) / 1.12 var(--f-display); letter-spacing: var(--track-display); text-wrap: balance; }
+.teks { max-width: 42ch; margin: var(--sp-4) 0 0; color: var(--ink-2); font: 400 var(--fs-b) / var(--lead-prose) var(--f-ui); text-wrap: pretty; }
+.aksi { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--sp-3); margin-top: var(--sp-8); }
+@media (max-width: 560px) { .halaman { min-height: 55dvh; padding-block: var(--sp-10); } }

@@ -238,6 +238,17 @@
   display: none;
 }
 
+/*
+ * Label nilai terendah selebar ±44 px (enam karakter mono 12 px). Di bawah 50 px
+ * per slot ia menimpa batang tetangga yang lebih tinggi; nilainya tetap ada pada
+ * tooltip dan tabel. Label puncak aman karena tetangganya selalu lebih pendek.
+ */
+@container (max-width: 600px) {
+  .labelLangsung[data-jenis="min"] {
+    display: none;
+  }
+}
+
 @container (max-width: 440px) {
   .bulanPanjang {
     display: none;

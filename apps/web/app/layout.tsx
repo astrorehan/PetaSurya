@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, IBM_Plex_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
-import contohSimulasi from "../../../data/fixtures/simulasi/contoh-3f8c.json";
 import "@petasurya/ui/tokens.css";
-import { Footer } from "../components/Footer";
-import { Header } from "../components/Header";
-import { PenyediaTema } from "../components/Tema";
-import s from "./layout.module.css";
+import "./transisi.css";
+import { PenyediaTema } from "@/components/Tema";
+import { TransisiHalaman } from "@/components/TransisiHalaman";
 
 // Pasangan Arc di-host sendiri saat build; data memakai angka tabular mono.
 const geist = Geist({
@@ -32,16 +30,28 @@ export const metadata: Metadata = {
     template: "%s · PetaSurya",
   },
   description: "Peta potensi PLTS atap tingkat bangunan untuk Indonesia. Atapmu, dihitung.",
+  applicationName: "PetaSurya",
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "PetaSurya",
+    title: "PetaSurya — Atapmu, dihitung.",
+    description: "Kenali potensi energi dan penghematan atap Anda. Jelajahi peta bangunan dan uji skenario PLTS atap di Bengkulu.",
+  },
+  twitter: {
+    card: "summary",
+    title: "PetaSurya — Atapmu, dihitung.",
+    description: "Peta potensi PLTS atap di Bengkulu. Pilih bangunan, tinjau atap, lalu hitung potensi energi dan penghematan.",
+  },
 };
 
 const kelasFont = [geist, inter, plexMono].map((f) => f.variable).join(" ");
-const engineVersion = contohSimulasi.engine_version;
 
 const skripTemaAwal = `
 (function () {
   try {
     var tema = localStorage.getItem("petasurya-theme");
-    if (tema === "light" || tema === "dark") document.documentElement.dataset.theme = tema;
+    document.documentElement.dataset.theme = tema === "light" ? "light" : "dark";
   } catch (_) {}
 })();`;
 
@@ -53,9 +63,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <PenyediaTema>
-          <Header />
-          <div className={s.isi}>{children}</div>
-          <Footer engineVersion={engineVersion} />
+          <TransisiHalaman />
+          {children}
         </PenyediaTema>
       </body>
     </html>

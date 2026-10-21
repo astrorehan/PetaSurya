@@ -1,0 +1,11 @@
+{$PETASURYA_DOMAIN} {
+    encode zstd gzip
+    request_body {
+        max_size 256KB
+    }
+    reverse_proxy engine:8000 {
+        transport http {
+            response_header_timeout 100s
+        }
+    }
+}

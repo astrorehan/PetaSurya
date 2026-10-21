@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import tokoJson from "../../../data/fixtures/bangunan/toko-wr-supratman.json";
 import limunJson from "../../../data/fixtures/bangunan/rumah-kandang-limun.json";
-import { luasBertanda, panjangSisi, proyeksi, titikBerat, type Titik } from "../app/desain/_geo";
+import { luasBertanda, panjangSisi, proyeksi, titikBerat, type Titik } from "../app/(produk)/desain/_geo";
 
 const cincin = (b: { geom: { coordinates: number[][][] } }) => b.geom.coordinates[0] as Titik[];
 

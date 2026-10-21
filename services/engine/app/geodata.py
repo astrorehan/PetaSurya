@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+from threading import Lock
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -12,7 +13,7 @@ from shapely import transform
 from shapely.geometry import shape
 
 from app.analyses import analisis_bangunan_terbaru, simpan_analisis
-from app.buildings import cari_bangunan, muat_katalog, temukan_area
+from app.buildings import cari_bangunan, muat_katalog, simpan_bangunan_hasil, temukan_area
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
@@ -24,6 +25,11 @@ from app.vision import analisis_dari_mask, segmentasi_atap
 DIR_ROOT = Path(__file__).resolve().parents[3]
 DIR_BANGUNAN = DIR_ROOT / "data" / "fixtures" / "bangunan"
 DIR_ANALISIS = DIR_ROOT / "data" / "fixtures" / "analisis"
+_kunci_analisis = Lock()
+
+
+class MesinSibuk(Exception):
+    """Antrean inferensi terbatas agar permintaan tidak menumpuk pada VPS CPU."""
 
 
 class HasilGeocode(BaseModel):
@@ -155,6 +161,18 @@ def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
     tersimpan = analisis_tersimpan(building_id)
     if tersimpan and not force:
         return tersimpan
+    if not _kunci_analisis.acquire(timeout=10):
+        raise MesinSibuk("Mesin sedang menganalisis atap lain. Coba lagi sebentar.")
+    try:
+        return _analisis_tunggal(building_id, force)
+    finally:
+        _kunci_analisis.release()
+
+
+def _analisis_tunggal(building_id: int, force: bool) -> AnalisisAtap:
+    tersimpan = analisis_tersimpan(building_id)
+    if tersimpan and not force:
+        return tersimpan
     bangunan = cari_bangunan(building_id)
     if bangunan is None:
         raise BuildingNotFoundError(f"Bangunan id {building_id} tidak terdaftar.")
@@ -187,4 +205,5 @@ def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
     if sebab:
         analisis.peringatan = f"Analisis citra tidak tersedia ({sebab}). {analisis.peringatan}"
     simpan_analisis(analisis)
+    simpan_bangunan_hasil(bangunan)
     return analisis

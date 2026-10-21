@@ -58,6 +58,11 @@ for (const tema of ["terang", "gelap"] as const) {
         expect(kontras(t["--on-pri"], t[isi])).toBeGreaterThanOrEqual(4.5);
       });
     }
+    for (const isi of ["--action-fill", "--action-hover", "--action-pressed"] as const) {
+      it(`--on-action × ${isi} ≥ 4,5`, () => {
+        expect(kontras(t["--on-action"], t[isi])).toBeGreaterThanOrEqual(4.5);
+      });
+    }
   });
 }
 

@@ -34,9 +34,11 @@
 }
 
 .primer {
-  --_isi: var(--pri);
-  --_tinta: var(--on-pri);
-  --_tepi: var(--pri);
+  --_isi: var(--action-fill);
+  --_tinta: var(--on-action);
+  --_tepi: var(--action-fill);
+  border-radius: var(--r-pill);
+  font-weight: 600;
 }
 
 /* Hover hanya di perangkat yang punya hover: tidak "lengket" di layar sentuh. */
@@ -47,8 +49,8 @@
   }
 
   .primer:hover {
-    --_isi: var(--pri-hover);
-    --_tepi: var(--pri-hover);
+    --_isi: var(--action-hover);
+    --_tepi: var(--action-hover);
   }
 }
 
@@ -58,8 +60,8 @@
 }
 
 .primer[data-paksa="hover"] {
-  --_isi: var(--pri-hover);
-  --_tepi: var(--pri-hover);
+  --_isi: var(--action-hover);
+  --_tepi: var(--action-hover);
 }
 
 .sekunder:active,
@@ -70,8 +72,8 @@
 
 .primer:active,
 .primer[data-paksa="aktif"] {
-  --_isi: var(--pri-tekan);
-  --_tepi: var(--pri-tekan);
+  --_isi: var(--action-pressed);
+  --_tepi: var(--action-pressed);
 }
 
 @media (prefers-reduced-motion: no-preference) {

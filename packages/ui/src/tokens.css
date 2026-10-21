@@ -9,9 +9,9 @@
  *
  * Susunan berkas:
  *   1. :root                         token netral-tema (huruf, ruang, bentuk, gerak)
- *   2. :root, [data-theme="light"]   warna tema terang
- *   3. @media dark :root:not(light)  warna tema gelap bila sistem gelap
- *   4. [data-theme="dark"]           warna tema gelap pilihan pengguna
+ *   2. [data-theme="light"]          warna netral hangat tema terang
+ *   3. @media dark :root:not(light)   salinan palet tema gelap
+ *   4. :root:not(light), [dark]       grafit dan amber, tema awal produk
  * Blok 2 dan 4 juga berlaku pada elemen mana pun yang membawa data-theme,
  * sehingga satu bagian halaman bisa memakai tema lain (pelat perbandingan).
  * Uji kontras (kontras.test.ts) membaca blok 2 dan 4 dari berkas ini.
@@ -19,12 +19,64 @@
 
 :root {
   /* --- brand: konstan di kedua tema --- */
-  --brand-sel: #17204a;
-  --brand-sel-2: #2b3a77;
-  --brand-busbar: #aeb7c7;
+  --brand-sel: #090b0d;
+  --brand-sel-2: #191c1f;
+  --brand-busbar: #858a90;
   --brand-surya: #e8920f;
   --brand-surya-2: #c4551a;
   --brand-daun: #2e7d52;
+
+  /* Halaman pengenalan: grafit, cahaya amber, dan teks hangat. */
+  --brand-night: #090b0d;
+  --brand-night-panel: #101315;
+  --brand-night-raised: #191c1f;
+  --brand-white: #f5f4f0;
+  --brand-muted: #a3a6aa;
+  --brand-dim: #858a90;
+  --brand-icon-top: #27292a;
+  --brand-icon-bottom: #101112;
+  --brand-icon-face: #f4f5f5;
+  --brand-icon-shade: #c3c6c8;
+  --brand-icon-eye: #080909;
+  --brand-amber: #ffc46b;
+  --brand-amber-ink: #211708;
+  --brand-hairline: rgba(255, 255, 255, 0.12);
+  --brand-grid: rgba(255, 255, 255, 0.045);
+  --brand-contour: rgba(255, 196, 107, 0.12);
+  --brand-contour-grid: rgba(255, 196, 107, 0.14);
+  --brand-light-wash: rgba(232, 146, 15, 0.12);
+  --brand-transparent: rgba(9, 11, 13, 0);
+  --brand-glow: radial-gradient(ellipse at center, rgba(232, 146, 15, 0.16), rgba(232, 146, 15, 0.04) 45%, transparent 70%);
+  --brand-signature-glow: radial-gradient(ellipse at 50% 110%, rgba(232, 146, 15, 0.2), transparent 68%);
+  --brand-signature-type: linear-gradient(180deg, #f1d0a1 15%, #8c652e 100%);
+  --brand-mascot-fade: linear-gradient(to bottom, #000 66%, transparent 88%);
+  --brand-map-fade: radial-gradient(ellipse at center, #000 25%, transparent 75%);
+  --brand-preview-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+  /* Bayang kontak mata Surya di atas bulu; sama pada kedua tema karena maskot tidak berganti warna. */
+  --brand-mata-bayang: drop-shadow(0 3px 3px rgba(74, 28, 0, 0.45));
+  --brand-focus: 0 0 0 3px rgba(255, 196, 107, 0.48);
+  --brand-hero-size: clamp(3.5rem, 8.6vw, 7rem);
+  --brand-section-size: clamp(2.25rem, 4.25vw, 3.65rem);
+  --brand-figure-size: clamp(2.25rem, 3.65vw, 3.1rem);
+  --brand-content-width: 1120px;
+  --brand-section-space: clamp(80px, 9vw, 128px);
+  --brand-orbit-line: rgba(255, 196, 107, 0.13);
+  --brand-orbit-point: #ffe2b9;
+  --brand-button-sheen: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55), transparent 70%);
+  --brand-t-title: 1300ms;
+  --brand-t-rise: 1800ms;
+  --brand-t-scene: 1100ms;
+  --brand-t-orbit: 18000ms;
+  --brand-t-breathe: 7200ms;
+  --brand-t-aura: 9000ms;
+  --brand-t-reveal: 1000ms;
+  --brand-t-contour: 2200ms;
+  --brand-delay-copy: 260ms;
+  --brand-delay-actions: 420ms;
+  --brand-delay-mascot: 300ms;
+  --brand-delay-features: 750ms;
+  --brand-delay-idle: 2100ms;
+  --brand-stagger: 90ms;
 
   /* --- tipografi Arc, data tetap memakai mono tabular --- */
   --f-display: var(--font-geist, "Geist"), system-ui, sans-serif;
@@ -99,10 +151,12 @@
   --sp-16: 64px;
 
   /* --- tata letak --- */
-  --lebar-isi: 75rem; /* 1200 px, halaman dokumen */
+  --lebar-isi: 80rem; /* 1280 px, isi dan navigasi produk */
   --lebar-teks: 42rem; /* ±70 karakter prosa */
   --tepi: clamp(16px, 4vw, 32px); /* margin halaman: 16 → 32 px */
   --header-h: 88px;
+  --nav-ringkas: 360px;
+  --nav-glint: linear-gradient(90deg, transparent, rgba(255, 196, 107, 0.48), transparent);
   --kontrol-h: 44px;
   --lebar-lembar: 400px; /* lembar samping jejak & asumsi */
 
@@ -132,6 +186,15 @@
   --t-scan: 2200ms;
   --t-flow: 2600ms;
   --t-stagger: 45ms;
+  --t-navbar: 500ms;
+  /*
+   * Perpindahan halaman (fade through): isi lama habis dalam 150 ms, isi baru
+   * mulai pada 110 ms. Tumpang tindih 40 ms terjadi saat isi lama di bawah 30%
+   * opacity, sehingga dua halaman tidak terbaca bertumpuk. Total 470 ms.
+   */
+  --t-halaman-keluar: 150ms;
+  --t-halaman-masuk: 360ms;
+  --t-halaman-jeda: 110ms;
 
   /*
    * Arsir miring 8 px untuk keyakinan rendah (POLA_KEYAKINAN_RENDAH).
@@ -147,43 +210,60 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1040px) {
   :root { --header-h: 152px; }
 }
 
 /* --- warna tema terang --- */
-:root,
+:root[data-theme="light"],
 [data-theme="light"] {
   color-scheme: light;
 
   /* permukaan & tinta */
-  --paper: #edeff4;
-  --surface: #ffffff;
-  --surface-2: #f6f7fa;
-  --surface-3: #e7eaf1;
-  --ink: #10152e;
-  --ink-2: #4c5573;
-  --ink-3: #6f7999;
-  --line: #d7dbe6;
-  --line-2: #bfc6d6;
+  --paper: #f2f0eb;
+  --surface: #fffdf8;
+  --surface-2: #f7f4ee;
+  --surface-3: #e9e5dc;
+  --ink: #211e19;
+  --ink-2: #5e5a52;
+  --ink-3: #716c63;
+  --line: #ded9ce;
+  --line-2: #c4bdaf;
 
   /* peran semantik */
-  --pri: #2b3a77;
-  --pri-bg: #e6eaf7;
-  --pri-hover: #22306a;
-  --pri-tekan: #17204a;
+  --pri: #905600;
+  --pri-bg: #f9ecd7;
+  --pri-hover: #774606;
+  --pri-tekan: #633b06;
   --on-pri: #ffffff;
-  --surya: #c4700a;
-  --surya-bg: #fbeeda;
-  --daun: #1f6b45;
-  --daun-bg: #dff1e7;
-  --merah: #b03a1e;
-  --merah-bg: #fbe6df;
-  --busbar: #8a93a6;
+  --surya: #955805;
+  --surya-bg: #f6e7ce;
+  --daun: #3e6d4c;
+  --daun-bg: #e8efe3;
+  --merah: #a74a37;
+  --merah-bg: #fae6df;
+  --busbar: #716c63;
+  --action-fill: #211e19;
+  --action-hover: #48331d;
+  --action-pressed: #362415;
+  --on-action: #fffdf8;
 
-  --shadow-s: 0 1px 2px rgba(16, 21, 46, 0.06), 0 1px 1px rgba(16, 21, 46, 0.04);
-  --shadow-m: 0 2px 8px rgba(16, 21, 46, 0.07), 0 1px 3px rgba(16, 21, 46, 0.05);
+  --shadow-s: 0 1px 2px rgba(33, 30, 25, 0.06), 0 1px 1px rgba(33, 30, 25, 0.04);
+  --shadow-m: 0 12px 40px rgba(33, 30, 25, 0.1), 0 1px 3px rgba(33, 30, 25, 0.05);
   --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--pri);
+
+  /* efek halaman pengenalan: amber diturunkan ke --pri terang, cahaya lebih tipis di atas kertas */
+  --brand-grid: rgba(33, 30, 25, 0.06);
+  --brand-contour: rgba(144, 86, 0, 0.1);
+  --brand-contour-grid: rgba(144, 86, 0, 0.22);
+  --brand-light-wash: rgba(144, 86, 0, 0.08);
+  --brand-orbit-line: rgba(144, 86, 0, 0.2);
+  --brand-orbit-point: #c27312;
+  --brand-glow: radial-gradient(ellipse at center, rgba(232, 146, 15, 0.22), rgba(232, 146, 15, 0.06) 45%, transparent 70%);
+  --brand-signature-glow: radial-gradient(ellipse at 50% 110%, rgba(232, 146, 15, 0.16), transparent 68%);
+  --brand-signature-type: linear-gradient(180deg, #a8691b 15%, #ece5d8 100%);
+  --brand-preview-shadow: 0 24px 80px rgba(33, 30, 25, 0.1);
+  --brand-button-sheen: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.3), transparent 70%);
 }
 
 /* --- warna tema gelap: sistem gelap, pengguna belum memilih terang --- */
@@ -191,65 +271,73 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --paper: #0a0e1c;
-    --surface: #121834;
-    --surface-2: #182041;
-    --surface-3: #1d2650;
-    --ink: #e6eaf6;
-    --ink-2: #9aa4c2;
-    --ink-3: #7e87a3;
-    --line: #252e52;
-    --line-2: #36406b;
+    --paper: #090b0d;
+    --surface: #101315;
+    --surface-2: #191c1f;
+    --surface-3: #24282b;
+    --ink: #f5f4f0;
+    --ink-2: #a3a6aa;
+    --ink-3: #858a90;
+    --line: #2b3034;
+    --line-2: #43494e;
 
-    --pri: #8fa4f0;
-    --pri-bg: #1b2450;
-    --pri-hover: #a3b4f3;
-    --pri-tekan: #b9c6f6;
-    --on-pri: #0a0e1c;
-    --surya: #f2a93f;
-    --surya-bg: #3a2a10;
-    --daun: #4fc489;
-    --daun-bg: #10331f;
-    --merah: #ee8460;
-    --merah-bg: #3a1a12;
-    --busbar: #7a85a0;
+    --pri: #ffc46b;
+    --pri-bg: #2b2116;
+    --pri-hover: #ffd79a;
+    --pri-tekan: #e9b05b;
+    --on-pri: #211708;
+    --surya: #ffc46b;
+    --surya-bg: #2e2315;
+    --daun: #b6c89c;
+    --daun-bg: #1e291b;
+    --merah: #f4a88a;
+    --merah-bg: #332019;
+    --busbar: #858a90;
+    --action-fill: #f5f4f0;
+    --action-hover: #ffc46b;
+    --action-pressed: #e9b05b;
+    --on-action: #211708;
 
     --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-m: 0 2px 10px rgba(0, 0, 0, 0.45);
+    --shadow-m: 0 16px 48px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
     --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--pri);
   }
 }
 
-/* --- warna tema gelap: pilihan pengguna, atau cakupan data-theme="dark" --- */
-:root[data-theme="dark"],
+/* --- warna tema gelap: awal produk, pilihan pengguna, atau cakupan [dark] --- */
+:root:not([data-theme="light"]),
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --paper: #0a0e1c;
-  --surface: #121834;
-  --surface-2: #182041;
-  --surface-3: #1d2650;
-  --ink: #e6eaf6;
-  --ink-2: #9aa4c2;
-  --ink-3: #7e87a3;
-  --line: #252e52;
-  --line-2: #36406b;
+  --paper: #090b0d;
+  --surface: #101315;
+  --surface-2: #191c1f;
+  --surface-3: #24282b;
+  --ink: #f5f4f0;
+  --ink-2: #a3a6aa;
+  --ink-3: #858a90;
+  --line: #2b3034;
+  --line-2: #43494e;
 
-  --pri: #8fa4f0;
-  --pri-bg: #1b2450;
-  --pri-hover: #a3b4f3;
-  --pri-tekan: #b9c6f6;
-  --on-pri: #0a0e1c;
-  --surya: #f2a93f;
-  --surya-bg: #3a2a10;
-  --daun: #4fc489;
-  --daun-bg: #10331f;
-  --merah: #ee8460;
-  --merah-bg: #3a1a12;
-  --busbar: #7a85a0;
+  --pri: #ffc46b;
+  --pri-bg: #2b2116;
+  --pri-hover: #ffd79a;
+  --pri-tekan: #e9b05b;
+  --on-pri: #211708;
+  --surya: #ffc46b;
+  --surya-bg: #2e2315;
+  --daun: #b6c89c;
+  --daun-bg: #1e291b;
+  --merah: #f4a88a;
+  --merah-bg: #332019;
+  --busbar: #858a90;
+  --action-fill: #f5f4f0;
+  --action-hover: #ffc46b;
+  --action-pressed: #e9b05b;
+  --on-action: #211708;
 
   --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-m: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --shadow-m: 0 16px 48px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
   --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--pri);
 }
 
@@ -275,6 +363,15 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
+}
+
+:where(a, a:visited) {
+  color: var(--pri);
+  text-underline-offset: 3px;
+}
+
+:where(a:hover) {
+  color: var(--pri-hover);
 }
 
 /* Cakupan tema bersarang mewarisi token barunya, tapi warna teks perlu diset ulang. */

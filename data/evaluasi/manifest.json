@@ -1,0 +1,3522 @@
+{
+  "versi": "atap-bengkulu-2026-10-19-v1",
+  "tanggal": "2026-10-19",
+  "seed": "atap-bengkulu-2026-10-19-v1",
+  "pemilihan": "Urutan SHA-256 source_ref; 10 atap per strata luas; 20 pengembangan dan 10 uji. Sembilan contoh demo dikecualikan.",
+  "sha256_sumber": "17fd876ea19699140ac5380016a084b77f78410f515aa957e4e42045d5cf90f3",
+  "sampel": [
+    {
+      "id": 983448855,
+      "split": "uji",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 983448855,
+        "source": "osm",
+        "source_ref": "way/983448855",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3333684,
+                -3.8434155
+              ],
+              [
+                102.3333649,
+                -3.8433321
+              ],
+              [
+                102.3334936,
+                -3.8433267
+              ],
+              [
+                102.3334971,
+                -3.8434101
+              ],
+              [
+                102.3333684,
+                -3.8434155
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 132.06333332290524,
+        "building_tag": "yes",
+        "nama": "Bangunan 983448855"
+      },
+      "bingkai": {
+        "x0": 105261212.35351326,
+        "y0": 68542612.41537835,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        319.9999999832023,
+        240.0000003427267
+      ],
+      "tiles": [
+        {
+          "x": -156.35351325571537,
+          "y": -148.41537834703922,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267744/411176"
+        },
+        {
+          "x": 99.64648674428463,
+          "y": -148.41537834703922,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267744/411177"
+        },
+        {
+          "x": 355.64648674428463,
+          "y": -148.41537834703922,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267744/411178"
+        },
+        {
+          "x": 611.6464867442846,
+          "y": -148.41537834703922,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267744/411179"
+        },
+        {
+          "x": -156.35351325571537,
+          "y": 107.58462165296078,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267745/411176"
+        },
+        {
+          "x": 99.64648674428463,
+          "y": 107.58462165296078,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267745/411177"
+        },
+        {
+          "x": 355.64648674428463,
+          "y": 107.58462165296078,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267745/411178"
+        },
+        {
+          "x": 611.6464867442846,
+          "y": 107.58462165296078,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267745/411179"
+        },
+        {
+          "x": -156.35351325571537,
+          "y": 363.5846216529608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267746/411176"
+        },
+        {
+          "x": 99.64648674428463,
+          "y": 363.5846216529608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267746/411177"
+        },
+        {
+          "x": 355.64648674428463,
+          "y": 363.5846216529608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267746/411178"
+        },
+        {
+          "x": 611.6464867442846,
+          "y": 363.5846216529608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267746/411179"
+        }
+      ]
+    },
+    {
+      "id": 630294024,
+      "split": "uji",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 630294024,
+        "source": "osm",
+        "source_ref": "way/630294024",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3074084,
+                -3.8340285
+              ],
+              [
+                102.3073767,
+                -3.8339915
+              ],
+              [
+                102.3074826,
+                -3.8339011
+              ],
+              [
+                102.3075144,
+                -3.8339382
+              ],
+              [
+                102.3074084,
+                -3.8340285
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 83.44639195688069,
+        "building_tag": "yes",
+        "nama": "Bangunan 630294024"
+      },
+      "bingkai": {
+        "x0": 105251524.27583574,
+        "y0": 68539097.60843484,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        319.9877867119162,
+        240.01738039404154
+      ],
+      "tiles": [
+        {
+          "x": -196.27583573758602,
+          "y": -217.6084348410368,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411138"
+        },
+        {
+          "x": 59.72416426241398,
+          "y": -217.6084348410368,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411139"
+        },
+        {
+          "x": 315.724164262414,
+          "y": -217.6084348410368,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411140"
+        },
+        {
+          "x": 571.724164262414,
+          "y": -217.6084348410368,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411141"
+        },
+        {
+          "x": -196.27583573758602,
+          "y": 38.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411138"
+        },
+        {
+          "x": 59.72416426241398,
+          "y": 38.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411139"
+        },
+        {
+          "x": 315.724164262414,
+          "y": 38.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411140"
+        },
+        {
+          "x": 571.724164262414,
+          "y": 38.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411141"
+        },
+        {
+          "x": -196.27583573758602,
+          "y": 294.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411138"
+        },
+        {
+          "x": 59.72416426241398,
+          "y": 294.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411139"
+        },
+        {
+          "x": 315.724164262414,
+          "y": 294.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411140"
+        },
+        {
+          "x": 571.724164262414,
+          "y": 294.3915651589632,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411141"
+        }
+      ]
+    },
+    {
+      "id": 990255325,
+      "split": "uji",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 990255325,
+        "source": "osm",
+        "source_ref": "way/990255325",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2746991,
+                -3.7631525
+              ],
+              [
+                102.2747907,
+                -3.7631669
+              ],
+              [
+                102.2747773,
+                -3.7632519
+              ],
+              [
+                102.2746857,
+                -3.7632375
+              ],
+              [
+                102.2746991,
+                -3.7631525
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 98.00747085385956,
+        "building_tag": "yes",
+        "nama": "Bangunan 990255325"
+      },
+      "bingkai": {
+        "x0": 105239330.09166336,
+        "y0": 68512657.30947831,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        320.0000000170358,
+        240.0000002682209
+      ],
+      "tiles": [
+        {
+          "x": -34.0916633605957,
+          "y": -145.3094783127308,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411091"
+        },
+        {
+          "x": 221.9083366394043,
+          "y": -145.3094783127308,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411092"
+        },
+        {
+          "x": 477.9083366394043,
+          "y": -145.3094783127308,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267627/411093"
+        },
+        {
+          "x": -34.0916633605957,
+          "y": 110.69052168726921,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411091"
+        },
+        {
+          "x": 221.9083366394043,
+          "y": 110.69052168726921,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411092"
+        },
+        {
+          "x": 477.9083366394043,
+          "y": 110.69052168726921,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267628/411093"
+        },
+        {
+          "x": -34.0916633605957,
+          "y": 366.6905216872692,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267629/411091"
+        },
+        {
+          "x": 221.9083366394043,
+          "y": 366.6905216872692,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267629/411092"
+        },
+        {
+          "x": 477.9083366394043,
+          "y": 366.6905216872692,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267629/411093"
+        }
+      ]
+    },
+    {
+      "id": 667079545,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 667079545,
+        "source": "osm",
+        "source_ref": "way/667079545",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3463047,
+                -3.8834622
+              ],
+              [
+                102.3463505,
+                -3.8834198
+              ],
+              [
+                102.3463999,
+                -3.8834729
+              ],
+              [
+                102.346354,
+                -3.8835153
+              ],
+              [
+                102.3463047,
+                -3.8834622
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 55.59958966681734,
+        "building_tag": "yes",
+        "nama": "Bangunan 667079545"
+      },
+      "bingkai": {
+        "x0": 105266029.7571274,
+        "y0": 68557595.50551388,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        320.0043098553667,
+        239.9992971122265
+      ],
+      "tiles": [
+        {
+          "x": -109.75712740421295,
+          "y": -27.50551387667656,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267803/411195"
+        },
+        {
+          "x": 146.24287259578705,
+          "y": -27.50551387667656,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267803/411196"
+        },
+        {
+          "x": 402.24287259578705,
+          "y": -27.50551387667656,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267803/411197"
+        },
+        {
+          "x": -109.75712740421295,
+          "y": 228.49448612332344,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267804/411195"
+        },
+        {
+          "x": 146.24287259578705,
+          "y": 228.49448612332344,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267804/411196"
+        },
+        {
+          "x": 402.24287259578705,
+          "y": 228.49448612332344,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267804/411197"
+        }
+      ]
+    },
+    {
+      "id": 629994228,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 629994228,
+        "source": "osm",
+        "source_ref": "way/629994228",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3085827,
+                -3.8343953
+              ],
+              [
+                102.3086021,
+                -3.8344099
+              ],
+              [
+                102.3084774,
+                -3.8345751
+              ],
+              [
+                102.308458,
+                -3.8345606
+              ],
+              [
+                102.3085827,
+                -3.8343953
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 61.65981128544081,
+        "building_tag": "yes",
+        "nama": "Bangunan 629994228"
+      },
+      "bingkai": {
+        "x0": 105251928.61586486,
+        "y0": 68539292.05794615,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        262.89,
+        182.89,
+        114.21,
+        114.21
+      ],
+      "penanda": [
+        319.9841953424068,
+        240.02229944616556
+      ],
+      "tiles": [
+        {
+          "x": -88.61586485803127,
+          "y": -156.05794614553452,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411140"
+        },
+        {
+          "x": 167.38413514196873,
+          "y": -156.05794614553452,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411141"
+        },
+        {
+          "x": 423.3841351419687,
+          "y": -156.05794614553452,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411142"
+        },
+        {
+          "x": -88.61586485803127,
+          "y": 99.94205385446548,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411140"
+        },
+        {
+          "x": 167.38413514196873,
+          "y": 99.94205385446548,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411141"
+        },
+        {
+          "x": 423.3841351419687,
+          "y": 99.94205385446548,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411142"
+        },
+        {
+          "x": -88.61586485803127,
+          "y": 355.9420538544655,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411140"
+        },
+        {
+          "x": 167.38413514196873,
+          "y": 355.9420538544655,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411141"
+        },
+        {
+          "x": 423.3841351419687,
+          "y": 355.9420538544655,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411142"
+        }
+      ]
+    },
+    {
+      "id": 667077748,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 667077748,
+        "source": "osm",
+        "source_ref": "way/667077748",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3391727,
+                -3.8762261
+              ],
+              [
+                102.3392245,
+                -3.876154
+              ],
+              [
+                102.3393143,
+                -3.8762182
+              ],
+              [
+                102.3392625,
+                -3.8762903
+              ],
+              [
+                102.3391727,
+                -3.8762261
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 120.36202115053311,
+        "building_tag": "yes",
+        "nama": "Bangunan 667077748"
+      },
+      "bingkai": {
+        "x0": 105263379.41057992,
+        "y0": 68554888.0187317,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        320.0000000330417,
+        240.00000000745058
+      ],
+      "tiles": [
+        {
+          "x": -19.410579919815063,
+          "y": -136.01873169839382,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267792/411185"
+        },
+        {
+          "x": 236.58942008018494,
+          "y": -136.01873169839382,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267792/411186"
+        },
+        {
+          "x": 492.58942008018494,
+          "y": -136.01873169839382,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267792/411187"
+        },
+        {
+          "x": -19.410579919815063,
+          "y": 119.98126830160618,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267793/411185"
+        },
+        {
+          "x": 236.58942008018494,
+          "y": 119.98126830160618,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267793/411186"
+        },
+        {
+          "x": 492.58942008018494,
+          "y": 119.98126830160618,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267793/411187"
+        },
+        {
+          "x": -19.410579919815063,
+          "y": 375.9812683016062,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267794/411185"
+        },
+        {
+          "x": 236.58942008018494,
+          "y": 375.9812683016062,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267794/411186"
+        },
+        {
+          "x": 492.58942008018494,
+          "y": 375.9812683016062,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267794/411187"
+        }
+      ]
+    },
+    {
+      "id": 983824781,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 983824781,
+        "source": "osm",
+        "source_ref": "way/983824781",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3458158,
+                -3.8659452
+              ],
+              [
+                102.3458601,
+                -3.8658922
+              ],
+              [
+                102.3459205,
+                -3.8659424
+              ],
+              [
+                102.3458762,
+                -3.8659954
+              ],
+              [
+                102.3458158,
+                -3.8659452
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 66.62956717144698,
+        "building_tag": "yes",
+        "nama": "Bangunan 983824781"
+      },
+      "bingkai": {
+        "x0": 105265849.25911267,
+        "y0": 68551047.20921472,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        320.0000000202525,
+        240.0
+      ],
+      "tiles": [
+        {
+          "x": -185.25911267101765,
+          "y": -135.20921471714973,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267777/411194"
+        },
+        {
+          "x": 70.74088732898235,
+          "y": -135.20921471714973,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267777/411195"
+        },
+        {
+          "x": 326.74088732898235,
+          "y": -135.20921471714973,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267777/411196"
+        },
+        {
+          "x": 582.7408873289824,
+          "y": -135.20921471714973,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267777/411197"
+        },
+        {
+          "x": -185.25911267101765,
+          "y": 120.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267778/411194"
+        },
+        {
+          "x": 70.74088732898235,
+          "y": 120.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267778/411195"
+        },
+        {
+          "x": 326.74088732898235,
+          "y": 120.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267778/411196"
+        },
+        {
+          "x": 582.7408873289824,
+          "y": 120.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267778/411197"
+        },
+        {
+          "x": -185.25911267101765,
+          "y": 376.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267779/411194"
+        },
+        {
+          "x": 70.74088732898235,
+          "y": 376.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267779/411195"
+        },
+        {
+          "x": 326.74088732898235,
+          "y": 376.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267779/411196"
+        },
+        {
+          "x": 582.7408873289824,
+          "y": 376.79078528285027,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267779/411197"
+        }
+      ]
+    },
+    {
+      "id": 982386181,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 982386181,
+        "source": "osm",
+        "source_ref": "way/982386181",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3460351,
+                -3.8634491
+              ],
+              [
+                102.3461386,
+                -3.8633462
+              ],
+              [
+                102.3461954,
+                -3.8634029
+              ],
+              [
+                102.3460918,
+                -3.8635059
+              ],
+              [
+                102.3460351,
+                -3.8634491
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 143.92942096665502,
+        "building_tag": "yes",
+        "nama": "Bangunan 982386181"
+      },
+      "bingkai": {
+        "x0": 105265941.37704037,
+        "y0": 68550106.37694106,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        269.2,
+        189.2,
+        101.6,
+        101.6
+      ],
+      "penanda": [
+        320.0076541685829,
+        239.98893024772406
+      ],
+      "tiles": [
+        {
+          "x": -21.37704037129879,
+          "y": -218.37694105505943,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267773/411195"
+        },
+        {
+          "x": 234.6229596287012,
+          "y": -218.37694105505943,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267773/411196"
+        },
+        {
+          "x": 490.6229596287012,
+          "y": -218.37694105505943,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267773/411197"
+        },
+        {
+          "x": -21.37704037129879,
+          "y": 37.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267774/411195"
+        },
+        {
+          "x": 234.6229596287012,
+          "y": 37.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267774/411196"
+        },
+        {
+          "x": 490.6229596287012,
+          "y": 37.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267774/411197"
+        },
+        {
+          "x": -21.37704037129879,
+          "y": 293.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267775/411195"
+        },
+        {
+          "x": 234.6229596287012,
+          "y": 293.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267775/411196"
+        },
+        {
+          "x": 490.6229596287012,
+          "y": 293.62305894494057,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267775/411197"
+        }
+      ]
+    },
+    {
+      "id": 235564584,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 235564584,
+        "source": "osm",
+        "source_ref": "way/235564584",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2694047,
+                -3.8021058
+              ],
+              [
+                102.2694717,
+                -3.8020136
+              ],
+              [
+                102.2695341,
+                -3.8020587
+              ],
+              [
+                102.2694671,
+                -3.802151
+              ],
+              [
+                102.2694047,
+                -3.8021058
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 107.85991563647985,
+        "building_tag": "yes",
+        "nama": "Bangunan 235564584"
+      },
+      "bingkai": {
+        "x0": 105237365.74043807,
+        "y0": 68527184.5030169,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        320.0036670577339,
+        239.9874683097005
+      ],
+      "tiles": [
+        {
+          "x": -117.74043807387352,
+          "y": -80.50301690399647,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267684/411083"
+        },
+        {
+          "x": 138.25956192612648,
+          "y": -80.50301690399647,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267684/411084"
+        },
+        {
+          "x": 394.2595619261265,
+          "y": -80.50301690399647,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267684/411085"
+        },
+        {
+          "x": -117.74043807387352,
+          "y": 175.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411083"
+        },
+        {
+          "x": 138.25956192612648,
+          "y": 175.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411084"
+        },
+        {
+          "x": 394.2595619261265,
+          "y": 175.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411085"
+        },
+        {
+          "x": -117.74043807387352,
+          "y": 431.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411083"
+        },
+        {
+          "x": 138.25956192612648,
+          "y": 431.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411084"
+        },
+        {
+          "x": 394.2595619261265,
+          "y": 431.49698309600353,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411085"
+        }
+      ]
+    },
+    {
+      "id": 635146129,
+      "split": "pengembangan",
+      "strata": "kecil",
+      "bangunan": {
+        "id": 635146129,
+        "source": "osm",
+        "source_ref": "way/635146129",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2940419,
+                -3.832031
+              ],
+              [
+                102.2940959,
+                -3.8320845
+              ],
+              [
+                102.2940151,
+                -3.8321659
+              ],
+              [
+                102.293961,
+                -3.8321124
+              ],
+              [
+                102.2940419,
+                -3.832031
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 107.16474740207195,
+        "building_tag": "yes",
+        "nama": "Bangunan 635146129"
+      },
+      "bingkai": {
+        "x0": 105246522.02407631,
+        "y0": 68538400.22277652,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        272.0,
+        192.0,
+        96,
+        96
+      ],
+      "penanda": [
+        319.99724730579,
+        239.99865683168173
+      ],
+      "tiles": [
+        {
+          "x": -58.02407631278038,
+          "y": -32.222776517271996,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267728/411119"
+        },
+        {
+          "x": 197.97592368721962,
+          "y": -32.222776517271996,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267728/411120"
+        },
+        {
+          "x": 453.9759236872196,
+          "y": -32.222776517271996,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267728/411121"
+        },
+        {
+          "x": -58.02407631278038,
+          "y": 223.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267729/411119"
+        },
+        {
+          "x": 197.97592368721962,
+          "y": 223.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267729/411120"
+        },
+        {
+          "x": 453.9759236872196,
+          "y": 223.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267729/411121"
+        },
+        {
+          "x": -58.02407631278038,
+          "y": 479.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411119"
+        },
+        {
+          "x": 197.97592368721962,
+          "y": 479.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411120"
+        },
+        {
+          "x": 453.9759236872196,
+          "y": 479.777223482728,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411121"
+        }
+      ]
+    },
+    {
+      "id": 235437710,
+      "split": "uji",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 235437710,
+        "source": "osm",
+        "source_ref": "way/235437710",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2718575,
+                -3.7993023
+              ],
+              [
+                102.271749,
+                -3.7992721
+              ],
+              [
+                102.2717753,
+                -3.799178
+              ],
+              [
+                102.271885,
+                -3.7992086
+              ],
+              [
+                102.271887,
+                -3.7992018
+              ],
+              [
+                102.2719668,
+                -3.7992251
+              ],
+              [
+                102.2719275,
+                -3.7993587
+              ],
+              [
+                102.2718478,
+                -3.7993354
+              ],
+              [
+                102.2718575,
+                -3.7993023
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 277.98764506074076,
+        "building_tag": "yes",
+        "nama": "Bangunan 235437710"
+      },
+      "bingkai": {
+        "x0": 105238258.14460161,
+        "y0": 68526130.20251773,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        250.98,
+        170.98,
+        138.04,
+        138.04
+      ],
+      "penanda": [
+        318.0291168476019,
+        235.49807769060135
+      ],
+      "tiles": [
+        {
+          "x": -242.14460161328316,
+          "y": -50.20251773297787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267680/411086"
+        },
+        {
+          "x": 13.855398386716843,
+          "y": -50.20251773297787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267680/411087"
+        },
+        {
+          "x": 269.85539838671684,
+          "y": -50.20251773297787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267680/411088"
+        },
+        {
+          "x": 525.8553983867168,
+          "y": -50.20251773297787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267680/411089"
+        },
+        {
+          "x": -242.14460161328316,
+          "y": 205.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267681/411086"
+        },
+        {
+          "x": 13.855398386716843,
+          "y": 205.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267681/411087"
+        },
+        {
+          "x": 269.85539838671684,
+          "y": 205.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267681/411088"
+        },
+        {
+          "x": 525.8553983867168,
+          "y": 205.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267681/411089"
+        },
+        {
+          "x": -242.14460161328316,
+          "y": 461.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267682/411086"
+        },
+        {
+          "x": 13.855398386716843,
+          "y": 461.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267682/411087"
+        },
+        {
+          "x": 269.85539838671684,
+          "y": 461.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267682/411088"
+        },
+        {
+          "x": 525.8553983867168,
+          "y": 461.79748226702213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267682/411089"
+        }
+      ]
+    },
+    {
+      "id": 635541679,
+      "split": "uji",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 635541679,
+        "source": "osm",
+        "source_ref": "way/635541679",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3166763,
+                -3.7925452
+              ],
+              [
+                102.316834,
+                -3.792569
+              ],
+              [
+                102.3168204,
+                -3.7926588
+              ],
+              [
+                102.3166627,
+                -3.792635
+              ],
+              [
+                102.3166763,
+                -3.7925452
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 177.91860090731643,
+        "building_tag": "yes",
+        "nama": "Bangunan 635541679"
+      },
+      "bingkai": {
+        "x0": 105254992.61079097,
+        "y0": 68523642.22019646,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        265.71,
+        185.71,
+        108.57,
+        108.57
+      ],
+      "penanda": [
+        320.00000001820194,
+        240.00000023841858
+      ],
+      "tiles": [
+        {
+          "x": -80.61079096794128,
+          "y": -122.22019645571709,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411152"
+        },
+        {
+          "x": 175.38920903205872,
+          "y": -122.22019645571709,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411153"
+        },
+        {
+          "x": 431.3892090320587,
+          "y": -122.22019645571709,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411154"
+        },
+        {
+          "x": -80.61079096794128,
+          "y": 133.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267671/411152"
+        },
+        {
+          "x": 175.38920903205872,
+          "y": 133.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267671/411153"
+        },
+        {
+          "x": 431.3892090320587,
+          "y": 133.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267671/411154"
+        },
+        {
+          "x": -80.61079096794128,
+          "y": 389.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267672/411152"
+        },
+        {
+          "x": 175.38920903205872,
+          "y": 389.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267672/411153"
+        },
+        {
+          "x": 431.3892090320587,
+          "y": 389.7798035442829,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267672/411154"
+        }
+      ]
+    },
+    {
+      "id": 629786257,
+      "split": "uji",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 629786257,
+        "source": "osm",
+        "source_ref": "way/629786257",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3061173,
+                -3.8190365
+              ],
+              [
+                102.3062134,
+                -3.8189568
+              ],
+              [
+                102.306269,
+                -3.8190235
+              ],
+              [
+                102.3062458,
+                -3.8190427
+              ],
+              [
+                102.3062707,
+                -3.8190726
+              ],
+              [
+                102.3061977,
+                -3.8191331
+              ],
+              [
+                102.3061173,
+                -3.8190365
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 178.43968289578333,
+        "building_tag": "yes",
+        "nama": "Bangunan 629786257"
+      },
+      "bingkai": {
+        "x0": 105251060.04975665,
+        "y0": 68533522.56109753,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        264.01,
+        184.01,
+        111.99,
+        111.99
+      ],
+      "penanda": [
+        318.5747607167076,
+        244.83999171108007
+      ],
+      "tiles": [
+        {
+          "x": -244.0497566461563,
+          "y": -18.561097532510757,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267709/411136"
+        },
+        {
+          "x": 11.950243353843689,
+          "y": -18.561097532510757,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267709/411137"
+        },
+        {
+          "x": 267.9502433538437,
+          "y": -18.561097532510757,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267709/411138"
+        },
+        {
+          "x": 523.9502433538437,
+          "y": -18.561097532510757,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267709/411139"
+        },
+        {
+          "x": -244.0497566461563,
+          "y": 237.43890246748924,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267710/411136"
+        },
+        {
+          "x": 11.950243353843689,
+          "y": 237.43890246748924,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267710/411137"
+        },
+        {
+          "x": 267.9502433538437,
+          "y": 237.43890246748924,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267710/411138"
+        },
+        {
+          "x": 523.9502433538437,
+          "y": 237.43890246748924,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267710/411139"
+        }
+      ]
+    },
+    {
+      "id": 671868275,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 671868275,
+        "source": "osm",
+        "source_ref": "way/671868275",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2805221,
+                -3.8029962
+              ],
+              [
+                102.280616,
+                -3.8029909
+              ],
+              [
+                102.2806244,
+                -3.8031374
+              ],
+              [
+                102.2805305,
+                -3.8031428
+              ],
+              [
+                102.2805221,
+                -3.8029962
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 169.57463480497245,
+        "building_tag": "yes",
+        "nama": "Bangunan 671868275"
+      },
+      "bingkai": {
+        "x0": 105241505.55401103,
+        "y0": 68527552.37694655,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        271.76,
+        191.76,
+        96.49,
+        96.49
+      ],
+      "penanda": [
+        320.00145359565784,
+        239.9902688935399
+      ],
+      "tiles": [
+        {
+          "x": -161.55401103198528,
+          "y": -192.3769465535879,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411099"
+        },
+        {
+          "x": 94.44598896801472,
+          "y": -192.3769465535879,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411100"
+        },
+        {
+          "x": 350.4459889680147,
+          "y": -192.3769465535879,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411101"
+        },
+        {
+          "x": 606.4459889680147,
+          "y": -192.3769465535879,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267685/411102"
+        },
+        {
+          "x": -161.55401103198528,
+          "y": 63.62305344641209,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411099"
+        },
+        {
+          "x": 94.44598896801472,
+          "y": 63.62305344641209,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411100"
+        },
+        {
+          "x": 350.4459889680147,
+          "y": 63.62305344641209,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411101"
+        },
+        {
+          "x": 606.4459889680147,
+          "y": 63.62305344641209,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267686/411102"
+        },
+        {
+          "x": -161.55401103198528,
+          "y": 319.6230534464121,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267687/411099"
+        },
+        {
+          "x": 94.44598896801472,
+          "y": 319.6230534464121,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267687/411100"
+        },
+        {
+          "x": 350.4459889680147,
+          "y": 319.6230534464121,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267687/411101"
+        },
+        {
+          "x": 606.4459889680147,
+          "y": 319.6230534464121,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267687/411102"
+        }
+      ]
+    },
+    {
+      "id": 629586453,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 629586453,
+        "source": "osm",
+        "source_ref": "way/629586453",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3202946,
+                -3.8452687
+              ],
+              [
+                102.3203585,
+                -3.8451967
+              ],
+              [
+                102.320504,
+                -3.8453252
+              ],
+              [
+                102.3204401,
+                -3.8453972
+              ],
+              [
+                102.3202946,
+                -3.8452687
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 229.5174841270782,
+        "building_tag": "yes",
+        "nama": "Bangunan 629586453"
+      },
+      "bingkai": {
+        "x0": 105256353.78360774,
+        "y0": 68543332.04354273,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        253.64,
+        173.64,
+        132.72,
+        132.72
+      ],
+      "penanda": [
+        319.99999951574284,
+        240.00000017136335
+      ],
+      "tiles": [
+        {
+          "x": -161.7836077362299,
+          "y": -100.04354272782803,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267747/411157"
+        },
+        {
+          "x": 94.2163922637701,
+          "y": -100.04354272782803,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267747/411158"
+        },
+        {
+          "x": 350.2163922637701,
+          "y": -100.04354272782803,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267747/411159"
+        },
+        {
+          "x": 606.2163922637701,
+          "y": -100.04354272782803,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267747/411160"
+        },
+        {
+          "x": -161.7836077362299,
+          "y": 155.95645727217197,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267748/411157"
+        },
+        {
+          "x": 94.2163922637701,
+          "y": 155.95645727217197,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267748/411158"
+        },
+        {
+          "x": 350.2163922637701,
+          "y": 155.95645727217197,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267748/411159"
+        },
+        {
+          "x": 606.2163922637701,
+          "y": 155.95645727217197,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267748/411160"
+        },
+        {
+          "x": -161.7836077362299,
+          "y": 411.956457272172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267749/411157"
+        },
+        {
+          "x": 94.2163922637701,
+          "y": 411.956457272172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267749/411158"
+        },
+        {
+          "x": 350.2163922637701,
+          "y": 411.956457272172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267749/411159"
+        },
+        {
+          "x": 606.2163922637701,
+          "y": 411.956457272172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267749/411160"
+        }
+      ]
+    },
+    {
+      "id": 983519546,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 983519546,
+        "source": "osm",
+        "source_ref": "way/983519546",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2998555,
+                -3.7912365
+              ],
+              [
+                102.3000205,
+                -3.7912733
+              ],
+              [
+                102.3000001,
+                -3.7913641
+              ],
+              [
+                102.2998352,
+                -3.7913273
+              ],
+              [
+                102.2998555,
+                -3.7912365
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 193.16431425430346,
+        "building_tag": "yes",
+        "nama": "Bangunan 983519546"
+      },
+      "bingkai": {
+        "x0": 105248721.46610726,
+        "y0": 68523155.84511273,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        261.28,
+        181.28,
+        117.44,
+        117.44
+      ],
+      "penanda": [
+        320.00221334370525,
+        240.00136440247297
+      ],
+      "tiles": [
+        {
+          "x": -209.4661072641611,
+          "y": -147.84511272609234,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267668/411127"
+        },
+        {
+          "x": 46.53389273583889,
+          "y": -147.84511272609234,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267668/411128"
+        },
+        {
+          "x": 302.5338927358389,
+          "y": -147.84511272609234,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267668/411129"
+        },
+        {
+          "x": 558.5338927358389,
+          "y": -147.84511272609234,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267668/411130"
+        },
+        {
+          "x": -209.4661072641611,
+          "y": 108.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267669/411127"
+        },
+        {
+          "x": 46.53389273583889,
+          "y": 108.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267669/411128"
+        },
+        {
+          "x": 302.5338927358389,
+          "y": 108.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267669/411129"
+        },
+        {
+          "x": 558.5338927358389,
+          "y": 108.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267669/411130"
+        },
+        {
+          "x": -209.4661072641611,
+          "y": 364.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411127"
+        },
+        {
+          "x": 46.53389273583889,
+          "y": 364.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411128"
+        },
+        {
+          "x": 302.5338927358389,
+          "y": 364.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411129"
+        },
+        {
+          "x": 558.5338927358389,
+          "y": 364.15488727390766,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267670/411130"
+        }
+      ]
+    },
+    {
+      "id": 983445556,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 983445556,
+        "source": "osm",
+        "source_ref": "way/983445556",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3034772,
+                -3.8339143
+              ],
+              [
+                102.3035652,
+                -3.8338372
+              ],
+              [
+                102.3036455,
+                -3.8339284
+              ],
+              [
+                102.3035575,
+                -3.8340055
+              ],
+              [
+                102.3034772,
+                -3.8339143
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 174.61358320293948,
+        "building_tag": "yes",
+        "nama": "Bangunan 983445556"
+      },
+      "bingkai": {
+        "x0": 105250076.14084892,
+        "y0": 68539081.37146288,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        266.55,
+        186.55,
+        106.91,
+        106.91
+      ],
+      "penanda": [
+        319.999999903725,
+        240.00000001490116
+      ],
+      "tiles": [
+        {
+          "x": -28.14084891974926,
+          "y": -201.3714628815651,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411133"
+        },
+        {
+          "x": 227.85915108025074,
+          "y": -201.3714628815651,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411134"
+        },
+        {
+          "x": 483.85915108025074,
+          "y": -201.3714628815651,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267730/411135"
+        },
+        {
+          "x": -28.14084891974926,
+          "y": 54.628537118434906,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411133"
+        },
+        {
+          "x": 227.85915108025074,
+          "y": 54.628537118434906,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411134"
+        },
+        {
+          "x": 483.85915108025074,
+          "y": 54.628537118434906,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411135"
+        },
+        {
+          "x": -28.14084891974926,
+          "y": 310.6285371184349,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411133"
+        },
+        {
+          "x": 227.85915108025074,
+          "y": 310.6285371184349,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411134"
+        },
+        {
+          "x": 483.85915108025074,
+          "y": 310.6285371184349,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411135"
+        }
+      ]
+    },
+    {
+      "id": 634759936,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 634759936,
+        "source": "osm",
+        "source_ref": "way/634759936",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3159957,
+                -3.8166305
+              ],
+              [
+                102.3161124,
+                -3.8165302
+              ],
+              [
+                102.3161667,
+                -3.8165931
+              ],
+              [
+                102.3160501,
+                -3.8166935
+              ],
+              [
+                102.3159957,
+                -3.8166305
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 157.18090692628175,
+        "building_tag": "yes",
+        "nama": "Bangunan 634759936"
+      },
+      "bingkai": {
+        "x0": 105254743.88230479,
+        "y0": 68532613.5084737,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        265.81,
+        185.81,
+        108.38,
+        108.38
+      ],
+      "penanda": [
+        320.004450406828,
+        239.98549188673496
+      ],
+      "tiles": [
+        {
+          "x": -87.8823047876358,
+          "y": -133.5084736943245,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267705/411151"
+        },
+        {
+          "x": 168.1176952123642,
+          "y": -133.5084736943245,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267705/411152"
+        },
+        {
+          "x": 424.1176952123642,
+          "y": -133.5084736943245,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267705/411153"
+        },
+        {
+          "x": -87.8823047876358,
+          "y": 122.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267706/411151"
+        },
+        {
+          "x": 168.1176952123642,
+          "y": 122.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267706/411152"
+        },
+        {
+          "x": 424.1176952123642,
+          "y": 122.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267706/411153"
+        },
+        {
+          "x": -87.8823047876358,
+          "y": 378.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267707/411151"
+        },
+        {
+          "x": 168.1176952123642,
+          "y": 378.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267707/411152"
+        },
+        {
+          "x": 424.1176952123642,
+          "y": 378.4915263056755,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267707/411153"
+        }
+      ]
+    },
+    {
+      "id": 990692204,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 990692204,
+        "source": "osm",
+        "source_ref": "way/990692204",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2961896,
+                -3.7577214
+              ],
+              [
+                102.2961259,
+                -3.7578692
+              ],
+              [
+                102.2960558,
+                -3.7578392
+              ],
+              [
+                102.2961195,
+                -3.7576913
+              ],
+              [
+                102.2961896,
+                -3.7577214
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 150.8202858217992,
+        "building_tag": "yes",
+        "nama": "Bangunan 990692204"
+      },
+      "bingkai": {
+        "x0": 105247302.8109034,
+        "y0": 68510631.50471106,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        263.5,
+        183.5,
+        113.0,
+        113.0
+      ],
+      "penanda": [
+        319.9970172771914,
+        240.0122639015317
+      ],
+      "tiles": [
+        {
+          "x": -70.81090340018272,
+          "y": -167.50471106171608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267619/411122"
+        },
+        {
+          "x": 185.18909659981728,
+          "y": -167.50471106171608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267619/411123"
+        },
+        {
+          "x": 441.1890965998173,
+          "y": -167.50471106171608,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267619/411124"
+        },
+        {
+          "x": -70.81090340018272,
+          "y": 88.49528893828392,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267620/411122"
+        },
+        {
+          "x": 185.18909659981728,
+          "y": 88.49528893828392,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267620/411123"
+        },
+        {
+          "x": 441.1890965998173,
+          "y": 88.49528893828392,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267620/411124"
+        },
+        {
+          "x": -70.81090340018272,
+          "y": 344.4952889382839,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267621/411122"
+        },
+        {
+          "x": 185.18909659981728,
+          "y": 344.4952889382839,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267621/411123"
+        },
+        {
+          "x": 441.1890965998173,
+          "y": 344.4952889382839,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267621/411124"
+        }
+      ]
+    },
+    {
+      "id": 982397176,
+      "split": "pengembangan",
+      "strata": "sedang",
+      "bangunan": {
+        "id": 982397176,
+        "source": "osm",
+        "source_ref": "way/982397176",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3123482,
+                -3.8276685
+              ],
+              [
+                102.3124375,
+                -3.8277727
+              ],
+              [
+                102.3123609,
+                -3.8278381
+              ],
+              [
+                102.3122716,
+                -3.8277339
+              ],
+              [
+                102.3123482,
+                -3.8276685
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 169.76584833487868,
+        "building_tag": "yes",
+        "nama": "Bangunan 982397176"
+      },
+      "bingkai": {
+        "x0": 105253354.48342073,
+        "y0": 68536776.6061048,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        266.13,
+        186.13,
+        107.73,
+        107.73
+      ],
+      "penanda": [
+        319.99999975999657,
+        240.0000000745058
+      ],
+      "tiles": [
+        {
+          "x": -234.48342072963715,
+          "y": -200.60610480606556,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267721/411145"
+        },
+        {
+          "x": 21.516579270362854,
+          "y": -200.60610480606556,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267721/411146"
+        },
+        {
+          "x": 277.51657927036285,
+          "y": -200.60610480606556,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267721/411147"
+        },
+        {
+          "x": 533.5165792703629,
+          "y": -200.60610480606556,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267721/411148"
+        },
+        {
+          "x": -234.48342072963715,
+          "y": 55.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267722/411145"
+        },
+        {
+          "x": 21.516579270362854,
+          "y": 55.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267722/411146"
+        },
+        {
+          "x": 277.51657927036285,
+          "y": 55.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267722/411147"
+        },
+        {
+          "x": 533.5165792703629,
+          "y": 55.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267722/411148"
+        },
+        {
+          "x": -234.48342072963715,
+          "y": 311.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267723/411145"
+        },
+        {
+          "x": 21.516579270362854,
+          "y": 311.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267723/411146"
+        },
+        {
+          "x": 277.51657927036285,
+          "y": 311.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267723/411147"
+        },
+        {
+          "x": 533.5165792703629,
+          "y": 311.39389519393444,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267723/411148"
+        }
+      ]
+    },
+    {
+      "id": 235590029,
+      "split": "uji",
+      "strata": "besar",
+      "bangunan": {
+        "id": 235590029,
+        "source": "osm",
+        "source_ref": "way/235590029",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2738603,
+                -3.778724
+              ],
+              [
+                102.2740195,
+                -3.778813
+              ],
+              [
+                102.2739049,
+                -3.7790171
+              ],
+              [
+                102.2737457,
+                -3.7789282
+              ],
+              [
+                102.2738603,
+                -3.778724
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 524.4157385630533,
+        "building_tag": "yes",
+        "nama": "Bangunan 235590029"
+      },
+      "bingkai": {
+        "x0": 105239011.0999745,
+        "y0": 68518511.5757639,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        226.91,
+        146.91,
+        186.17,
+        186.17
+      ],
+      "penanda": [
+        319.99793679884846,
+        240.0120806619525
+      ],
+      "tiles": [
+        {
+          "x": -227.09997449815273,
+          "y": -111.57576389610767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267650/411089"
+        },
+        {
+          "x": 28.900025501847267,
+          "y": -111.57576389610767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267650/411090"
+        },
+        {
+          "x": 284.90002550184727,
+          "y": -111.57576389610767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267650/411091"
+        },
+        {
+          "x": 540.9000255018473,
+          "y": -111.57576389610767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267650/411092"
+        },
+        {
+          "x": -227.09997449815273,
+          "y": 144.42423610389233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267651/411089"
+        },
+        {
+          "x": 28.900025501847267,
+          "y": 144.42423610389233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267651/411090"
+        },
+        {
+          "x": 284.90002550184727,
+          "y": 144.42423610389233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267651/411091"
+        },
+        {
+          "x": 540.9000255018473,
+          "y": 144.42423610389233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267651/411092"
+        },
+        {
+          "x": -227.09997449815273,
+          "y": 400.4242361038923,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267652/411089"
+        },
+        {
+          "x": 28.900025501847267,
+          "y": 400.4242361038923,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267652/411090"
+        },
+        {
+          "x": 284.90002550184727,
+          "y": 400.4242361038923,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267652/411091"
+        },
+        {
+          "x": 540.9000255018473,
+          "y": 400.4242361038923,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267652/411092"
+        }
+      ]
+    },
+    {
+      "id": 631775291,
+      "split": "uji",
+      "strata": "besar",
+      "bangunan": {
+        "id": 631775291,
+        "source": "osm",
+        "source_ref": "way/631775291",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3403837,
+                -3.854927
+              ],
+              [
+                102.3405555,
+                -3.854654
+              ],
+              [
+                102.3406559,
+                -3.8547169
+              ],
+              [
+                102.3405917,
+                -3.8548189
+              ],
+              [
+                102.3406285,
+                -3.8548419
+              ],
+              [
+                102.3405808,
+                -3.8549176
+              ],
+              [
+                102.3405441,
+                -3.8548946
+              ],
+              [
+                102.3404841,
+                -3.8549899
+              ],
+              [
+                102.3403837,
+                -3.854927
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 517.0057385342661,
+        "building_tag": "yes",
+        "nama": "Bangunan 631775291"
+      },
+      "bingkai": {
+        "x0": 105263857.53295171,
+        "y0": 68546892.84861313,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        213.31,
+        133.31,
+        213.38,
+        213.38
+      ],
+      "penanda": [
+        320.5112397539925,
+        241.56233485788107
+      ],
+      "tiles": [
+        {
+          "x": -241.53295171260834,
+          "y": -76.84861312806606,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267761/411186"
+        },
+        {
+          "x": 14.467048287391663,
+          "y": -76.84861312806606,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267761/411187"
+        },
+        {
+          "x": 270.46704828739166,
+          "y": -76.84861312806606,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267761/411188"
+        },
+        {
+          "x": 526.4670482873917,
+          "y": -76.84861312806606,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267761/411189"
+        },
+        {
+          "x": -241.53295171260834,
+          "y": 179.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267762/411186"
+        },
+        {
+          "x": 14.467048287391663,
+          "y": 179.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267762/411187"
+        },
+        {
+          "x": 270.46704828739166,
+          "y": 179.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267762/411188"
+        },
+        {
+          "x": 526.4670482873917,
+          "y": 179.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267762/411189"
+        },
+        {
+          "x": -241.53295171260834,
+          "y": 435.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267763/411186"
+        },
+        {
+          "x": 14.467048287391663,
+          "y": 435.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267763/411187"
+        },
+        {
+          "x": 270.46704828739166,
+          "y": 435.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267763/411188"
+        },
+        {
+          "x": 526.4670482873917,
+          "y": 435.15138687193394,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267763/411189"
+        }
+      ]
+    },
+    {
+      "id": 983528714,
+      "split": "uji",
+      "strata": "besar",
+      "bangunan": {
+        "id": 983528714,
+        "source": "osm",
+        "source_ref": "way/983528714",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2802056,
+                -3.8100322
+              ],
+              [
+                102.2804242,
+                -3.8098656
+              ],
+              [
+                102.2804903,
+                -3.8099519
+              ],
+              [
+                102.2804748,
+                -3.8099638
+              ],
+              [
+                102.2806414,
+                -3.8101814
+              ],
+              [
+                102.280546,
+                -3.8102541
+              ],
+              [
+                102.2803794,
+                -3.8100365
+              ],
+              [
+                102.2802717,
+                -3.8101185
+              ],
+              [
+                102.2802056,
+                -3.8100322
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 770.8717266824096,
+        "building_tag": "yes",
+        "nama": "Bangunan 983528714"
+      },
+      "bingkai": {
+        "x0": 105241453.28320234,
+        "y0": 68530162.87532765,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        181.89,
+        101.89,
+        276.21,
+        276.21
+      ],
+      "penanda": [
+        339.86333047663834,
+        249.04940473288298
+      ],
+      "tiles": [
+        {
+          "x": -109.28320233523846,
+          "y": -242.87532764673233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267695/411099"
+        },
+        {
+          "x": 146.71679766476154,
+          "y": -242.87532764673233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267695/411100"
+        },
+        {
+          "x": 402.71679766476154,
+          "y": -242.87532764673233,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267695/411101"
+        },
+        {
+          "x": -109.28320233523846,
+          "y": 13.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267696/411099"
+        },
+        {
+          "x": 146.71679766476154,
+          "y": 13.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267696/411100"
+        },
+        {
+          "x": 402.71679766476154,
+          "y": 13.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267696/411101"
+        },
+        {
+          "x": -109.28320233523846,
+          "y": 269.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267697/411099"
+        },
+        {
+          "x": 146.71679766476154,
+          "y": 269.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267697/411100"
+        },
+        {
+          "x": 402.71679766476154,
+          "y": 269.12467235326767,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267697/411101"
+        }
+      ]
+    },
+    {
+      "id": 235766786,
+      "split": "uji",
+      "strata": "besar",
+      "bangunan": {
+        "id": 235766786,
+        "source": "osm",
+        "source_ref": "way/235766786",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2714976,
+                -3.7880682
+              ],
+              [
+                102.2718518,
+                -3.7883688
+              ],
+              [
+                102.2717875,
+                -3.7884443
+              ],
+              [
+                102.2714332,
+                -3.7881436
+              ],
+              [
+                102.2714976,
+                -3.7880682
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 565.9342770236544,
+        "building_tag": "yes",
+        "nama": "Bangunan 235766786"
+      },
+      "bingkai": {
+        "x0": 105238175.94104508,
+        "y0": 68522018.44767967,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        187.34,
+        107.34,
+        265.31,
+        265.31
+      ],
+      "penanda": [
+        319.98875875242913,
+        239.98885981738567
+      ],
+      "tiles": [
+        {
+          "x": -159.94104507565498,
+          "y": -34.44767966866493,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267664/411086"
+        },
+        {
+          "x": 96.05895492434502,
+          "y": -34.44767966866493,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267664/411087"
+        },
+        {
+          "x": 352.058954924345,
+          "y": -34.44767966866493,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267664/411088"
+        },
+        {
+          "x": 608.058954924345,
+          "y": -34.44767966866493,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267664/411089"
+        },
+        {
+          "x": -159.94104507565498,
+          "y": 221.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411086"
+        },
+        {
+          "x": 96.05895492434502,
+          "y": 221.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411087"
+        },
+        {
+          "x": 352.058954924345,
+          "y": 221.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411088"
+        },
+        {
+          "x": 608.058954924345,
+          "y": 221.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411089"
+        },
+        {
+          "x": -159.94104507565498,
+          "y": 477.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411086"
+        },
+        {
+          "x": 96.05895492434502,
+          "y": 477.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411087"
+        },
+        {
+          "x": 352.058954924345,
+          "y": 477.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411088"
+        },
+        {
+          "x": 608.058954924345,
+          "y": 477.55232033133507,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411089"
+        }
+      ]
+    },
+    {
+      "id": 1014242217,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 1014242217,
+        "source": "osm",
+        "source_ref": "way/1014242217",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3101163,
+                -3.8342589
+              ],
+              [
+                102.3104744,
+                -3.8341786
+              ],
+              [
+                102.3105169,
+                -3.8343674
+              ],
+              [
+                102.3101588,
+                -3.8344477
+              ],
+              [
+                102.3101163,
+                -3.8342589
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 872.3106680442579,
+        "building_tag": "yes",
+        "nama": "Bangunan 1014242217"
+      },
+      "bingkai": {
+        "x0": 105252594.6805908,
+        "y0": 68539227.77276146,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        193.05,
+        113.05,
+        253.9,
+        253.9
+      ],
+      "penanda": [
+        319.9999997860257,
+        240.00000064074993
+      ],
+      "tiles": [
+        {
+          "x": -242.6805907934904,
+          "y": -91.77276146411896,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411142"
+        },
+        {
+          "x": 13.31940920650959,
+          "y": -91.77276146411896,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411143"
+        },
+        {
+          "x": 269.3194092065096,
+          "y": -91.77276146411896,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411144"
+        },
+        {
+          "x": 525.3194092065096,
+          "y": -91.77276146411896,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267731/411145"
+        },
+        {
+          "x": -242.6805907934904,
+          "y": 164.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411142"
+        },
+        {
+          "x": 13.31940920650959,
+          "y": 164.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411143"
+        },
+        {
+          "x": 269.3194092065096,
+          "y": 164.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411144"
+        },
+        {
+          "x": 525.3194092065096,
+          "y": 164.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267732/411145"
+        },
+        {
+          "x": -242.6805907934904,
+          "y": 420.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411142"
+        },
+        {
+          "x": 13.31940920650959,
+          "y": 420.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411143"
+        },
+        {
+          "x": 269.3194092065096,
+          "y": 420.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411144"
+        },
+        {
+          "x": 525.3194092065096,
+          "y": 420.22723853588104,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267733/411145"
+        }
+      ]
+    },
+    {
+      "id": 904939037,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 904939037,
+        "source": "osm",
+        "source_ref": "way/904939037",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2655712,
+                -3.8055085
+              ],
+              [
+                102.2655996,
+                -3.8054741
+              ],
+              [
+                102.2655854,
+                -3.8054623
+              ],
+              [
+                102.2656128,
+                -3.8054291
+              ],
+              [
+                102.2656287,
+                -3.8054421
+              ],
+              [
+                102.2656473,
+                -3.8054196
+              ],
+              [
+                102.2656656,
+                -3.8053974
+              ],
+              [
+                102.26588,
+                -3.8055739
+              ],
+              [
+                102.2657871,
+                -3.8056863
+              ],
+              [
+                102.2655712,
+                -3.8055085
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 509.2331537762657,
+        "building_tag": "yes",
+        "nama": "Masjid Al-Jihad"
+      },
+      "bingkai": {
+        "x0": 105235969.17631595,
+        "y0": 68528476.41668934,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        222.14,
+        142.14,
+        195.72,
+        195.72
+      ],
+      "penanda": [
+        320.77181237130435,
+        240.51099008321762
+      ],
+      "tiles": [
+        {
+          "x": -1.1763159483671188,
+          "y": -92.4166893362999,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267689/411078"
+        },
+        {
+          "x": 254.82368405163288,
+          "y": -92.4166893362999,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267689/411079"
+        },
+        {
+          "x": 510.8236840516329,
+          "y": -92.4166893362999,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267689/411080"
+        },
+        {
+          "x": -1.1763159483671188,
+          "y": 163.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267690/411078"
+        },
+        {
+          "x": 254.82368405163288,
+          "y": 163.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267690/411079"
+        },
+        {
+          "x": 510.8236840516329,
+          "y": 163.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267690/411080"
+        },
+        {
+          "x": -1.1763159483671188,
+          "y": 419.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267691/411078"
+        },
+        {
+          "x": 254.82368405163288,
+          "y": 419.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267691/411079"
+        },
+        {
+          "x": 510.8236840516329,
+          "y": 419.5833106637001,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267691/411080"
+        }
+      ]
+    },
+    {
+      "id": 983448258,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 983448258,
+        "source": "osm",
+        "source_ref": "way/983448258",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2783424,
+                -3.8079136
+              ],
+              [
+                102.2781739,
+                -3.8077339
+              ],
+              [
+                102.2782207,
+                -3.8076902
+              ],
+              [
+                102.2783041,
+                -3.8077792
+              ],
+              [
+                102.278326,
+                -3.8077587
+              ],
+              [
+                102.2782757,
+                -3.807705
+              ],
+              [
+                102.2783414,
+                -3.8076437
+              ],
+              [
+                102.2783919,
+                -3.8076975
+              ],
+              [
+                102.2784801,
+                -3.8076152
+              ],
+              [
+                102.2786052,
+                -3.8077486
+              ],
+              [
+                102.2785557,
+                -3.8077948
+              ],
+              [
+                102.2785156,
+                -3.807752
+              ],
+              [
+                102.2783424,
+                -3.8079136
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 691.064707598649,
+        "building_tag": "yes",
+        "nama": "Bangunan 983448258"
+      },
+      "bingkai": {
+        "x0": 105240691.10086502,
+        "y0": 68529304.07160908,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        183.32,
+        103.32,
+        273.36,
+        273.36
+      ],
+      "penanda": [
+        326.5358428869163,
+        245.2579442039132
+      ],
+      "tiles": [
+        {
+          "x": -115.100865021348,
+          "y": -152.0716090798378,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267692/411096"
+        },
+        {
+          "x": 140.899134978652,
+          "y": -152.0716090798378,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267692/411097"
+        },
+        {
+          "x": 396.899134978652,
+          "y": -152.0716090798378,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267692/411098"
+        },
+        {
+          "x": -115.100865021348,
+          "y": 103.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267693/411096"
+        },
+        {
+          "x": 140.899134978652,
+          "y": 103.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267693/411097"
+        },
+        {
+          "x": 396.899134978652,
+          "y": 103.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267693/411098"
+        },
+        {
+          "x": -115.100865021348,
+          "y": 359.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267694/411096"
+        },
+        {
+          "x": 140.899134978652,
+          "y": 359.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267694/411097"
+        },
+        {
+          "x": 396.899134978652,
+          "y": 359.9283909201622,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267694/411098"
+        }
+      ]
+    },
+    {
+      "id": 553053271,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 553053271,
+        "source": "osm",
+        "source_ref": "way/553053271",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.3252533,
+                -3.8911692
+              ],
+              [
+                102.3255685,
+                -3.8916709
+              ],
+              [
+                102.3255079,
+                -3.8917088
+              ],
+              [
+                102.3253548,
+                -3.891465
+              ],
+              [
+                102.3252694,
+                -3.8915184
+              ],
+              [
+                102.3250334,
+                -3.8911277
+              ],
+              [
+                102.3250963,
+                -3.8910911
+              ],
+              [
+                102.3251935,
+                -3.8912576
+              ],
+              [
+                102.3252158,
+                -3.8912436
+              ],
+              [
+                102.3251928,
+                -3.891207
+              ],
+              [
+                102.3252533,
+                -3.8911692
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 1005.5548490707297,
+        "building_tag": "yes",
+        "nama": "Bangunan 553053271"
+      },
+      "bingkai": {
+        "x0": 105258178.17296049,
+        "y0": 68560551.98563705,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        123.8,
+        43.8,
+        392.41,
+        392.41
+      ],
+      "penanda": [
+        313.1226491267279,
+        233.30937740951777
+      ],
+      "tiles": [
+        {
+          "x": -194.17296048998833,
+          "y": -167.9856370538473,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267814/411164"
+        },
+        {
+          "x": 61.82703951001167,
+          "y": -167.9856370538473,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267814/411165"
+        },
+        {
+          "x": 317.8270395100117,
+          "y": -167.9856370538473,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267814/411166"
+        },
+        {
+          "x": 573.8270395100117,
+          "y": -167.9856370538473,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267814/411167"
+        },
+        {
+          "x": -194.17296048998833,
+          "y": 88.01436294615269,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267815/411164"
+        },
+        {
+          "x": 61.82703951001167,
+          "y": 88.01436294615269,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267815/411165"
+        },
+        {
+          "x": 317.8270395100117,
+          "y": 88.01436294615269,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267815/411166"
+        },
+        {
+          "x": 573.8270395100117,
+          "y": 88.01436294615269,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267815/411167"
+        },
+        {
+          "x": -194.17296048998833,
+          "y": 344.0143629461527,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267816/411164"
+        },
+        {
+          "x": 61.82703951001167,
+          "y": 344.0143629461527,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267816/411165"
+        },
+        {
+          "x": 317.8270395100117,
+          "y": 344.0143629461527,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267816/411166"
+        },
+        {
+          "x": 573.8270395100117,
+          "y": 344.0143629461527,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267816/411167"
+        }
+      ]
+    },
+    {
+      "id": 982378426,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 982378426,
+        "source": "osm",
+        "source_ref": "way/982378426",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2776293,
+                -3.7746131
+              ],
+              [
+                102.2778979,
+                -3.7744911
+              ],
+              [
+                102.277901,
+                -3.7744979
+              ],
+              [
+                102.2779444,
+                -3.7744782
+              ],
+              [
+                102.2779975,
+                -3.7745945
+              ],
+              [
+                102.2779283,
+                -3.774626
+              ],
+              [
+                102.2779278,
+                -3.7746248
+              ],
+              [
+                102.277685,
+                -3.7747351
+              ],
+              [
+                102.2776293,
+                -3.7746131
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 561.2468143606857,
+        "building_tag": "yes",
+        "nama": "Bangunan 982378426"
+      },
+      "bingkai": {
+        "x0": 105240476.31573592,
+        "y0": 68516917.48982294,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        203.32,
+        123.32,
+        233.37,
+        233.37
+      ],
+      "penanda": [
+        320.30193210515944,
+        239.8574604690075
+      ],
+      "tiles": [
+        {
+          "x": -156.3157359212637,
+          "y": -53.48982293903828,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267644/411095"
+        },
+        {
+          "x": 99.6842640787363,
+          "y": -53.48982293903828,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267644/411096"
+        },
+        {
+          "x": 355.6842640787363,
+          "y": -53.48982293903828,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267644/411097"
+        },
+        {
+          "x": 611.6842640787363,
+          "y": -53.48982293903828,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267644/411098"
+        },
+        {
+          "x": -156.3157359212637,
+          "y": 202.51017706096172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267645/411095"
+        },
+        {
+          "x": 99.6842640787363,
+          "y": 202.51017706096172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267645/411096"
+        },
+        {
+          "x": 355.6842640787363,
+          "y": 202.51017706096172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267645/411097"
+        },
+        {
+          "x": 611.6842640787363,
+          "y": 202.51017706096172,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267645/411098"
+        },
+        {
+          "x": -156.3157359212637,
+          "y": 458.5101770609617,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267646/411095"
+        },
+        {
+          "x": 99.6842640787363,
+          "y": 458.5101770609617,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267646/411096"
+        },
+        {
+          "x": 355.6842640787363,
+          "y": 458.5101770609617,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267646/411097"
+        },
+        {
+          "x": 611.6842640787363,
+          "y": 458.5101770609617,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267646/411098"
+        }
+      ]
+    },
+    {
+      "id": 235793707,
+      "split": "pengembangan",
+      "strata": "besar",
+      "bangunan": {
+        "id": 235793707,
+        "source": "osm",
+        "source_ref": "way/235793707",
+        "geom": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                102.2804949,
+                -3.7893403
+              ],
+              [
+                102.2804646,
+                -3.7892985
+              ],
+              [
+                102.2805419,
+                -3.7892426
+              ],
+              [
+                102.2804976,
+                -3.7891764
+              ],
+              [
+                102.2805316,
+                -3.7891538
+              ],
+              [
+                102.28051,
+                -3.7891212
+              ],
+              [
+                102.2805959,
+                -3.7890646
+              ],
+              [
+                102.2806789,
+                -3.78919
+              ],
+              [
+                102.2806224,
+                -3.7892272
+              ],
+              [
+                102.2806401,
+                -3.7892537
+              ],
+              [
+                102.2806418,
+                -3.7892527
+              ],
+              [
+                102.2807123,
+                -3.7893703
+              ],
+              [
+                102.2805641,
+                -3.7894588
+              ],
+              [
+                102.2804936,
+                -3.7893411
+              ],
+              [
+                102.2804949,
+                -3.7893403
+              ]
+            ]
+          ]
+        },
+        "footprint_m2": 628.6913714391849,
+        "building_tag": "yes",
+        "nama": "Bangunan 235793707"
+      },
+      "bingkai": {
+        "x0": 105241510.5517171,
+        "y0": 68522397.91041318,
+        "lebar": 640,
+        "tinggi": 480,
+        "zoom": 19
+      },
+      "crop": [
+        194.8,
+        114.8,
+        250.39,
+        250.39
+      ],
+      "penanda": [
+        315.9183174256914,
+        241.60527374595404
+      ],
+      "tiles": [
+        {
+          "x": -166.55171710252762,
+          "y": -157.9104131758213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411099"
+        },
+        {
+          "x": 89.44828289747238,
+          "y": -157.9104131758213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411100"
+        },
+        {
+          "x": 345.4482828974724,
+          "y": -157.9104131758213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411101"
+        },
+        {
+          "x": 601.4482828974724,
+          "y": -157.9104131758213,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267665/411102"
+        },
+        {
+          "x": -166.55171710252762,
+          "y": 98.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411099"
+        },
+        {
+          "x": 89.44828289747238,
+          "y": 98.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411100"
+        },
+        {
+          "x": 345.4482828974724,
+          "y": 98.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411101"
+        },
+        {
+          "x": 601.4482828974724,
+          "y": 98.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267666/411102"
+        },
+        {
+          "x": -166.55171710252762,
+          "y": 354.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267667/411099"
+        },
+        {
+          "x": 89.44828289747238,
+          "y": 354.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267667/411100"
+        },
+        {
+          "x": 345.4482828974724,
+          "y": 354.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267667/411101"
+        },
+        {
+          "x": 601.4482828974724,
+          "y": 354.0895868241787,
+          "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/267667/411102"
+        }
+      ]
+    }
+  ]
+}

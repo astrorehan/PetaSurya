@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Crosshair, Satellite, Search } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Crosshair, RotateCw, Satellite } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
-import { Logo } from "@petasurya/ui";
+import { Logo, SKALA_KOTA_KWP } from "@petasurya/ui";
 import { useTema } from "./Tema";
 import s from "./peta.module.css";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -37,11 +37,18 @@ export type BangunanPeta = {
   id: number;
   nama?: string | null;
   geom: PolygonGeoJSON;
+  tersimpan?: boolean;
+};
+/** Area terlihat [barat, selatan, timur, utara] dan zoom saat kamera berhenti. */
+export type KameraPeta = {
+  kotak: [number, number, number, number];
+  zoom: number;
 };
 export type WilayahPeta = {
   id: string;
   nama: string;
   geom: GeometriSorot;
+  kwp?: number | null;
 };
 type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, never>> = {
   type: "Feature";
@@ -51,8 +58,8 @@ type FiturGeoJSON<TProperties extends Record<string, unknown> = Record<string, n
     coordinates: number[][][] | number[][][][];
   };
 };
-type FiturBangunan = FiturGeoJSON<{ id: string; nama: string }>;
-type FiturWilayah = FiturGeoJSON<{ id: string; nama: string }>;
+type FiturBangunan = FiturGeoJSON<{ id: string; nama: string; tersimpan: boolean }>;
+type FiturWilayah = FiturGeoJSON<{ id: string; nama: string; kwp: number | null }>;
 
 function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
   const berkurang = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -60,6 +67,30 @@ function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
     map.jumpTo({ center, zoom });
   } else {
     map.flyTo({ center, zoom, duration: 550, essential: false });
+  }
+}
+
+// Kamera disimpan per tab agar kembali dari pemindai membuka area yang sama.
+function bacaKamera(kunci: string | undefined, batas?: [number, number, number, number]) {
+  if (!kunci) return null;
+  try {
+    const data = JSON.parse(window.sessionStorage.getItem(kunci) ?? "null") as { pusat?: unknown; zoom?: unknown } | null;
+    const [lon, lat] = Array.isArray(data?.pusat) ? data.pusat : [];
+    const zoom = data?.zoom;
+    if (typeof lon !== "number" || typeof lat !== "number" || typeof zoom !== "number" || ![lon, lat, zoom].every(Number.isFinite)) return null;
+    if (batas && (lon < batas[0] || lon > batas[2] || lat < batas[1] || lat > batas[3])) return null;
+    return { center: [lon, lat] as [number, number], zoom: Math.min(Math.max(zoom, 10), 19) };
+  } catch {
+    return null;
+  }
+}
+
+function simpanKamera(kunci: string, map: MapLibreMap) {
+  const pusat = map.getCenter();
+  try {
+    window.sessionStorage.setItem(kunci, JSON.stringify({ pusat: [pusat.lng, pusat.lat], zoom: map.getZoom() }));
+  } catch {
+    // Penyimpanan diblokir: halaman berikutnya kembali ke pusat awal.
   }
 }
 
@@ -129,7 +160,7 @@ function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefine
       type: "line",
       source: SUMBER_ATAP,
       paint: {
-        "line-color": "#17204a",
+        "line-color": getComputedStyle(document.documentElement).getPropertyValue("--surya").trim(),
         "line-width": 3,
         "line-opacity": 0.92,
       },
@@ -150,7 +181,7 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=tr
     type: "FeatureCollection",
     features: bangunan.map((item) => ({
       type: "Feature",
-      properties: { id: String(item.id), nama: item.nama ?? `Bangunan ${item.id}` },
+      properties: { id: String(item.id), nama: item.nama ?? `Bangunan ${item.id}`, tersimpan: Boolean(item.tersimpan) },
       geometry: item.geom,
     })),
   };
@@ -166,7 +197,7 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=tr
       id: LAPISAN_BANGUNAN_ISI,
       type: "fill",
       source: SUMBER_BANGUNAN,
-      paint: { "fill-color": "#e8920f", "fill-opacity": 0.2 },
+      paint: { "fill-color": "#e8920f", "fill-opacity": ["case", ["get", "tersimpan"], 0.55, 0.2] },
     });
   }
   if (!map.getLayer(LAPISAN_BANGUNAN_GARIS)) {
@@ -174,7 +205,8 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=tr
       id: LAPISAN_BANGUNAN_GARIS,
       type: "line",
       source: SUMBER_BANGUNAN,
-      paint: { "line-color": "#e8920f", "line-width": 2, "line-opacity": 0.92 },
+      // Garis menipis saat diperkecil agar rumah yang rapat tidak tertutup garis tepinya.
+      paint: { "line-color": "#e8920f", "line-width": ["interpolate", ["linear"], ["zoom"], 15, 0.75, 17.5, 2], "line-opacity": 0.92 },
     });
   }
 
@@ -186,14 +218,14 @@ function pasangBangunan(map: MapLibreMap, bangunan: BangunanPeta[], sesuaikan=tr
   }
 }
 
-function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih: string | null) {
+function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih: string | null, sesuaikan = true) {
   if (!wilayah.length) return;
 
   const data: { type: "FeatureCollection"; features: FiturWilayah[] } = {
     type: "FeatureCollection",
     features: wilayah.map((item) => ({
       type: "Feature",
-      properties: { id: item.id, nama: item.nama },
+      properties: { id: item.id, nama: item.nama, kwp: item.kwp ?? null },
       geometry: item.geom,
     })),
   };
@@ -205,11 +237,14 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
   }
 
   if (!map.getLayer(LAPISAN_WILAYAH_ISI)) {
+    const warna = ["step", ["coalesce", ["get", "kwp"], 0], SKALA_KOTA_KWP[0].warna,
+      ...SKALA_KOTA_KWP.slice(1).flatMap((kelas) => [kelas.batas, kelas.warna])
+    ] as maplibregl.ExpressionSpecification;
     map.addLayer({
       id: LAPISAN_WILAYAH_ISI,
       type: "fill",
       source: SUMBER_WILAYAH,
-      paint: { "fill-color": "#7a4a12", "fill-opacity": 0.18 },
+      paint: { "fill-color": warna, "fill-opacity": ["case", ["==", ["get", "kwp"], null], 0.1, 0.72] },
     });
   }
   if (!map.getLayer(LAPISAN_WILAYAH_GARIS)) {
@@ -227,7 +262,7 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
       type: "fill",
       source: SUMBER_WILAYAH,
       filter,
-      paint: { "fill-color": "#e8920f", "fill-opacity": 0.5 },
+      paint: { "fill-color": "#e8920f", "fill-opacity": 0.08 },
     });
   }
   if (!map.getLayer(LAPISAN_WILAYAH_TERPILIH_GARIS)) {
@@ -242,7 +277,7 @@ function pasangWilayah(map: MapLibreMap, wilayah: WilayahPeta[], wilayahTerpilih
 
   const bounds = new maplibregl.LngLatBounds();
   wilayah.forEach((item) => titikGeometri(item.geom.coordinates, bounds));
-  if (!bounds.isEmpty()) {
+  if (sesuaikan && !bounds.isEmpty()) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     map.fitBounds(bounds, { padding: 64, maxZoom: 12.5, duration: reducedMotion ? 0 : 500 });
   }
@@ -259,11 +294,13 @@ type PetaProps = {
   wilayahTerpilih?: string | null;
   onPilihWilayah?: (id: string) => void;
   tampilanKosong?: boolean;
-  onCariArea?: (lat: number, lon: number) => void;
-  mencariArea?: boolean;
+  onKameraBerubah?: (kamera: KameraPeta) => void;
+  zoomAwal?: number;
+  kunciKamera?: string;
   batasPencarian?: [number, number, number, number];
   pertahankanKamera?: boolean;
   satelitAwal?: boolean;
+  pratinjau?: ReactNode;
 };
 
 export function Peta({
@@ -277,11 +314,13 @@ export function Peta({
   wilayahTerpilih = null,
   onPilihWilayah,
   tampilanKosong = false,
-  onCariArea,
-  mencariArea = false,
+  onKameraBerubah,
+  zoomAwal = ZOOM_AWAL,
+  kunciKamera,
   batasPencarian,
   pertahankanKamera = false,
   satelitAwal = false,
+  pratinjau,
 }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -290,8 +329,17 @@ export function Peta({
   const satelitRef = useRef(satelitAwal);
   const [satelit, setSatelit] = useState(satelitAwal);
   const [petaSiap, setPetaSiap] = useState(false);
-  const terkini = useRef({bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera});
-  terkini.current = {bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, label, batasPencarian, pertahankanKamera};
+  const [citraLambat, setCitraLambat] = useState(false);
+  const [petaGagal, setPetaGagal] = useState(false);
+  const [percobaan, setPercobaan] = useState(0);
+  const terkini = useRef({bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera});
+  terkini.current = {bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera};
+
+  useEffect(() => {
+    if (petaSiap) return;
+    const jadwal = setTimeout(() => setCitraLambat(true), 8000);
+    return () => clearTimeout(jadwal);
+  }, [petaSiap, percobaan]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -300,16 +348,28 @@ export function Peta({
     gayaRef.current = GAYA_PETA[terpilih];
     maplibregl.setWorkerUrl(URL_WORKER_PETA);
 
-    const map = new maplibregl.Map({
-      container,
-      style: gayaRef.current,
-      center: PUSAT_BENGKULU,
-      zoom: ZOOM_AWAL,
-      attributionControl: false,
-      keyboard: true,
-      maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
-    });
+    let map: MapLibreMap;
+    const kameraTersimpan = bacaKamera(terkini.current.kunciKamera, terkini.current.batasPencarian);
+    try {
+      map = new maplibregl.Map({
+        container,
+        style: gayaRef.current,
+        center: kameraTersimpan?.center ?? PUSAT_BENGKULU,
+        zoom: kameraTersimpan?.zoom ?? terkini.current.zoomAwal,
+        attributionControl: false,
+        keyboard: true,
+        maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
+      });
+    } catch {
+      setPetaGagal(true);
+      return;
+    }
     mapRef.current = map;
+    // Peta dapat dimulai saat panel ponsel tersembunyi; ukur ulang saat dibuka.
+    const ukuran = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0 && entry.contentRect.height > 0) map.resize();
+    });
+    ukuran.observe(container);
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
     map.addControl(
       new maplibregl.AttributionControl({ compact: true }),
@@ -334,59 +394,78 @@ export function Peta({
         if (typeof idBangunan === "string") data.onPilihBangunan(Number(idBangunan));
       }
     };
-    let pendengarFiturTerpasang = false;
+    const saatPenunjukBergerak = (event: MapMouseEvent) => {
+      const data = terkini.current;
+      const lapisan = [
+        ...(data.onPilihBangunan ? [LAPISAN_BANGUNAN_ISI] : []),
+        ...(data.onPilihWilayah ? [LAPISAN_WILAYAH_ISI, LAPISAN_WILAYAH_TERPILIH_ISI] : []),
+      ].filter((id) => map.getLayer(id));
+      map.getCanvas().style.cursor = lapisan.length && map.queryRenderedFeatures(event.point, { layers: lapisan }).length ? "pointer" : "";
+    };
+    // Kanvas tersembunyi (tampilan daftar di ponsel) tidak punya area; dilaporkan setelah resize.
+    const laporKamera = () => {
+      const data = terkini.current;
+      if (!map.getCanvas().clientWidth || !map.getCanvas().clientHeight) return;
+      if (data.kunciKamera) simpanKamera(data.kunciKamera, map);
+      const batas = map.getBounds();
+      data.onKameraBerubah?.({ kotak: [batas.getWest(), batas.getSouth(), batas.getEast(), batas.getNorth()], zoom: map.getZoom() });
+    };
+    // Pendengar tetap aktif ketika pencarian awal kosong lalu menghasilkan bangunan.
+    map.on("click", saatFiturDiklik);
+    map.on("mousemove", saatPenunjukBergerak);
+    map.on("moveend", laporKamera);
     let kameraAwal = true;
 
     const siapGaya = () => {
       const data = terkini.current;
+      const sesuaikan = kameraAwal && !data.pertahankanKamera;
       pasangCitra(map, satelitRef.current);
-      pasangSorot(map, data.geometriSorot, kameraAwal);
-      pasangBangunan(map, data.bangunan, kameraAwal);
-      pasangWilayah(map, data.wilayah, data.wilayahTerpilih);
+      pasangSorot(map, data.geometriSorot, sesuaikan);
+      pasangBangunan(map, data.bangunan, sesuaikan);
+      pasangWilayah(map, data.wilayah, data.wilayahTerpilih, kameraAwal);
       kameraAwal = false;
-      if ((bangunan.length || wilayah.length) && !pendengarFiturTerpasang) {
-        map.on("click", saatFiturDiklik);
-        if (wilayah.length) {
-          map.on("mouseenter", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_WILAYAH_ISI, () => { map.getCanvas().style.cursor = ""; });
-          map.on("mouseenter", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_WILAYAH_TERPILIH_ISI, () => { map.getCanvas().style.cursor = ""; });
-        }
-        if (bangunan.length) {
-          map.on("mouseenter", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = "pointer"; });
-          map.on("mouseleave", LAPISAN_BANGUNAN_ISI, () => { map.getCanvas().style.cursor = ""; });
-        }
-        pendengarFiturTerpasang = true;
-      }
     };
     map.on("style.load", siapGaya);
     map.once("load", () => {
       const canvas = map.getCanvas();
       canvas.tabIndex = 0;
       canvas.setAttribute("aria-label", `${label}. Gunakan tombol panah untuk menggeser peta.`);
+      const labelKontrol: Record<string, string> = {
+        ".maplibregl-ctrl-zoom-in": "Perbesar peta",
+        ".maplibregl-ctrl-zoom-out": "Perkecil peta",
+        ".maplibregl-ctrl-compass": "Kembalikan arah utara",
+        ".maplibregl-ctrl-attrib-button": "Sumber peta",
+      };
+      Object.entries(labelKontrol).forEach(([selector, teks]) => {
+        const tombol = container.querySelector<HTMLButtonElement>(selector);
+        tombol?.setAttribute("aria-label", teks);
+        tombol?.setAttribute("title", teks);
+      });
       // Atribusi ringkas terbuka saat muat; tutup agar tidak menutupi peta. Tombol (i) tetap membukanya.
       container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
       siapGaya();
       setPetaSiap(true);
+      laporKamera();
     });
 
     return () => {
-      if (bangunan.length || wilayah.length) {
-        map.off("click", saatFiturDiklik);
-      }
+      ukuran.disconnect();
+      map.off("click", saatFiturDiklik);
+      map.off("mousemove", saatPenunjukBergerak);
+      map.off("moveend", laporKamera);
       map.remove();
       mapRef.current = null;
     };
   // Geometri dan pilihan diperbarui tanpa menghapus kamera yang sedang ditelusuri.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siap]);
+  }, [siap, percobaan]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map?.getSource(SUMBER_BANGUNAN)) return;
     pasangBangunan(map, bangunan, !pertahankanKamera);
     pasangSorot(map, geometriSorot, !pertahankanKamera);
-    pasangWilayah(map, wilayah, wilayahTerpilih);
+    pasangWilayah(map, wilayah, wilayahTerpilih, false);
   }, [bangunan, geometriSorot, pertahankanKamera, wilayah, wilayahTerpilih]);
 
   useEffect(() => {
@@ -410,30 +489,40 @@ export function Peta({
   return (
     <figure className={kelas} style={gaya} aria-label={label}>
       <div className={s.toolbar} aria-label="Alat peta">
-        {onCariArea && <button className={s.tombolPeta} type="button" disabled={mencariArea || !petaSiap} onClick={() => {const pusat=mapRef.current?.getCenter();if(pusat)onCariArea(pusat.lat,pusat.lng);}}><Search size={16} aria-hidden="true"/><span>{mencariArea ? "Mencari…" : "Cari area ini · 200 m"}</span></button>}
         <button
           className={s.tombolPeta}
           type="button"
+          disabled={!petaSiap}
           onClick={() => {
-            if (mapRef.current) gerakKe(mapRef.current, PUSAT_BENGKULU, ZOOM_AWAL);
+            if (!mapRef.current) return;
+            if (wilayah.length) pasangWilayah(mapRef.current, wilayah, wilayahTerpilih);
+            else gerakKe(mapRef.current, PUSAT_BENGKULU, zoomAwal);
           }}
           title="Pusatkan di Bengkulu"
         >
           <Crosshair size={16} aria-hidden="true" />
-          <span>Pusatkan</span>
+          <span className={s.labelRingkas}>Pusatkan</span>
         </button>
         <button
           className={`${s.tombolPeta} ${s.tombolSatelit}`}
           type="button"
+          disabled={!petaSiap}
           aria-pressed={satelit}
           onClick={() => setSatelit((aktif) => !aktif)}
           title={satelit ? "Gunakan peta jalan" : "Tampilkan citra satelit"}
         >
           <Satellite size={16} aria-hidden="true" />
-          <span>{satelit ? "Peta jalan" : "Satelit"}</span>
+          <span className={s.labelRingkas}>{satelit ? "Peta jalan" : "Satelit"}</span>
         </button>
       </div>
       <div ref={containerRef} className={s.kanvas} />
+      {!petaSiap && <div className={s.pratinjau}>
+        {pratinjau && <div aria-hidden="true">{pratinjau}</div>}
+        <section className={s.statusPeta} aria-label="Status peta">
+          <p role="status">{petaGagal ? "Peta tidak dapat ditampilkan di browser ini." : citraLambat ? "Peta belum termuat. Periksa koneksi atau pilih bangunan dari daftar." : "Menyiapkan peta…"}</p>
+          {(petaGagal || citraLambat) && <button type="button" onClick={() => { setPetaSiap(false); setPetaGagal(false); setCitraLambat(false); setPercobaan((nilai) => nilai + 1); }}><RotateCw size={14} aria-hidden="true" /> Coba muat peta</button>}
+        </section>
+      </div>}
       {tampilanKosong ? <div className={s.arsiranKosong} aria-hidden="true" /> : null}
       <div className={s.watermark} aria-hidden="true">
         <Logo size={48} mono label="" />

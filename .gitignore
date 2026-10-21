@@ -2,6 +2,7 @@
 node_modules/
 .pnpm-store/
 .venv/
+.runtime/
 __pycache__/
 *.pyc
 

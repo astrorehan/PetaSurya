@@ -1,0 +1,554 @@
+{
+  "sha256_manifest": "ed8b6ffd7a1d817a0f950bad146b16c63024b24adf3f503368f78b7a63cbc3b3",
+  "metode": "anotasi-visual-terpisah",
+  "sampel": {
+    "983448855": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Atap tidak terlihat pada citra; lokasi penanda tertutup vegetasi. Tidak dapat menentukan kontur acuan.",
+      "sha256_citra": "f8cfd8d8c79a5d4a9ac9da7eedc46a8c5c097a5e688288d6b0b028155463cd11",
+      "review": "belum"
+    },
+    "630294024": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Batas antar atap yang saling berdempetan tidak cukup jelas; beberapa bidang berbeda warna berada di sekitar penanda.",
+      "sha256_citra": "32a478185a11c4c04e95cfc32bc636a74b2fee1de7ad9c4ae3d39e4870027525",
+      "review": "belum"
+    },
+    "990255325": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Sebagian batas atap tertutup pohon; kontur luar tidak dapat ditentukan utuh.",
+      "sha256_citra": "5aff785398ea2cf5f7e7cf23bfe00610eca35c7a55396c95796ef740079d95d2",
+      "review": "belum"
+    },
+    "629994228": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Penanda berada pada ruang terbuka di antara atap; bangunan sasaran tidak dapat dikenali pada citra.",
+      "sha256_citra": "ecc0770547c6208d52fe7a208f825ed6f7b45c0f3efff53936616503a45857e8",
+      "review": "belum"
+    },
+    "667079545": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Penanda berada dekat sambungan beberapa atap merah yang berdempetan; pemisahan bangunan tidak pasti.",
+      "sha256_citra": "6ac69b85d9e18c6ffee4804834caa3eb56a281396279135598f3f77767bb294b",
+      "review": "belum"
+    },
+    "667077748": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              312.32,
+              239.04
+            ],
+            [
+              327.68,
+              215.04
+            ],
+            [
+              335.36,
+              218.88
+            ],
+            [
+              338.24,
+              214.08
+            ],
+            [
+              351.68,
+              224.64
+            ],
+            [
+              346.88,
+              230.4
+            ],
+            [
+              353.6,
+              237.12
+            ],
+            [
+              337.28,
+              262.08
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur bidang atap putih yang terlihat; sisi bangunan yang tampak miring tidak dimasukkan. Perlu tinjauan tim.",
+      "sha256_citra": "298b4259703b70dbcbf4b74d6db9399a50664456e27914c47368bc575e3e95c4",
+      "review": "belum"
+    },
+    "982386181": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Penanda tertutup vegetasi di samping atap; tidak dapat menetapkan batas bangunan sasaran.",
+      "sha256_citra": "534f97ec31ade3faa6aacbb72474aff979bc0e77e47b51b892c8c3aa02f5464e",
+      "review": "belum"
+    },
+    "635146129": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              272.96,
+              229.44
+            ],
+            [
+              303.68,
+              204.48
+            ],
+            [
+              349.76,
+              255.36
+            ],
+            [
+              318.08,
+              281.28
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap sasaran dibaca dari citra tanpa melihat prediksi. Perlu tinjauan tim.",
+      "sha256_citra": "6f403e2fc9bdcc8e22eb85f734b8ce70c146e7e7e22991b4381ffbcd91a1c0f9",
+      "review": "belum"
+    },
+    "235564584": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Bidang atap memanjang dan menyambung ke bangunan lain melewati crop; pemisahan bangunan sasaran tidak pasti.",
+      "sha256_citra": "5bc9b49f6b553494e423291e1587daed52e6d4ab27db4c60278a37072433d36d",
+      "review": "belum"
+    },
+    "983824781": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Batas atap sasaran menyatu dengan beberapa bidang dan bangunan tetangga; kontur penuh tidak dapat dipisahkan dengan yakin.",
+      "sha256_citra": "25599de534d836d48f7f24f2c3caeef67791453adfa678cf2c4db2f5ebde16aa",
+      "review": "belum"
+    },
+    "235437710": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              295.15,
+              219.29
+            ],
+            [
+              337.95,
+              231.72
+            ],
+            [
+              328.28,
+              264.85
+            ],
+            [
+              285.49,
+              252.42
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap sasaran dibaca dari citra tanpa melihat prediksi. Perlu tinjauan tim.",
+      "sha256_citra": "17cc873b1a971f2ca86d5581bbff4715af242c381c003069f8d875568d7ba864",
+      "review": "belum"
+    },
+    "635541679": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              300.45,
+              220.45
+            ],
+            [
+              363.42,
+              221.54
+            ],
+            [
+              360.17,
+              267.14
+            ],
+            [
+              295.02,
+              256.28
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap sasaran dibaca dari citra tanpa melihat prediksi. Perlu tinjauan tim.",
+      "sha256_citra": "a5167b5c847f4be3cb6e24a14352d77a7fc06b39c359d5232eb007572544f191",
+      "review": "belum"
+    },
+    "629786257": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              296.49,
+              237.77
+            ],
+            [
+              332.32,
+              204.17
+            ],
+            [
+              364.8,
+              240.01
+            ],
+            [
+              327.84,
+              275.84
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Batas luar atap yang terlihat, dibaca tanpa prediksi model. Perlu tinjauan tim.",
+      "sha256_citra": "c262409197fa4c44737924b904a6ed8d0d66b69039e32f0cdcef7f43fb756803",
+      "review": "belum"
+    },
+    "671868275": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              294.92,
+              210.09
+            ],
+            [
+              308.43,
+              206.23
+            ],
+            [
+              327.72,
+              236.15
+            ],
+            [
+              333.51,
+              233.25
+            ],
+            [
+              346.06,
+              267.02
+            ],
+            [
+              289.13,
+              282.46
+            ],
+            [
+              292.02,
+              240.97
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Batas luar atap yang terlihat, dibaca tanpa prediksi model. Perlu tinjauan tim.",
+      "sha256_citra": "d661dac6b91f6f11c2e56f9c4ec4ebd1c893cf67f6ec761722c2a6c705c0c09d",
+      "review": "belum"
+    },
+    "629586453": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              289.47,
+              236.02
+            ],
+            [
+              318.67,
+              208.15
+            ],
+            [
+              365.12,
+              255.93
+            ],
+            [
+              335.93,
+              282.47
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Batas luar atap yang terlihat, dibaca tanpa prediksi model. Perlu tinjauan tim.",
+      "sha256_citra": "a69c82d921127b1a54c5959ffd86c6d24840803bea70a1d31de2a9daff4c0ce1",
+      "review": "belum"
+    },
+    "983445556": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Atap beberapa bangunan berimpit dan mencapai tepi crop; pemisahan sasaran tidak cukup jelas.",
+      "sha256_citra": "bcab62e3c44239b4b5ab413530ebbdf56634126d8cc237820b9a0319222cbb9e",
+      "review": "belum"
+    },
+    "634759936": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              284.23,
+              242.17
+            ],
+            [
+              330.84,
+              208.57
+            ],
+            [
+              361.18,
+              248.67
+            ],
+            [
+              313.5,
+              282.27
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Batas luar atap yang terlihat, dibaca tanpa prediksi model. Perlu tinjauan tim.",
+      "sha256_citra": "af8993a053b824cdbb319dbbb6fc22139c4405ab41aad3d758d00eb80ca5763b",
+      "review": "belum"
+    },
+    "983519546": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Beberapa sisi atap tertutup vegetasi; kontur penuh tidak dapat dibaca.",
+      "sha256_citra": "f7d1f409b4c1d60a4023abe7a4720e8f698dc9895dcd84a55dec7304a7782264",
+      "review": "belum"
+    },
+    "982397176": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Beberapa bidang atap bersebelahan dan sisi tertutup pohon; cakupan bangunan sasaran tidak pasti.",
+      "sha256_citra": "249eb29d89f08cbe9ffe7caa57dc72210918d561df35beca0aa6cbdfe634a971",
+      "review": "belum"
+    },
+    "990692204": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Atap beberapa bangunan menyatu dan melampaui crop; pemisahan sasaran tidak dapat dipastikan.",
+      "sha256_citra": "2ccd4d58d94cbdccf4b7655abc63f791c245f3e4dd023bc70deb52ae3b408a95",
+      "review": "belum"
+    },
+    "235590029": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              316.27,
+              176.7
+            ],
+            [
+              385.15,
+              200.9
+            ],
+            [
+              347.92,
+              295.85
+            ],
+            [
+              262.28,
+              264.2
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar bidang atap yang terlihat, termasuk tepi atap; perlu pemeriksaan ulang tim.",
+      "sha256_citra": "9f670bc3639d7023df288d16461c56245eb9224db6240b34710a2d96e6cb2d13",
+      "review": "belum"
+    },
+    "983528714": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              234.37,
+              237.23
+            ],
+            [
+              331.04,
+              168.18
+            ],
+            [
+              364.19,
+              193.04
+            ],
+            [
+              369.71,
+              217.9
+            ],
+            [
+              405.62,
+              284.19
+            ],
+            [
+              369.71,
+              309.05
+            ],
+            [
+              328.28,
+              251.04
+            ],
+            [
+              281.33,
+              284.19
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar bidang atap yang terlihat, termasuk tepi atap; perlu pemeriksaan ulang tim.",
+      "sha256_citra": "0977b10d5e46234d2d77be1b43ba0584df21306a162b4be5522a4d96b507f5d8",
+      "review": "belum"
+    },
+    "235766786": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              245.71,
+              192.24
+            ],
+            [
+              386.32,
+              301.02
+            ],
+            [
+              367.75,
+              330.2
+            ],
+            [
+              221.83,
+              221.42
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar bidang atap yang terlihat, termasuk tepi atap; perlu pemeriksaan ulang tim.",
+      "sha256_citra": "cf8db8e509349f8834ec78aa6dfc8ab834d34a447e05eb44d5893ea84e9c3dd5",
+      "review": "belum"
+    },
+    "904939037": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              292.6,
+              187.16
+            ],
+            [
+              366.97,
+              232.17
+            ],
+            [
+              333.7,
+              279.14
+            ],
+            [
+              259.33,
+              232.17
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap utama dibaca dari citra. Perlu pemeriksaan ulang tim terutama batas bangunan yang berdampingan.",
+      "sha256_citra": "8634c196db54d87d8b500a7ce119f42247b96c3fe5e24801d906edb8313544df",
+      "review": "belum"
+    },
+    "1014242217": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              236.21,
+              222.23
+            ],
+            [
+              391.09,
+              184.14
+            ],
+            [
+              419.02,
+              265.39
+            ],
+            [
+              256.53,
+              306.01
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap utama dibaca dari citra. Perlu pemeriksaan ulang tim terutama batas bangunan yang berdampingan.",
+      "sha256_citra": "18a7a532cdfea435b20566a8b199e55e72645359bafe3d1b398e0681a8300b89",
+      "review": "belum"
+    },
+    "982378426": {
+      "status": "digambar",
+      "rings": [
+        [
+          [
+            [
+              264,
+              226
+            ],
+            [
+              383.01,
+              188.66
+            ],
+            [
+              399.35,
+              251.67
+            ],
+            [
+              275.66,
+              296.01
+            ]
+          ]
+        ]
+      ],
+      "catatan": "Kontur luar atap utama dibaca dari citra. Perlu pemeriksaan ulang tim terutama batas bangunan yang berdampingan.",
+      "sha256_citra": "8832547288342877cbff9eabfbbf62162be37be042b87359b32125eff63dc1d0",
+      "review": "belum"
+    },
+    "983448258": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Penanda berada pada lahan terbuka dan vegetasi; bangunan sasaran tidak terlihat di titik tersebut.",
+      "sha256_citra": "397eba37061290688df8598f8725d63c0e29d1e9d04eae4c1e3b21c2f07ae85b",
+      "review": "belum"
+    },
+    "553053271": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Kompleks beberapa kubah dan bidang penghubung; batas satu bangunan sasaran tidak dapat dipisahkan dengan yakin.",
+      "sha256_citra": "3ed25741e8094af124578065d340a04a7832a750a0c6debbd12ec20349f19571",
+      "review": "belum"
+    },
+    "235793707": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Beberapa atap berbeda warna menyatu dan tertutup pohon pada beberapa sisi; cakupan bangunan sasaran tidak pasti.",
+      "sha256_citra": "7ecf1e92339493bfe2202fece448aa758c53abd206696800f61e56e8a38cb0cb",
+      "review": "belum"
+    },
+    "631775291": {
+      "status": "ambigu",
+      "rings": [],
+      "catatan": "Kompleks atap terdiri dari beberapa bangunan tersambung dan melewati crop; kontur luar sasaran belum dapat dipastikan.",
+      "review": "belum",
+      "sha256_citra": "e8e0cfaf00f09b0e729a87d79c6996886ccaad90684f082807db219f67295aaa"
+    }
+  }
+}
