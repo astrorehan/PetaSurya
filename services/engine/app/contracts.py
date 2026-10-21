@@ -237,6 +237,25 @@ class ParameterFisika(BaseModel):
     """
 
 
+class PerkiraanJenis(StrEnum):
+    rumah = "rumah"
+
+
+class PerkiraanRumah(BaseModel):
+    min_m2: float = Field(..., gt=0.0)
+    """
+    Batas bawah luas footprint, m²
+    """
+    max_m2: float = Field(..., gt=0.0)
+    """
+    Batas atas luas footprint, m²
+    """
+    dasar: str
+    """
+    Asal rentang luas
+    """
+
+
 class Asumsi(BaseModel):
     golongan_tarif: str
     """
@@ -282,6 +301,29 @@ class Asumsi(BaseModel):
     faktor_ekspor: float | None = Field(0, ge=0.0, le=1.0)
     """
     Nilai ekspor relatif terhadap tarif; 0 bila net-metering dihapus
+    """
+
+
+class PermintaanFootprintArea(BaseModel):
+    barat: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur tepi barat, derajat WGS84
+    """
+    selatan: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang tepi selatan, derajat WGS84
+    """
+    timur: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur tepi timur, derajat WGS84
+    """
+    utara: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang tepi utara, derajat WGS84
+    """
+    batas: int | None = Field(1500, ge=1, le=2000)
+    """
+    Jumlah footprint maksimum per respons
     """
 
 
@@ -452,6 +494,10 @@ class BangunanRingkas(BaseModel):
     """
     Kode BPS wilayah bila sudah dipetakan
     """
+    perkiraan_jenis: PerkiraanJenis | None = None
+    """
+    Perkiraan dari luas footprint, bukan tag OSM
+    """
 
 
 class BingkaiPemindaian(BaseModel):
@@ -462,6 +508,30 @@ class BingkaiPemindaian(BaseModel):
     zoom: int = Field(..., ge=0, le=22)
     meter_per_piksel: float = Field(..., gt=0.0)
     tiles: list[TilePemindaian]
+
+
+class FootprintArea(BaseModel):
+    permintaan: PermintaanFootprintArea
+    jumlah: int = Field(..., ge=0, le=9007199254740991)
+    """
+    Footprint yang memotong bbox
+    """
+    terpotong: bool
+    """
+    Jumlah melebihi batas; yang terdekat dari pusat bbox dikirim
+    """
+    bangunan: list[BangunanRingkas]
+    """
+    Terdekat dari pusat bbox lebih dahulu
+    """
+    perkiraan_rumah: PerkiraanRumah
+    """
+    Rentang luas building=yes yang ditandai perkiraan rumah
+    """
+    sumber: SumberAgregasi
+    """
+    Snapshot OSM yang sama dengan Mode Kota
+    """
 
 
 class Error(BaseModel):

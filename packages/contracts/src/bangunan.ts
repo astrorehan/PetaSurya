@@ -6,6 +6,10 @@ import { PolygonGeoJSON } from "./geojson.ts";
 
 export const SumberBangunan = z.enum(["osm", "ms_footprints", "user_drawn"]);
 
+// Tebakan jenis dari luas footprint bila tag OSM hanya building=yes.
+// Bukan data OSM; antarmuka wajib menampilkannya sebagai perkiraan.
+export const PerkiraanJenis = z.enum(["rumah"]);
+
 export const BangunanRingkas = z.object({
   id: z.number().int().positive().describe("id bangunan di basis data"),
   source: SumberBangunan,
@@ -16,6 +20,7 @@ export const BangunanRingkas = z.object({
   levels: z.number().int().positive().nullable().optional().describe("Jumlah lantai bila diketahui"),
   nama: z.string().nullable().optional().describe("Nama di sumber bila ada"),
   region_code: z.string().nullable().optional().describe("Kode BPS wilayah bila sudah dipetakan"),
+  perkiraan_jenis: PerkiraanJenis.nullable().optional().describe("Perkiraan dari luas footprint, bukan tag OSM"),
 });
 
 export type BangunanRingkas = z.infer<typeof BangunanRingkas>;
