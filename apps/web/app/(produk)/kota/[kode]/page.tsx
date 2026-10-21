@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description: "Uji skenario adopsi PLTS atap di Kota Bengkulu. Tinjau kapasitas, energi, investasi, dan emisi per kecamatan dengan asumsi yang dapat diubah.",
 };
 
+// Satu-satunya kota berdata; dirender saat build agar berkas fixture tidak dibaca di runtime serverless.
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return [{ kode: "1771" }];
+}
+
 export default async function HalamanKota({ params }: { params: Promise<{ kode: string }> }) {
   const { kode } = await params;
   if (kode !== "1771") notFound();
