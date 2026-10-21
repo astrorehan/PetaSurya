@@ -558,6 +558,79 @@
         "jejak"
       ]
     },
+    "HasilAlamat": {
+      "type": "object",
+      "properties": {
+        "nama": {
+          "type": "string",
+          "description": "Baris pertama alamat untuk ditampilkan"
+        },
+        "alamat": {
+          "type": "string",
+          "description": "Alamat lengkap dari geocoder"
+        },
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Lintang titik alamat, derajat WGS84"
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Bujur titik alamat, derajat WGS84"
+        },
+        "presisi": {
+          "type": "string",
+          "description": "Jenis objek OSM yang cocok, mis. 'house', 'road', 'building'"
+        },
+        "bangunan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BangunanRingkas"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Footprint snapshot pada atau dekat titik alamat"
+        },
+        "kecocokan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KecocokanBangunan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "'memuat' bila titik di dalam footprint"
+        },
+        "jarak_m": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Jarak titik ke footprint, meter; 0 bila memuat"
+        }
+      },
+      "required": [
+        "nama",
+        "alamat",
+        "lat",
+        "lon",
+        "presisi",
+        "bangunan",
+        "kecocokan",
+        "jarak_m"
+      ]
+    },
     "HasilSimulasi": {
       "type": "object",
       "properties": {
@@ -764,6 +837,13 @@
         "derate"
       ]
     },
+    "KecocokanBangunan": {
+      "type": "string",
+      "enum": [
+        "memuat",
+        "terdekat"
+      ]
+    },
     "KodeGalat": {
       "type": "string",
       "enum": [
@@ -923,6 +1003,30 @@
         "modul",
         "derate",
         "albedo"
+      ]
+    },
+    "PencarianAlamat": {
+      "type": "object",
+      "properties": {
+        "kueri": {
+          "type": "string"
+        },
+        "hasil": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/HasilAlamat"
+          },
+          "description": "Hanya titik di dalam batas Kota Bengkulu"
+        },
+        "atribusi": {
+          "type": "string",
+          "description": "Atribusi data geocoder yang wajib ditampilkan"
+        }
+      },
+      "required": [
+        "kueri",
+        "hasil",
+        "atribusi"
       ]
     },
     "PerkiraanJenis": {
@@ -1088,6 +1192,20 @@
         "urut",
         "asumsi",
         "parameter_fisika"
+      ]
+    },
+    "PermintaanAlamat": {
+      "type": "object",
+      "properties": {
+        "q": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200,
+          "description": "Alamat atau nama tempat yang diketik pengguna"
+        }
+      },
+      "required": [
+        "q"
       ]
     },
     "PermintaanFootprintArea": {

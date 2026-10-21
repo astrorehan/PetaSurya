@@ -109,6 +109,13 @@ class Cakupan(BaseModel):
     catatan: str
 
 
+class JarakM(RootModel[float]):
+    root: float = Field(..., ge=0.0)
+    """
+    Jarak titik ke footprint, meter; 0 bila memuat
+    """
+
+
 class JejakDerate(BaseModel):
     kotoran: float = Field(..., ge=0.0, le=1.0)
     """
@@ -153,6 +160,11 @@ class JejakSimulasi(BaseModel):
     """
     Sumber, tahun data dan metode faktor emisi yang dipakai
     """
+
+
+class KecocokanBangunan(StrEnum):
+    memuat = "memuat"
+    terdekat = "terdekat"
 
 
 class KodeGalat(StrEnum):
@@ -301,6 +313,13 @@ class Asumsi(BaseModel):
     faktor_ekspor: float | None = Field(0, ge=0.0, le=1.0)
     """
     Nilai ekspor relatif terhadap tarif; 0 bila net-metering dihapus
+    """
+
+
+class PermintaanAlamat(BaseModel):
+    q: str = Field(..., max_length=200, min_length=3)
+    """
+    Alamat atau nama tempat yang diketik pengguna
     """
 
 
@@ -559,6 +578,41 @@ class Jejak(BaseModel):
     adopsi: JejakRumus
 
 
+class HasilAlamat(BaseModel):
+    nama: str
+    """
+    Baris pertama alamat untuk ditampilkan
+    """
+    alamat: str
+    """
+    Alamat lengkap dari geocoder
+    """
+    lat: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang titik alamat, derajat WGS84
+    """
+    lon: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur titik alamat, derajat WGS84
+    """
+    presisi: str
+    """
+    Jenis objek OSM yang cocok, mis. 'house', 'road', 'building'
+    """
+    bangunan: BangunanRingkas | None
+    """
+    Footprint snapshot pada atau dekat titik alamat
+    """
+    kecocokan: KecocokanBangunan | None
+    """
+    'memuat' bila titik di dalam footprint
+    """
+    jarak_m: JarakM | None
+    """
+    Jarak titik ke footprint, meter; 0 bila memuat
+    """
+
+
 class HasilSimulasi(BaseModel):
     id: str
     """
@@ -639,6 +693,18 @@ class PaketPemindaian(BaseModel):
     bingkai: BingkaiPemindaian
     tersimpan: bool
     durasi_detik: float = Field(..., ge=0.0)
+
+
+class PencarianAlamat(BaseModel):
+    kueri: str
+    hasil: list[HasilAlamat]
+    """
+    Hanya titik di dalam batas Kota Bengkulu
+    """
+    atribusi: str
+    """
+    Atribusi data geocoder yang wajib ditampilkan
+    """
 
 
 class PermintaanAgregasi(BaseModel):
