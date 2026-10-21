@@ -48,7 +48,7 @@ describe("ucapan", () => {
   it("satuan energi dan emisi dieja utuh", () => {
     expect(ucapan("14,3 kWp")).toBe("14,3 kilowatt-peak");
     expect(ucapan("19.840 kWh/tahun")).toBe("19.840 kilowatt-jam per tahun");
-    expect(ucapan("14,1 tCO₂e")).toBe("14,1 ton CO2 ekuivalen");
+    expect(ucapan("14,1 tCO₂")).toBe("14,1 ton karbon dioksida");
     expect(ucapan("1.454,3 Rp/kWh")).toBe("1.454,3 rupiah per kilowatt-jam");
     expect(ucapan("42%")).toBe("42 persen");
     expect(ucapan("112 m²")).toBe("112 meter persegi");
@@ -63,8 +63,8 @@ describe("satuan", () => {
     expect(kwp(14.3)).toBe("14,3 kWp");
     expect(kwp(14.256)).toBe("14,26 kWp");
   });
-  it("ton dua desimal dengan tCO₂e", () => {
-    expect(ton(15.876)).toBe("15,88 tCO₂e");
+  it("ton dua desimal dengan tCO₂", () => {
+    expect(ton(15.876)).toBe("15,88 tCO₂");
   });
   it("m2 tanpa desimal", () => {
     expect(m2(96.7)).toBe("97 m²");

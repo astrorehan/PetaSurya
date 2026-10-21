@@ -30,8 +30,8 @@ export const kwh = (n: number): string => `${angka(n, 0)} kWh`;
 /** Kapasitas terpasang, kWp, dua desimal. */
 export const kwp = (n: number): string => `${angka(n, 2)} kWp`;
 
-/** Emisi terhindar, tCO₂e, dua desimal. */
-export const ton = (n: number): string => `${angka(n, 2)} tCO₂e`;
+/** Emisi terhindar, tCO₂, dua desimal. Faktor emisi jaringan Gatrik hanya mencakup CO₂, bukan CO₂e. */
+export const ton = (n: number): string => `${angka(n, 2)} tCO₂`;
 
 /** Luas, m², tanpa desimal. */
 export const m2 = (n: number): string => `${angka(n, 0)} m²`;
@@ -62,7 +62,7 @@ export function pecahAngka(teks: string): { awal: string; angka: string; akhir: 
  * huruf. Urutan penting: pola yang lebih panjang lebih dulu.
  */
 const UCAPAN: [RegExp, string][] = [
-  [/tCO₂e/g, "ton CO2 ekuivalen"],
+  [/tCO₂/g, "ton karbon dioksida"],
   [/kWh\/m²/g, "kilowatt-jam per meter persegi"],
   [/Rp\/kWh/g, "rupiah per kilowatt-jam"],
   [/Rp\/kWp/g, "rupiah per kilowatt-peak"],
