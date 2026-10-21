@@ -103,6 +103,15 @@ footprint, bukan tag OSM; rinciannya ada di `data/fixtures/kota/README.md`.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
 
+`uv run python -m scripts.analisis_kawasan --barat … --selatan … --timur … --utara …`
+menganalisis perkiraan rumah dalam satu bbox kawasan, yang terdekat dari pusat
+lebih dahulu, dengan jeda antarbangunan (`--jeda`, bawaan 1 s) dan paling banyak
+1.000 bangunan per jalan (`--batas`, bawaan 500). Hasil masuk cache SQLite dan
+tampil sebagai Hasil tersimpan; citra hanya diproses di memori. Jalan ulang
+melewati hasil yang sudah ada, menganalisis ulang hasil yang citranya gagal, dan
+berhenti setelah tiga kegagalan beruntun. Ringkasan durasi dan kegagalan ditulis
+ke `data/cache/kawasan/`. Skrip ini untuk satu kawasan, bukan seluruh kota.
+
 Alur web adalah Bangunan → Batas & luas → Potensi. Potensi luas atap adalah
 ekuivalen modul berdasarkan luas; kapasitas skenario untuk simulasi dipilih
 terpisah. Nilai awal memakai nilai terkecil antara potensi luas dan daya profil
