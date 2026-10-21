@@ -2,7 +2,10 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=/opt/venv PATH="/opt/venv/bin:$PATH" \
-    PETASURYA_CACHE_DIR=/var/lib/petasurya PETASURYA_PRELOAD_MODEL=1
+    PETASURYA_CACHE_DIR=/var/lib/petasurya PETASURYA_PRELOAD_MODEL=1 \
+    MALLOC_ARENA_MAX=2 MALLOC_TRIM_THRESHOLD_=131072 MALLOC_MMAP_THRESHOLD_=131072
+# glibc menahan buffer aktivasi encoder yang sudah dibebaskan. Dengan batas ini,
+# puncak RSS turun dari ±740 ke ±505 MiB pada 1 GiB, dengan inferensi ±20% lebih lambat.
 
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/* \

@@ -27,6 +27,8 @@ curl --fail http://127.0.0.1:8000/api/v1/ready
 hasilnya 503 jika inferensi belum siap. Satu worker menjaga hanya satu salinan
 model dan satu antrean inferensi. Batas CPU, memori dan thread pada contoh
 adalah konfigurasi awal yang perlu diukur pada server tujuan, bukan jaminan kapasitas.
+Pada uji lokal dengan `PETASURYA_MEMORY_LIMIT=1g`, enam inferensi berturut-turut
+mencapai puncak RSS ±505 MiB tanpa OOM, sehingga VPS 1 GB dengan swap dapat dicoba.
 
 ## Pemasangan dengan HTTPS
 
