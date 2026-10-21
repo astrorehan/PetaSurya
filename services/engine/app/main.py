@@ -2,18 +2,26 @@
 
 import os
 from contextlib import asynccontextmanager
+from typing import Annotated
 
 from fastapi import FastAPI, Path, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 from app.aggregate import PermintaanAgregasiInput, jalankan_agregasi
-from app.buildings import DiLuarCakupan, muat_katalog
+from app.buildings import (
+    DiLuarCakupan,
+    PermintaanFootprintInput,
+    footprint_di_area,
+    muat_katalog,
+)
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
     Error,
+    FootprintArea,
     GalatApi,
     HasilAgregasi,
     HasilSimulasi,
@@ -39,7 +47,7 @@ from app.simulation import (
 from app.storage import baca
 from app.vision import MODEL_VERSION, _sesi
 
-VERSION = "engine.2026.10.19"
+VERSION = "engine.2026.10.21"
 
 
 @asynccontextmanager
@@ -57,6 +65,8 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+# Footprint satu tampilan peta ±0,5 MB JSON; gzip memangkasnya ±5×.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
 @app.exception_handler(MesinSibuk)
@@ -171,6 +181,12 @@ def get_buildings(
 ) -> list[BangunanRingkas]:
     """Kembalikan poligon bangunan di sekitar koordinat dalam radius r meter."""
     return cari_bangunan_radius(lat=lat, lon=lon, radius_m=r, live=live)
+
+
+@app.get("/api/v1/footprints", response_model=FootprintArea, response_model_exclude_unset=True)
+def footprint_area(permintaan: Annotated[PermintaanFootprintInput, Query()]) -> FootprintArea:
+    """Footprint snapshot OSM Kota Bengkulu dalam bbox peta; tanpa jaringan."""
+    return footprint_di_area(permintaan)
 
 
 @app.get("/api/v1/catalog", response_model=list[BangunanRingkas], response_model_exclude_unset=True)

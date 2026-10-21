@@ -86,6 +86,12 @@ menyiapkan citra dan hasil tersimpan, dan `POST /api/v1/scans` menjalankan model
 bagi bangunan baru. Bangunan yang belum dihitung membawa `analisis: null`.
 `GET /api/v1/scans` mengembalikan ID hasil tersimpan. Geometri serta hasil baru
 disimpan pada SQLite di `data/cache/`, yang diabaikan Git; citra tidak disimpan.
+`GET /api/v1/footprints?barat=…&selatan=…&timur=…&utara=…` membaca footprint
+snapshot Mode Kota yang memotong bbox tanpa jaringan, paling banyak 2.000 per
+permintaan dengan yang terdekat dari pusat bbox lebih dahulu. Bbox di luar Kota
+Bengkulu ditolak. Bangunan snapshot dipindai tanpa memanggil OSM dan masuk
+katalog setelah dianalisis. `perkiraan_jenis: "rumah"` adalah tebakan dari luas
+footprint, bukan tag OSM; rinciannya ada di `data/fixtures/kota/README.md`.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
 

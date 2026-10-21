@@ -13,7 +13,7 @@ from shapely import transform
 from shapely.geometry import shape
 
 from app.analyses import analisis_bangunan_terbaru, simpan_analisis
-from app.buildings import cari_bangunan, muat_katalog, temukan_area
+from app.buildings import cari_bangunan, muat_katalog, simpan_bangunan_hasil, temukan_area
 from app.contracts import (
     AnalisisAtap,
     BangunanRingkas,
@@ -205,4 +205,5 @@ def _analisis_tunggal(building_id: int, force: bool) -> AnalisisAtap:
     if sebab:
         analisis.peringatan = f"Analisis citra tidak tersedia ({sebab}). {analisis.peringatan}"
     simpan_analisis(analisis)
+    simpan_bangunan_hasil(bangunan)
     return analisis

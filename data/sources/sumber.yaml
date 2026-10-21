@@ -433,13 +433,14 @@ sumber:
 
   - id: osm_footprint_kota_bengkulu_20261014
     nama: Snapshot footprint bangunan OSM Kota Bengkulu
-    nilai: {jumlah_footprint_valid: 121016, jumlah_batas_kecamatan: 3, tanpa_batas_kecamatan: 79394}
+    nilai: {jumlah_footprint_valid: 121016, jumlah_batas_kecamatan: 3, tanpa_batas_kecamatan: 79394,
+            way_untuk_peta: 120975, perkiraan_rumah_min_m2: 56.3, perkiraan_rumah_max_m2: 372.3}
     satuan: objek bangunan terpetakan; bukan sensus seluruh atap
     penerbit: OpenStreetMap contributors, ODbL 1.0, melalui Overpass API
     url: https://overpass-api.de/api/interpreter
     tahun: 2026
     diambil: 2026-10-14
-    dipakai_untuk: L6 agregasi luas footprint per kecamatan dan Kota Bengkulu
+    dipakai_untuk: L6 agregasi luas footprint per kecamatan dan Kota Bengkulu; L1 pemilihan bangunan per area peta
     status: terverifikasi
     kueri: '[out:json][timeout:90];(way["building"]["building"!="no"](area:3616196019);relation["building"]["building"!="no"]["type"="multipolygon"](area:3616196019););out body geom;'
     mentah: data/fixtures/kota/mentah/bangunan-bengkulu-20261014.overpass.json.gz
@@ -452,3 +453,7 @@ sumber:
       tanpa batas kecamatan. Fraksi luas layak dan parameter skenario adalah
       asumsi pengguna, bukan pengukuran atap. Verifikasi berlaku pada asal
       snapshot dan pengolahannya, bukan ketepatan atau kelengkapan OSM.
+      Peta memakai 120975 way pada footprint-bengkulu.json.gz; 41 relasi
+      multipolygon belum dapat dipilih. Perkiraan rumah adalah persentil 5–95
+      luas 257 way bertag building=house di snapshot yang sama, diterapkan
+      pada building=yes tanpa nama; tebakan ukuran, bukan klasifikasi.

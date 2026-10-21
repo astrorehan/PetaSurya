@@ -1,7 +1,9 @@
-"""Snapshot footprint OSM Kota Bengkulu untuk agregasi tanpa jaringan saat demo.
+"""Snapshot footprint OSM Kota Bengkulu untuk agregasi dan peta tanpa jaringan.
 
 Jalankan `uv run python -m scripts.ambil_bangunan_kota` untuk membentuk ulang
 data dari respons mentah. `--unduh` memperbarui respons dari Overpass.
+Keluaran: `bangunan-bengkulu.json.gz` (L6, luas dan wilayah) serta
+`footprint-bengkulu.json.gz` (L1, geometri way untuk dipilih di peta).
 Respons mentah dan keluaran dikompresi gzip deterministik tanpa cap waktu.
 """
 
@@ -12,6 +14,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+import numpy as np
 from shapely import prepare
 from shapely.geometry import LineString, MultiPolygon, Polygon, mapping, shape
 from shapely.ops import polygonize, unary_union
@@ -28,6 +31,13 @@ QUERY = (
     'relation["building"]["building"!="no"]["type"="multipolygon"]'
     "(area:3616196019););out body geom;"
 )
+# Titik per derajat; OSM menyimpan koordinat 7 desimal (±1,1 cm di ekuator).
+PRESISI = 10_000_000
+
+
+def lantai(tags: dict) -> int | None:
+    nilai = tags.get("building:levels", "")
+    return int(nilai) if nilai.isdigit() and int(nilai) > 0 else None
 
 
 def poligon_relasi(elemen: dict):
@@ -93,10 +103,66 @@ def normalkan(payload: dict) -> tuple[list[dict], dict]:
             "nama": tags.get("name"),
             "geom": mapping(geom),
             "footprint_m2": luas,
+            "tag": tags["building"],
+            "lantai": lantai(tags),
         }
         if item["type"] == "relation":
             anggota_terpakai.update(m["ref"] for m in item.get("members", []) if m["type"] == "way")
     return [hasil[k] for k in sorted(hasil)], ditolak
+
+
+def indeks_peta(bangunan: list[dict]) -> dict:
+    """Footprint way untuk pemilihan di peta, disusun per kolom dan urut ID.
+
+    Koordinat dibulatkan ke 1e-7° lalu disimpan sebagai selisih terhadap titik
+    sebelumnya dalam satu daftar datar; cumsum memulihkannya tanpa galat.
+    Titik penutup cincin tidak disimpan. Relasi multipolygon dilewati karena
+    pemindaian memakai ID way dan geometri Polygon.
+
+    Perkiraan rumah: persentil 5–95 (interpolasi linear) luas way bertag
+    building=house pada snapshot yang sama, diterapkan ke building=yes tanpa
+    nama. Bangunan bernama di rentang ini umumnya masjid, sekolah, atau toko.
+    """
+    way = sorted(
+        (b for b in bangunan if b["source_ref"].startswith("way/")),
+        key=lambda b: int(b["source_ref"].removeprefix("way/")),
+    )
+    luas_rumah = [b["footprint_m2"] for b in way if b["tag"] == "house"]
+    bawah, atas = np.percentile(luas_rumah, [5, 95])
+    kolom = {k: [] for k in ("id", "tag", "nama", "lantai", "luas_m2", "n_titik", "xy")}
+    x0 = y0 = 0
+    for b in way:
+        cincin = b["geom"]["coordinates"][0][:-1]
+        kolom["id"].append(int(b["source_ref"].removeprefix("way/")))
+        kolom["tag"].append(b["tag"])
+        kolom["nama"].append(b["nama"])
+        kolom["lantai"].append(b["lantai"])
+        kolom["luas_m2"].append(round(b["footprint_m2"], 1) or b["footprint_m2"])
+        kolom["n_titik"].append(len(cincin))
+        for lon, lat in cincin:
+            x, y = round(lon * PRESISI), round(lat * PRESISI)
+            kolom["xy"] += (x - x0, y - y0)
+            x0, y0 = x, y
+    return {
+        "presisi_derajat": 1 / PRESISI,
+        "perkiraan_rumah": {
+            "min_m2": round(float(bawah), 1),
+            "max_m2": round(float(atas), 1),
+            "dasar": (
+                f"Persentil 5–95 luas {len(luas_rumah)} footprint OSM bertag building=house "
+                "di snapshot yang sama, diterapkan pada building=yes tanpa nama; "
+                "bukan klasifikasi."
+            ),
+        },
+        "n_relasi_dilewati": len(bangunan) - len(way),
+        **kolom,
+    }
+
+
+def tulis_gzip(target: Path, data: dict) -> int:
+    isi = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode()
+    target.write_bytes(gzip.compress(isi, mtime=0))
+    return target.stat().st_size
 
 
 def main():
@@ -122,6 +188,7 @@ def main():
         raw.write_bytes(gzip.compress(data, mtime=0))
     payload = json.loads(gzip.decompress(raw.read_bytes()))
     bangunan, ditolak = normalkan(payload)
+    peta = indeks_peta(bangunan)
     berkas_batas = ROOT / "data/fixtures/wilayah/kecamatan-kota-bengkulu.geojson"
     wilayah = [
         (str(f["properties"]["id"]), shape(f["geometry"]))
@@ -132,6 +199,7 @@ def main():
         prepare(geom)
     for b in bangunan:
         pusat = shape(b.pop("geom")).representative_point()
+        del b["tag"], b["lantai"]
         b["wilayah_id"] = next((id for id, geom in wilayah if geom.covers(pusat)), None)
     sumber = {
         "penerbit": "OpenStreetMap contributors (ODbL 1.0), melalui Overpass API",
@@ -150,14 +218,20 @@ def main():
         "ditolak": ditolak,
         "bangunan": bangunan,
     }
-    target = DIR / "bangunan-bengkulu.json.gz"
-    target.write_bytes(
-        gzip.compress(
-            json.dumps(paket, ensure_ascii=False, separators=(",", ":")).encode(), mtime=0
-        )
-    )
+    ukuran = tulis_gzip(DIR / "bangunan-bengkulu.json.gz", paket)
+    ukuran_peta = tulis_gzip(DIR / "footprint-bengkulu.json.gz", {"sumber": sumber, **peta})
     print(
-        json.dumps({"bangunan": len(bangunan), "ditolak": ditolak, "bytes": target.stat().st_size})
+        json.dumps(
+            {
+                "bangunan": len(bangunan),
+                "ditolak": ditolak,
+                "bytes": ukuran,
+                "peta": len(peta["id"]),
+                "perkiraan_rumah": peta["perkiraan_rumah"],
+                "bytes_peta": ukuran_peta,
+            },
+            ensure_ascii=False,
+        )
     )
 
 

@@ -21,6 +21,15 @@ pemasangan wilayah ke berkas batas yang dipakai. Hash dihitung setelah CRLF
 dinormalkan menjadi LF, sehingga checkout Windows dan Linux memuat snapshot
 yang sama.
 
+`footprint-bengkulu.json.gz` memuat 120.975 way yang sama beserta geometri,
+tag `building`, nama dan jumlah lantai untuk memilih bangunan di peta
+(`GET /api/v1/footprints`). Koordinat disimpan sebagai bilangan bulat 1e-7°
+dalam selisih berurutan; titik penutup cincin tidak disimpan. Sebanyak 41 relasi
+multipolygon belum dapat dipilih karena pemindaian memakai ID way. Rentang
+perkiraan rumah adalah persentil 5–95 luas 257 way bertag `building=house`
+(56,3–372,3 m²), diterapkan pada `building=yes` tanpa nama. Ini tebakan ukuran,
+bukan klasifikasi jenis bangunan.
+
 `permintaan-bengkulu.json` berisi skenario contoh dan parameter eksplisit.
 Fraksi layak, tilt, hadap, SCR, albedo dan rugi merupakan asumsi seragam.
 Kapasitas adalah ekuivalen modul dari luas footprint, belum pemeriksaan
@@ -33,5 +42,5 @@ uv run python -m scripts.ambil_bangunan_kota
 uv run python -m scripts.ambil_bangunan_kota --unduh --tanggal 2026-10-14
 ```
 
-Perintah pertama membentuk ulang snapshot tanpa jaringan. Gzip memakai cap
+Perintah pertama membentuk ulang kedua berkas tanpa jaringan. Gzip memakai cap
 waktu nol agar hasil dapat dibentuk ulang secara identik.
