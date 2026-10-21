@@ -4,7 +4,7 @@
 
 Peta potensi PLTS atap tingkat bangunan untuk Indonesia, dimulai dari Kota Bengkulu.
 Pilih atap di peta, lalu lihat luas atap yang terbaca dari citra satelit, kapasitas
-kWp, produksi kWh per tahun, penghematan rupiah, waktu balik modal, dan tCO₂e yang
+kWp, produksi kWh per tahun, penghematan rupiah, waktu balik modal, dan tCO₂ yang
 terhindar. Setiap angka membawa rumus dan sumbernya.
 
 ## Yang bisa dilakukan
@@ -22,7 +22,7 @@ terhindar. Setiap angka membawa rumus dan sumbernya.
   lagi tanpa inferensi ulang. Satu kawasan dapat dianalisis sekaligus dengan skrip
   batch yang lajunya dibatasi.
 - **Mode Kota.** `/kota/1771` menjumlahkan potensi per kecamatan dalam MWp, MWh,
-  tCO₂e, dan investasi, dengan penggeser tingkat adopsi.
+  tCO₂, dan investasi, dengan penggeser tingkat adopsi.
 
 ## Batas yang perlu diketahui
 
