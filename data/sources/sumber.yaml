@@ -516,6 +516,38 @@ sumber:
       Karimun Jawa, Bengkalis) mengikuti sistem provinsinya, bukan grid
       pulaunya. Tahun 2019 adalah tahun data. Sumber menyatakan CO2.
 
+  - id: nasa_power_hourly_nasional_2024
+    nama: Cuaca hourly 2024 NASA POWER per sel untuk seluruh Indonesia
+    nilai: {tahun: 2024, sel_surya_derajat: 1.0, sel_meteorologi_lintang_derajat: 0.5, sel_meteorologi_bujur_derajat: 0.625}
+    satuan: GHI/DNI/DHI Wh/m² per jam; suhu °C; angin m/s; ukuran sel dalam derajat
+    penerbit: NASA Langley Research Center POWER Project
+    url: https://power.larc.nasa.gov/docs/services/api/temporal/hourly/
+    tahun: 2024
+    diambil: 2026-10-25
+    dipakai_untuk: L3 cuaca per lokasi bangunan di luar sel Bengkulu (app/cuaca.py)
+    status: terverifikasi
+    catatan: >-
+      Endpoint https://power.larc.nasa.gov/api/temporal/hourly/point dengan
+      parameter, community=RE, rentang 20240101–20241231 dan time-standard=UTC
+      yang sama dengan berkas Bengkulu; bawaan API adalah waktu surya lokal,
+      sehingga UTC wajib dinyatakan. Dokumentasi menyebut data tersedia pada
+      resolusi sumber aslinya (surya 1° × 1°, meteorologi 0,5° × 0,625°);
+      tepi sel dipastikan dengan menyapu titik uji ke API pada 25 Okt 2026:
+      surya berubah di bilangan bulat derajat, meteorologi di ±0,25° lintang
+      dan ±0,3125° bujur dari pusat sel. Satu respons berlaku untuk seluruh
+      sel, jadi engine meminta titik di pusat irisan kedua sel dan
+      menyimpan respons mentah di cache disk. Halaman rujukan POWER meminta
+      pengguna menyebut layanan, versi dan tanggal akses (Hourly 2.x.x,
+      diakses 2026-10-25) dan memberi tahu proyek bila datanya dipakai dalam
+      publikasi atau presentasi; halaman itu tidak memuat lisensi terpisah,
+      sedangkan pendaftaran AWS Open Data menulis tanpa batasan pemakaian
+      (CC BY 4.0). Dokumen tidak menyebut batas laju numerik, hanya anjuran
+      tidak mengirim banyak permintaan sinkron; engine memakai batas waktu 30 s,
+      satu kali ulang untuk 429/5xx, dan satu unduhan per sel. Nilai suhu dan
+      angin adalah rerata sel yang elevasinya dapat berbeda dari bangunan
+      (respons memuat elevasi sel); itu batas kemampuan, bukan galat unduhan.
+      Rujukan: https://power.larc.nasa.gov/docs/referencing/
+
   - id: geoboundaries_idn_adm1
     nama: Batas 34 provinsi Indonesia (geoBoundaries gbOpen IDN ADM1, simplified)
     nilai: {jumlah_provinsi: 34, sha256: 5a6be3d1484166132751fe535dd164e1491e657f2d38dced177f067a7bc00d8f}

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import uuid
-from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +19,7 @@ from app.carbon import (
 from app.contracts import (
     AnalisisAtap,
     AsumsiSimulasi,
+    CuacaSimulasi,
     DerateSimulasi,
     HasilSimulasi,
     JejakDerate,
@@ -28,6 +28,9 @@ from app.contracts import (
     ModulSimulasi,
     ParameterFisika,
 )
+from app.cuaca import VERSION as CUACA_VERSION
+from app.cuaca import muat_cuaca
+from app.cuaca import muat_cuaca_bengkulu as muat_cuaca_bengkulu  # dipakai Mode Kota (aggregate)
 from app.economics import (
     VERSION as ECONOMICS_VERSION,
 )
@@ -46,7 +49,6 @@ from app.sumber import faktor_emisi, modul_demo, rujukan_biaya, rujukan_tarif
 
 DIR_ROOT = Path(__file__).resolve().parents[3]
 DIR_ANALISIS = DIR_ROOT / "data" / "fixtures" / "analisis"
-BERKAS_CUACA = DIR_ROOT / "data" / "fixtures" / "cuaca" / "mentah" / "nasa-power-bengkulu-2024.json"
 
 
 class ModulInput(ModulSimulasi):
@@ -99,24 +101,23 @@ class RoofTooSmallError(Exception):
     """Dilempar saat atap tidak cukup luas untuk memuat minimal satu modul."""
 
 
-@lru_cache(maxsize=1)
-def muat_cuaca_bengkulu() -> pd.DataFrame:
-    """Muat dan cache dataset cuaca hourly 2024 NASA POWER titik Bengkulu."""
-    payload = json.loads(BERKAS_CUACA.read_text(encoding="utf-8"))
-    parameter = payload["properties"]["parameter"]
-    index = pd.to_datetime(list(parameter["T2M"]), format="%Y%m%d%H", utc=True).tz_convert(
-        "Asia/Jakarta"
-    )
-    return pd.DataFrame(
-        {
-            "ghi": list(parameter["ALLSKY_SFC_SW_DWN"].values()),
-            "dni": list(parameter["ALLSKY_SFC_SW_DNI"].values()),
-            "dhi": list(parameter["ALLSKY_SFC_SW_DIFF"].values()),
-            "temp_air": list(parameter["T2M"].values()),
-            "wind_speed": list(parameter["WS2M"].values()),
-        },
-        index=index,
-    ).clip(lower=0)
+def titik_bangunan(analisis: AnalisisAtap | None) -> tuple[float, float]:
+    """Titik representatif (lat, lon) bangunan milik analisis; di dalam poligon jejak."""
+    from shapely.geometry import shape
+
+    from app.buildings import cari_bangunan
+
+    if analisis is None:
+        raise BuildingNotFoundError(
+            "Lokasi bangunan tidak dapat ditentukan karena analisis atap tidak ditemukan."
+        )
+    bangunan = cari_bangunan(analisis.building_id)
+    if bangunan is None:
+        raise BuildingNotFoundError(
+            f"Lokasi bangunan {analisis.building_id} tidak ditemukan untuk memilih data cuaca."
+        )
+    titik = shape(bangunan.geom.model_dump(mode="json")).representative_point()
+    return float(titik.y), float(titik.x)
 
 
 def cari_analisis_atap(roof_analysis_id: int) -> AnalisisAtap | None:
@@ -171,11 +172,12 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
 
     kwp = round(module_count * (modul.wp / 1000.0), 2)
 
-    # L3: Fisika solar & energi
-    lat = -3.76268
-    lon = 102.27168
-    cuaca = muat_cuaca_bengkulu()
-    lokasi = pvlib.location.Location(lat, lon, tz=str(cuaca.index.tz))
+    # L3: Fisika solar & energi. Cuaca = sel NASA POWER yang memuat bangunan. Posisi
+    # matahari dihitung di titik cuaca (rerata sel), bukan di bangunan: selisih paling
+    # jauh ±0,5° ≈ 2 menit waktu surya, di bawah galat data sel 1° × 1°.
+    lat_bangunan, lon_bangunan = titik_bangunan(analisis)
+    cuaca, info_cuaca = muat_cuaca(lat_bangunan, lon_bangunan)
+    lokasi = pvlib.location.Location(info_cuaca.lat, info_cuaca.lon, tz=str(cuaca.index.tz))
     posisi = lokasi.get_solarposition(cuaca.index)
 
     poa = hitung_poa(
@@ -233,7 +235,8 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
     )
 
     # L5: Karbon
-    ef, sumber_emisi = faktor_emisi(asumsi.ef_grid_tco2_mwh)
+    # Faktor grid mengikuti provinsi bangunan (bukan pusat sel cuaca yang bisa jatuh di laut).
+    ef, sumber_emisi = faktor_emisi(asumsi.ef_grid_tco2_mwh, lat=lat_bangunan, lon=lon_bangunan)
     hasil_karbon = hitung_karbon(
         e_ac_kwh=e_ac_kwh_yr1,
         ef_grid=ef,
@@ -241,10 +244,14 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
         umur_tahun=asumsi.umur_tahun if asumsi.umur_tahun is not None else 25,
     )
 
+    titik_cuaca = f"{info_cuaca.lat:.2f}; {info_cuaca.lon:.2f}".replace(".", ",")
     jejak = JejakSimulasi(
         poa=JejakRumus(
             rumus="POA = DNI·max(cos(AOI), 0) + POA_baur + POA_tanah",
-            sumber="Hay-Davies (pvlib.irradiance.haydavies); cuaca NASA POWER Bengkulu 2024",
+            sumber=(
+                "Hay-Davies (pvlib.irradiance.haydavies); "
+                f"cuaca NASA POWER {info_cuaca.tahun}, titik {titik_cuaca}"
+            ),
         ),
         suhu_sel=JejakRumus(
             rumus=f"T_sel = T_amb + (POA/1000)·(NOCT−20)/0,8; NOCT = {modul.t_noct:g} °C",
@@ -273,6 +280,9 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
     )
 
     engine_version = f"{PHYSICS_VERSION}+{ECONOMICS_VERSION}+{CARBON_VERSION}"
+    if not info_cuaca.bawaan:
+        # Cuaca hasil unduhan: hasil bergantung pada lokasi, bukan hanya fixture Bengkulu.
+        engine_version += f"+{CUACA_VERSION}"
 
     return HasilSimulasi(
         id=str(uuid.uuid4()),
@@ -294,5 +304,11 @@ def jalankan_simulasi(permintaan: PermintaanSimulasi) -> HasilSimulasi:
         monthly_kwh=monthly_kwh,
         asumsi=asumsi,
         jejak=jejak,
+        cuaca=CuacaSimulasi(
+            lat=info_cuaca.lat,
+            lon=info_cuaca.lon,
+            tahun=info_cuaca.tahun,
+            sumber=info_cuaca.sumber,
+        ),
         parameter_fisika=parameter,
     )

@@ -10,11 +10,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.contracts import GalatApi, HasilSimulasi, KodeGalat
+from app.cuaca import LAT_BAWAAN, LON_BAWAAN, SUMBER, TAHUN, InfoCuaca
 from app.main import app
 from app.physics import energi_tahunan
 from app.simulation import muat_cuaca_bengkulu
 
 client = TestClient(app)
+INFO_BENGKULU = InfoCuaca(LAT_BAWAAN, LON_BAWAAN, TAHUN, SUMBER, bawaan=True)
 BERKAS_PARAMETER = (
     Path(__file__).resolve().parents[3] / "data/fixtures/parameter/fisika-contoh.json"
 )
@@ -27,7 +29,7 @@ def permintaan_fisika(monkeypatch):
         {"ghi": [1000.0], "dni": [0.0], "dhi": [1000.0], "temp_air": [25.0], "wind_speed": [1.0]},
         index=pd.date_range("2024-01-01 12:00", periods=1, tz="Asia/Jakarta"),
     )
-    monkeypatch.setattr("app.simulation.muat_cuaca_bengkulu", lambda: cuaca)
+    monkeypatch.setattr("app.simulation.muat_cuaca", lambda lat, lon: (cuaca, INFO_BENGKULU))
     return {
         "roof_analysis_id": 9912,
         "usable_area_m2": 100.0,
@@ -109,7 +111,7 @@ def test_tanpa_matahari_pr_nol(permintaan_fisika, monkeypatch):
         {"ghi": [0.0], "dni": [0.0], "dhi": [0.0], "temp_air": [25.0], "wind_speed": [1.0]},
         index=pd.date_range("2024-01-01 00:00", periods=1, tz="Asia/Jakarta"),
     )
-    monkeypatch.setattr("app.simulation.muat_cuaca_bengkulu", lambda: cuaca)
+    monkeypatch.setattr("app.simulation.muat_cuaca", lambda lat, lon: (cuaca, INFO_BENGKULU))
     hasil = hitung(permintaan_fisika)
     assert hasil.e_ac_kwh_yr1 == 0
     assert hasil.pr == 0
@@ -146,7 +148,7 @@ def test_rugi_penuh_tidak_menghasilkan_energi(permintaan_fisika):
 
 def test_api_sejalan_dengan_integrasi_tahunan_cuaca_nyata(permintaan_fisika, monkeypatch):
     cuaca = muat_cuaca_bengkulu()
-    monkeypatch.setattr("app.simulation.muat_cuaca_bengkulu", lambda: cuaca)
+    monkeypatch.setattr("app.simulation.muat_cuaca", lambda lat, lon: (cuaca, INFO_BENGKULU))
     hasil = hitung(permintaan_fisika)
     parameter = permintaan_fisika["parameter_fisika"]
     rugi = parameter["derate"]
