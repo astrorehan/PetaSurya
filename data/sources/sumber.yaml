@@ -475,3 +475,77 @@ sumber:
       kueri dikirim, membatasi viewbox ke batas Kota Bengkulu, dan menyimpan
       hasil di memori. Banyak rumah di OSM Bengkulu belum memiliki nomor;
       hasil sering setingkat jalan atau tempat sehingga hanya memindahkan peta.
+
+  - id: geoboundaries_idn_adm1
+    nama: Batas 34 provinsi Indonesia (geoBoundaries gbOpen IDN ADM1, simplified)
+    nilai: {jumlah_provinsi: 34, sha256: 5a6be3d1484166132751fe535dd164e1491e657f2d38dced177f067a7bc00d8f}
+    satuan: poligon batas administrasi tingkat 1 (WGS84)
+    penerbit: William & Mary geoLab, geoBoundaries (gbOpen)
+    url: https://www.geoboundaries.org/api/current/gbOpen/IDN/ADM1/
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 pemeriksaan titik/bbox berada di Indonesia dan penentuan provinsi (app/wilayah_id.py); batas cakupan /footprints, /buildings, /alamat
+    status: terverifikasi
+    mentah: data/fixtures/wilayah/mentah-indonesia/geoBoundaries-IDN-ADM1_simplified.geojson
+    catatan: >-
+      Berkas diunduh dari
+      https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/IDN/ADM1/geoBoundaries-IDN-ADM1_simplified.geojson
+      (commit 9469f09) dan disimpan apa adanya; SHA-256 tercatat pada nilai.
+      Data diturunkan dari OpenStreetMap sehingga berlaku ODbL 1.0 dan
+      atribusi © OpenStreetMap contributors beserta geoBoundaries. Versi
+      simplified menyederhanakan garis pantai; engine memberi toleransi
+      0,1° (±11 km) di laut agar titik pesisir tidak ditolak, jadi
+      pemeriksaan ini penyaring cakupan kasar, bukan penetapan batas
+      negara atau yurisdiksi.
+
+  - id: osm_daring_footprint_nasional
+    nama: Footprint bangunan OSM di luar Kota Bengkulu, diambil saat diminta
+    nilai: {ukuran_sel_derajat: 0.003, sel_per_sisi_jendela: 2, ttl_cache_hari: 14, jeda_antarpermintaan_detik: 1, maks_sel_penutup: 16}
+    satuan: derajat WGS84 (±333 m per sel); hari; detik
+    penerbit: OpenStreetMap contributors (ODbL 1.0), melalui Overpass API dan OSM API 0.6
+    url: https://wiki.openstreetmap.org/wiki/Overpass_API
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 GET /api/v1/footprints, /buildings dan /alamat di luar snapshot Kota Bengkulu (app/osm_daring.py)
+    status: terverifikasi
+    catatan: >-
+      Kueri way["building"] per jendela 2 x 2 sel (±670 m) di sekitar pusat
+      bbox lewat https://overpass-api.de/api/interpreter; bila Overpass gagal
+      atau sibuk, jalur cadangan memakai https://api.openstreetmap.org/api/0.6/map
+      (batas OSM: bbox maksimal 0,25 derajat persegi, galat 400 bila lebih
+      dari 50.000 simpul, 509 bila bandwidth habis; jendela dipecah per sel
+      pada 400). Kebijakan Overpass yang dibaca 25 Okt 2026: sekitar 10.000
+      permintaan dan 1 GB per hari per alamat, 429 saat kelebihan, 504 saat
+      sumber daya habis. Engine mengirim User-Agent dengan URL repositori,
+      satu permintaan sekaligus dengan jeda minimal 1 s, menyimpan hasil per
+      sel di SQLite (kedaluwarsa 14 hari) sehingga area yang sama tidak diambil
+      ulang, dan menghentikan Overpass 120 s setelah gagal. Ukuran sel dan
+      jendela adalah pilihan rekayasa (satu jendela muat dalam satu kueri
+      kecil dan menjamin minimal 167 m di sekeliling pusat bbox), bukan
+      angka dari sumber. Bangunan daring tidak diberi perkiraan jenis rumah:
+      rentang luas rumah hanya diturunkan dari snapshot Kota Bengkulu.
+      Kelengkapan OSM berbeda antarwilayah; tidak ada bangunan di hasil
+      berarti belum dipetakan, bukan tidak ada bangunan. Atribusi ©
+      OpenStreetMap contributors wajib di antarmuka.
+
+  - id: nominatim_pencarian_alamat_nasional
+    nama: Geocoder Nominatim untuk pencarian alamat seluruh Indonesia
+    nilai: {permintaan_per_detik_maks: 1, countrycodes: id, ukuran_bias_derajat: 0.25}
+    satuan: permintaan per detik per aplikasi; derajat
+    penerbit: OpenStreetMap Foundation; data alamat OpenStreetMap contributors, ODbL 1.0
+    url: https://operations.osmfoundation.org/policies/nominatim/
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 pencarian alamat di seluruh Indonesia (GET /api/v1/alamat); melanjutkan nominatim_pencarian_alamat
+    status: terverifikasi
+    catatan: >-
+      Menggantikan pembatasan viewbox Kota Bengkulu pada entri
+      nominatim_pencarian_alamat. Kebijakan yang sama dipatuhi: satu permintaan
+      per detik, User-Agent dengan URL repositori, pencarian hanya saat kueri
+      dikirim, cache hasil, atribusi OSM. Kueri memakai countrycodes=id tanpa
+      viewbox terikat; pusat peta (opsional) hanya menggeser peringkat lewat
+      viewbox sekitar ±0,25° dengan koordinat dibulatkan 0,1° agar cache
+      terpakai, dan titik di luar daratan Indonesia dibuang di sisi engine.
+      Pemasangan titik ke footprint di luar Bengkulu memakai pencarian OSM
+      daring (osm_daring_footprint_nasional) dengan jendela kecil di titik,
+      paling banyak dua hasil per kueri.

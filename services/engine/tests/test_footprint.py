@@ -139,7 +139,8 @@ def test_katalog_awal_tidak_mendapat_perkiraan_rumah():
 @pytest.mark.parametrize(
     ("params", "kode"),
     [
-        ({"barat": 106.8, "selatan": -6.3, "timur": 106.9, "utara": -6.2}, "OUT_OF_COVERAGE"),
+        # Kuala Lumpur: di luar wilayah Indonesia (Jakarta kini dilayani OSM daring).
+        ({"barat": 101.68, "selatan": 3.14, "timur": 101.70, "utara": 3.16}, "OUT_OF_COVERAGE"),
         ({**AREA_UNIB, "barat": 102.28}, "VALIDATION_ERROR"),
         ({**AREA_UNIB, "utara": -3.77}, "VALIDATION_ERROR"),
         ({**AREA_UNIB, "batas": 0}, "VALIDATION_ERROR"),

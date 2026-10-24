@@ -54,7 +54,7 @@ def test_titik_di_dalam_rumah_memilih_footprint_itu(monkeypatch):
     assert h["presisi"] == "house"
     assert h["alamat"] == "Jalan Contoh, Kota Bengkulu"
     assert "OpenStreetMap" in r.json()["atribusi"]
-    assert "bounded=1" in url[0] and "viewbox=" in url[0]
+    assert "countrycodes=id" in url[0] and "bounded" not in url[0] and "viewbox" not in url[0]
 
 
 def test_titik_dekat_memakai_footprint_terdekat_dengan_jaraknya(monkeypatch):
@@ -81,9 +81,9 @@ def test_titik_jalan_tidak_dipasangkan_ke_rumah_di_tepinya(monkeypatch):
     assert h["bangunan"] is None and h["presisi"] == "road"
 
 
-def test_titik_di_luar_kota_dibuang(monkeypatch):
-    tiruan(monkeypatch, [item(102.0, -3.5), item(106.8, -6.2)])
-    assert cari("jakarta").json()["hasil"] == []
+def test_titik_di_luar_indonesia_dibuang(monkeypatch):
+    tiruan(monkeypatch, [item(101.69, 3.15), item(103.85, 1.29)])  # Kuala Lumpur, Singapura
+    assert cari("kuala lumpur").json()["hasil"] == []
 
 
 def test_kueri_sama_tidak_dikirim_ulang(monkeypatch):

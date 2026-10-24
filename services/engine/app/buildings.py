@@ -13,14 +13,16 @@ from urllib.request import Request, urlopen
 import numpy as np
 from pydantic import ConfigDict, Field, model_validator
 from pyproj import Geod
-from shapely.geometry import Point, Polygon, box, mapping, shape
+from shapely.geometry import Point, box, shape
 from shapely.ops import unary_union
 
+from app import osm_daring
 from app.contracts import BangunanRingkas, FootprintArea, PermintaanFootprintArea
 from app.storage import baca, simpan
-from app.vision import luas_geodesik
+from app.wilayah_id import TOLERANSI_DERAJAT, di_indonesia
+from app.wilayah_id import _indeks as _indeks_provinsi
 
-VERSION = "l1.2026.10.21"
+VERSION = "l1.2026.10.25"
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "data/fixtures"
 BERKAS_FOOTPRINT = FIXTURE / "kota/footprint-bengkulu.json.gz"
@@ -42,49 +44,24 @@ def bangunan_di_kota(bangunan: BangunanRingkas) -> bool:
     return batas_kota().covers(shape(bangunan.geom.model_dump()).representative_point())
 
 
+def _kode_wilayah(lon: float, lat: float) -> str | None:
+    """Kode BPS Kota Bengkulu bila titik di dalam batas kota; di tempat lain belum dipetakan."""
+    return "1771" if batas_kota().covers(Point(lon, lat)) else None
+
+
 def baca_osm(xml: bytes) -> list[BangunanRingkas]:
-    osm = ET.fromstring(xml)
-    nodes = {
-        n.attrib["id"]: (float(n.attrib["lon"]), float(n.attrib["lat"]))
-        for n in osm.findall("node")
-    }
-    hasil = []
-    for way in osm.findall("way"):
-        tags = {t.attrib["k"]: t.attrib["v"] for t in way.findall("tag")}
-        simpul = [n.attrib["ref"] for n in way.findall("nd")]
-        if (
-            tags.get("building") in {None, "no"}
-            or len(simpul) < 4
-            or simpul[0] != simpul[-1]
-            or not all(n in nodes for n in simpul)
-        ):
-            continue
-        geom = Polygon([nodes[n] for n in simpul])
-        if (
-            not geom.is_valid
-            or geom.is_empty
-            or not all(math.isfinite(v) for xy in geom.exterior.coords for v in xy)
-        ):
-            continue
-        luas = luas_geodesik(geom)
-        if luas <= 0:
-            continue
-        b = BangunanRingkas(
-            id=int(way.attrib["id"]),
-            source="osm",
-            source_ref=f"way/{way.attrib['id']}",
-            geom=mapping(geom),
-            footprint_m2=round(luas, 1) or luas,
-            building_tag=tags["building"],
-            nama=tags.get("name"),
-            levels=int(tags["building:levels"])
-            if tags.get("building:levels", "").isdigit() and int(tags["building:levels"]) > 0
-            else None,
-            region_code="1771",
-        )
-        if bangunan_di_kota(b):
-            hasil.append(b)
+    """Way bangunan tertutup di Indonesia dari XML OSM, urut ID."""
+    hasil = [b for b, _ in osm_daring.dari_xml(xml, _kode_wilayah)]
     return sorted(hasil, key=lambda b: b.id)
+
+
+def bbox_di_indonesia(barat: float, selatan: float, timur: float, utara: float) -> bool:
+    """bbox memotong daratan Indonesia (toleransi pantai sama dengan wilayah_id)."""
+    pohon = _indeks_provinsi()[0]
+    return (
+        len(pohon.query_nearest(box(barat, selatan, timur, utara), max_distance=TOLERANSI_DERAJAT))
+        > 0
+    )
 
 
 @lru_cache(maxsize=1)
@@ -191,21 +168,20 @@ def indeks_footprint() -> IndeksFootprint:
 
 
 def simpan_bangunan_hasil(bangunan: BangunanRingkas) -> None:
-    """Bangunan snapshot yang sudah dianalisis ikut katalog agar hasilnya dapat dipilih lagi.
+    """Bangunan hasil pemindaian ikut katalog agar hasilnya dapat dipilih lagi.
 
-    Bangunan dari katalog awal atau OSM daring sudah tersedia; hanya snapshot yang ditulis.
+    Bangunan dari katalog awal sudah tersedia; snapshot kota dan bangunan OSM daring
+    ditulis dengan asalnya masing-masing.
     """
     if baca("bangunan", bangunan.id) or bangunan.id in _awal_per_id():
         return
-    sumber = indeks_footprint().sumber
+    if bangunan_snapshot(bangunan.id):
+        sumber = indeks_footprint().sumber
+        asal = {"_sumber_url": sumber["url"], "_timestamp_osm": sumber["timestamp_osm"]}
+    else:
+        asal = {"_sumber_url": osm_daring.URL_OVERPASS}
     simpan(
-        "bangunan",
-        bangunan.id,
-        {
-            **bangunan.model_dump(mode="json", exclude_unset=True),
-            "_sumber_url": sumber["url"],
-            "_timestamp_osm": sumber["timestamp_osm"],
-        },
+        "bangunan", bangunan.id, {**bangunan.model_dump(mode="json", exclude_unset=True), **asal}
     )
 
 
@@ -217,17 +193,29 @@ def bangunan_snapshot(identitas: int) -> BangunanRingkas | None:
     return None
 
 
+PESAN_DI_LUAR = "PetaSurya mencakup wilayah Indonesia; area ini berada di luar Indonesia."
+
+
 def footprint_di_area(permintaan: PermintaanFootprintInput) -> FootprintArea:
-    """Way yang kotak pembatasnya memotong bbox; yang terdekat dari pusat bbox dahulu.
+    """Footprint dalam bbox peta, yang terdekat dari pusat bbox dahulu.
+
+    bbox yang memotong Kota Bengkulu memakai snapshot (tanpa jaringan). Di tempat
+    lain di Indonesia, jendela di sekitar pusat bbox dimuat dari OSM (osm_daring).
+    """
+    p = permintaan
+    if box(p.barat, p.selatan, p.timur, p.utara).intersects(batas_kota()):
+        return _footprint_snapshot(p)
+    if not bbox_di_indonesia(p.barat, p.selatan, p.timur, p.utara):
+        raise DiLuarCakupan(PESAN_DI_LUAR)
+    return _footprint_daring(p)
+
+
+def _footprint_snapshot(p: PermintaanFootprintInput) -> FootprintArea:
+    """Way yang kotak pembatasnya memotong bbox.
 
     Jarak dihitung pada bidang ekuirektangular (bujur × cos lintang), cukup
     untuk mengurutkan dalam satu tampilan peta. ID OSM mengurai seri.
     """
-    p = permintaan
-    if not box(p.barat, p.selatan, p.timur, p.utara).intersects(batas_kota()):
-        raise DiLuarCakupan(
-            "Analisis tersedia di Kota Bengkulu; data cuaca memakai acuan Bengkulu."
-        )
     indeks = indeks_footprint()
     barat, selatan, timur, utara = (
         round(v * indeks.skala) for v in (p.barat, p.selatan, p.timur, p.utara)
@@ -255,12 +243,72 @@ def footprint_di_area(permintaan: PermintaanFootprintInput) -> FootprintArea:
             ],
             "perkiraan_rumah": indeks.perkiraan_rumah,
             "sumber": indeks.sumber,
+            "jenis_sumber": "snapshot",
+            "area_dimuat": {
+                "barat": p.barat,
+                "selatan": p.selatan,
+                "timur": p.timur,
+                "utara": p.utara,
+            },
+        }
+    )
+
+
+def _kotak_bangunan(b: BangunanRingkas) -> tuple[float, float, float, float]:
+    cincin = np.asarray(b.geom.model_dump()["coordinates"][0], dtype=float)
+    return (
+        float(cincin[:, 0].min()),
+        float(cincin[:, 1].min()),
+        float(cincin[:, 0].max()),
+        float(cincin[:, 1].max()),
+    )
+
+
+def _footprint_daring(p: PermintaanFootprintInput) -> FootprintArea:
+    """Bangunan OSM di jendela sel sekitar pusat bbox; tanpa tebakan jenis bangunan.
+
+    Hanya jendela (sekitar 670 m, lihat osm_daring) yang dimuat, bukan seluruh bbox;
+    `area_dimuat` memberi tahu bagian bbox yang benar-benar tercakup.
+    """
+    lon_c, lat_c = (p.barat + p.timur) / 2, (p.selatan + p.utara) / 2
+    if not di_indonesia(lat_c, lon_c):
+        raise DiLuarCakupan(f"{PESAN_DI_LUAR} Geser peta ke wilayah Indonesia.")
+    sel = osm_daring.jendela_pusat(lon_c, lat_c)
+    rekaman = osm_daring.pastikan_sel(sel, _kode_wilayah)
+    j_barat, j_selatan, j_timur, j_utara = osm_daring.kotak_gabungan(sel)
+    area = {
+        "barat": max(p.barat, j_barat),
+        "selatan": max(p.selatan, j_selatan),
+        "timur": min(p.timur, j_timur),
+        "utara": min(p.utara, j_utara),
+    }
+    cos_lintang = math.cos(math.radians(lat_c))
+    terpilih = []
+    for b in osm_daring.bangunan_sel(rekaman):
+        x0, y0, x1, y1 = _kotak_bangunan(b)
+        if x1 < p.barat or x0 > p.timur or y1 < p.selatan or y0 > p.utara:
+            continue
+        dx = ((x0 + x1) / 2 - lon_c) * cos_lintang
+        dy = (y0 + y1) / 2 - lat_c
+        terpilih.append((dx * dx + dy * dy, b.id, b))
+    terpilih.sort(key=lambda t: (t[0], t[1]))
+    return FootprintArea.model_validate(
+        {
+            "permintaan": p.model_dump(),
+            "jumlah": len(terpilih),
+            "terpotong": len(terpilih) > p.batas,
+            "bangunan": [
+                b.model_dump(mode="json", exclude_unset=True) for _, _, b in terpilih[: p.batas]
+            ],
+            "sumber": osm_daring.sumber_terlama(rekaman),
+            "jenis_sumber": "osm_daring",
+            "area_dimuat": area,
         }
     )
 
 
 def ambil_osm(url: str) -> bytes:
-    with urlopen(Request(url, headers={"User-Agent": "PetaSurya/0.1"}), timeout=20) as r:
+    with urlopen(Request(url, headers={"User-Agent": osm_daring.USER_AGENT}), timeout=20) as r:
         xml = r.read(4_000_001)
     if len(xml) > 4_000_000:
         raise OSError("Area terlalu padat; pilih area yang lebih kecil.")
@@ -268,13 +316,15 @@ def ambil_osm(url: str) -> bytes:
 
 
 def cari_bangunan(identitas: int) -> BangunanRingkas | None:
-    """Cache lokal → katalog awal → snapshot kota → OSM API daring."""
+    """Cache lokal → katalog awal → snapshot kota → sel OSM tersimpan → OSM API daring."""
     if tersimpan := baca("bangunan", identitas):
         return BangunanRingkas.model_validate(tersimpan[0])
     if awal := _awal_per_id().get(identitas):
         return awal
     if snapshot := bangunan_snapshot(identitas):
         return snapshot
+    if dari_sel := osm_daring.bangunan_tersimpan(identitas):
+        return dari_sel
     url = f"{URL_OSM}/way/{identitas}/full"
     try:
         hasil = baca_osm(ambil_osm(url))
@@ -292,24 +342,22 @@ def cari_bangunan(identitas: int) -> BangunanRingkas | None:
 
 
 def temukan_area(lat: float, lon: float, radius: float, daring=False) -> list[BangunanRingkas]:
-    if not batas_kota().covers(Point(lon, lat)):
-        raise DiLuarCakupan(
-            "Analisis tersedia di Kota Bengkulu; data cuaca memakai acuan Bengkulu."
-        )
-    if daring:
-        barat = GEOD.fwd(lon, lat, 270, radius)[0]
-        timur = GEOD.fwd(lon, lat, 90, radius)[0]
-        selatan = GEOD.fwd(lon, lat, 180, radius)[1]
-        utara = GEOD.fwd(lon, lat, 0, radius)[1]
-        url = f"{URL_OSM}/map?bbox={barat},{selatan},{timur},{utara}"
-        try:
-            hasil = baca_osm(ambil_osm(url))
-        except ET.ParseError as error:
-            raise OSError("Geometri OSM belum dapat dibaca.") from error
-        for b in hasil:
-            simpan("bangunan", b.id, {**b.model_dump(mode="json"), "_sumber_url": url})
+    """Bangunan katalog dan sel OSM dalam radius meter; `daring` memuat sel yang belum ada."""
+    if not di_indonesia(lat, lon):
+        raise DiLuarCakupan(PESAN_DI_LUAR)
+    barat = GEOD.fwd(lon, lat, 270, radius)[0]
+    timur = GEOD.fwd(lon, lat, 90, radius)[0]
+    selatan = GEOD.fwd(lon, lat, 180, radius)[1]
+    utara = GEOD.fwd(lon, lat, 0, radius)[1]
+    sel = osm_daring.sel_penutup(barat, selatan, timur, utara)
+    rekaman = osm_daring.pastikan_sel(sel, _kode_wilayah, jaringan=daring)
+    kandidat = {b.id: b for b in osm_daring.bangunan_sel(rekaman)}
+    kandidat.update({b.id: b for b in muat_katalog()})  # katalog (hasil tersimpan) didahulukan
     dekat = []
-    for b in muat_katalog():
+    for b in kandidat.values():
+        x0, y0, x1, y1 = _kotak_bangunan(b)
+        if x1 < barat or x0 > timur or y1 < selatan or y0 > utara:
+            continue
         pusat = shape(b.geom.model_dump()).centroid
         jarak = GEOD.inv(lon, lat, pusat.x, pusat.y)[2]
         if jarak <= radius:

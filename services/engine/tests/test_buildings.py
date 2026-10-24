@@ -34,12 +34,12 @@ def test_osm_bukan_bangunan_atau_poligon_terbuka_dilewati():
     assert baca_osm(xml) == []
 
 
-def test_coverage_cuaca_tetap_kota_bengkulu():
+def test_cakupan_indonesia_menolak_titik_di_luar_negeri():
     assert bangunan_di_kota(cari_bangunan(1146141501))
     from app.buildings import DiLuarCakupan
 
-    with pytest.raises(DiLuarCakupan):
-        temukan_area(-6.2, 106.8, 200)
+    with pytest.raises(DiLuarCakupan, match="Indonesia"):
+        temukan_area(3.15, 101.69, 200)  # Kuala Lumpur
 
 
 def test_area_memakai_katalog_lokal_dan_radius(monkeypatch):
@@ -79,7 +79,7 @@ def test_gagal_sumber_daring_menghasilkan_galat_api(monkeypatch):
     def gagal(_):
         raise OSError("Jaringan terputus")
 
-    monkeypatch.setattr("app.buildings.ambil_osm", gagal)
+    monkeypatch.setattr("app.osm_daring._ambil_url", lambda *a, **k: gagal(a))
     r = TestClient(app).get(
         "/api/v1/buildings", params={"lat": -3.7606, "lon": 102.2683, "r": 200, "live": True}
     )

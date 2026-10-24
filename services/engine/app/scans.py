@@ -13,7 +13,7 @@ from app.simulation import BuildingNotFoundError
 def paket_pemindaian(building_id: int, jalankan=False, force=False) -> PaketPemindaian:
     bangunan = cari_bangunan(building_id)
     if bangunan is None:
-        raise BuildingNotFoundError("Bangunan OSM tidak ditemukan di Kota Bengkulu.")
+        raise BuildingNotFoundError("Bangunan OSM tidak ditemukan.")
     sebelumnya = analisis_tersimpan(building_id)
     mulai = time.monotonic()
     if jalankan:
