@@ -88,8 +88,9 @@ tanpa membuat analisis. `/peta` memuat footprint snapshot kota untuk area yang
 terlihat melalui `GET /api/v1/footprints` mulai zoom 15,5, 250 ms setelah peta
 berhenti bergeser; peramban menahan paling banyak 6.000 bangunan dari area yang
 pernah dibuka. Pencarian OSM daring `GET /api/v1/buildings` (radius maksimal
-200 m) tetap tersedia bagi pemanggil API. Cakupan dibatasi batas Kota Bengkulu
-karena cuaca simulasi memakai acuan Bengkulu 2024.
+200 m) tetap tersedia bagi pemanggil API. Cakupan analisis adalah wilayah
+Indonesia menurut batas provinsi geoBoundaries (`app/wilayah_id.py`); Mode Kota
+tetap Kota Bengkulu.
 
 `GET /api/v1/catalog` membaca katalog lokal, `GET /api/v1/scans/{building_id}`
 menyiapkan citra dan hasil tersimpan, dan `POST /api/v1/scans` menjalankan model
@@ -98,14 +99,17 @@ bagi bangunan baru. Bangunan yang belum dihitung membawa `analisis: null`.
 disimpan pada SQLite di `data/cache/`, yang diabaikan Git; citra tidak disimpan.
 `GET /api/v1/footprints?barat=…&selatan=…&timur=…&utara=…` membaca footprint
 snapshot Mode Kota yang memotong bbox tanpa jaringan, paling banyak 2.000 per
-permintaan dengan yang terdekat dari pusat bbox lebih dahulu. Bbox di luar Kota
-Bengkulu ditolak. Bangunan snapshot dipindai tanpa memanggil OSM dan masuk
+permintaan dengan yang terdekat dari pusat bbox lebih dahulu. Di luar snapshot,
+footprint diambil dari OSM (Overpass, cadangan API OSM) untuk jendela ±670 m di
+sekitar pusat bbox dan disimpan per sel 0,003°; respons membawa `jenis_sumber`
+dan `area_dimuat`. Bbox di luar Indonesia ditolak. Bangunan snapshot dipindai tanpa memanggil OSM dan masuk
 katalog setelah dianalisis. `perkiraan_jenis: "rumah"` adalah tebakan dari luas
 footprint, bukan tag OSM; rinciannya ada di `data/fixtures/kota/README.md`.
-`GET /api/v1/alamat?q=…` mencari alamat di Kota Bengkulu lewat Nominatim saat
+`GET /api/v1/alamat?q=…&lat=…&lon=…` mencari alamat di Indonesia lewat Nominatim saat
 kueri dikirim (bukan saat mengetik), paling banyak satu permintaan per detik dengan
-cache memori, lalu memasangkan titik alamat ke footprint snapshot yang memuatnya
-atau yang tepinya ≤ 30 m. Titik jalan tidak dipasangkan ke rumah; banyak rumah di
+cache memori, lalu memasangkan titik alamat ke footprint (snapshot atau OSM
+daring) yang memuatnya atau yang tepinya ≤ 30 m; `lat`/`lon` pusat peta hanya
+menggeser peringkat. Titik jalan tidak dipasangkan ke rumah; banyak rumah di
 OSM Bengkulu belum bernomor, sehingga hasil sering hanya memindahkan peta.
 Direktori cache dapat diubah dengan `PETASURYA_CACHE_DIR`. Hasil model versi lama
 tidak dipakai kembali. `/analyze` dan `/simulate` tetap mendukung panggilan lama.
@@ -151,7 +155,7 @@ lintang/bujur. Mask dan angka tersimpan tetap dapat ditampilkan tanpa internet.
 
 Alamat engine web memakai `NEXT_PUBLIC_API_BASE` di `apps/web/.env.local`; ubah sebelum menjalankan atau membangun web. Contoh ada di `apps/web/.env.example`.
 
-`POST /api/v1/simulate` mewajibkan `parameter_fisika` berisi `modul` (Wp, dimensi, gamma, NOCT), `albedo`, dan `derate`. Kotoran, mismatch, kabel DC dan ketersediaan adalah fraksi **rugi**; inverter adalah fraksi **efisiensi**. Mesin memakai NOCT dan efisiensi inverter konstan, lalu mengalikan faktor derate sekali. Masukan tersimpan agar hasil dapat direproduksi. Modul demo mengikuti lembar data Jinko F5; albedo dan derate tetap asumsi. Ketiga fixture hasil dihitung ulang dengan `uv run python -m scripts.buat_fixture_simulasi` dari direktori engine, memakai angka serta asalnya dari registri sumber. Jejak ekonomi dan karbon hanya menyebut sumber resmi bila cocok dengan masukan; nilai yang diubah ditandai sebagai masukan pengguna.
+`POST /api/v1/simulate` mewajibkan `parameter_fisika` berisi `modul` (Wp, dimensi, gamma, NOCT), `albedo`, dan `derate`. Kotoran, mismatch, kabel DC dan ketersediaan adalah fraksi **rugi**; inverter adalah fraksi **efisiensi**. Mesin memakai NOCT dan efisiensi inverter konstan, lalu mengalikan faktor derate sekali. Masukan tersimpan agar hasil dapat direproduksi. Modul demo mengikuti lembar data Jinko F5; albedo dan derate tetap asumsi. Ketiga fixture hasil dihitung ulang dengan `uv run python -m scripts.buat_fixture_simulasi` dari direktori engine, memakai angka serta asalnya dari registri sumber. Jejak ekonomi dan karbon hanya menyebut sumber resmi bila cocok dengan masukan; nilai yang diubah ditandai sebagai masukan pengguna. Cuaca diambil dari NASA POWER Hourly 2024 untuk sel lokasi bangunan dan disimpan di `data/cache/cuaca/`; sel Kota Bengkulu memakai berkas bawaan tanpa jaringan. `GET /api/v1/wilayah?lat=…&lon=…` memberi provinsi dan faktor emisi sistem kelistrikannya dari Gatrik 2019 (`data/fixtures/emisi/grid-2019.json`); provinsi berstatus `perkiraan` ditandai, dan provinsi dengan banyak sistem terpisah tidak diberi nilai sehingga pengguna wajib mengisinya.
 
 - **Bahasa.** Antarmuka, nama fungsi domain (`hitung_ekonomi`, `segmentasi_atap`), komentar, dan pesan commit dalam bahasa Indonesia. Istilah teknis baku tetap Inggris (`payback`, `tilt`, `azimuth`, `mask`).
 - **Lapisan.** Mesin hitung disusun berlapis L0–L8 (kontrak → geo → vision → fisika → ekonomi → karbon → agregasi → narasi → rig). Satu perubahan menyentuh satu lapisan. Kontrak dan tes ditulis sebelum implementasi.
