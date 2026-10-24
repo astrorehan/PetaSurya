@@ -94,6 +94,41 @@
         "mask_geojson"
       ]
     },
+    "AreaDimuat": {
+      "type": "object",
+      "properties": {
+        "barat": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Bujur tepi barat area yang dimuat, derajat WGS84"
+        },
+        "selatan": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Lintang tepi selatan area yang dimuat, derajat WGS84"
+        },
+        "timur": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Bujur tepi timur area yang dimuat, derajat WGS84"
+        },
+        "utara": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Lintang tepi utara area yang dimuat, derajat WGS84"
+        }
+      },
+      "required": [
+        "barat",
+        "selatan",
+        "timur",
+        "utara"
+      ]
+    },
     "AsumsiSimulasi": {
       "type": "object",
       "properties": {
@@ -325,6 +360,39 @@
         "date"
       ]
     },
+    "CuacaSimulasi": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Lintang titik cuaca yang diminta ke sumber, derajat"
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Bujur titik cuaca yang diminta ke sumber, derajat"
+        },
+        "tahun": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Tahun data cuaca per jam"
+        },
+        "sumber": {
+          "type": "string",
+          "description": "Penerbit dan produk data cuaca"
+        }
+      },
+      "required": [
+        "lat",
+        "lon",
+        "tahun",
+        "sumber"
+      ]
+    },
     "DerateSimulasi": {
       "type": "object",
       "properties": {
@@ -391,12 +459,20 @@
           "description": "Terdekat dari pusat bbox lebih dahulu"
         },
         "perkiraan_rumah": {
-          "description": "Rentang luas building=yes yang ditandai perkiraan rumah",
+          "description": "Rentang luas perkiraan rumah; hanya untuk snapshot Kota Bengkulu",
           "$ref": "#/$defs/PerkiraanRumah"
         },
         "sumber": {
-          "description": "Snapshot OSM yang sama dengan Mode Kota",
+          "description": "Snapshot OSM (Mode Kota) atau layanan OSM yang dipakai untuk bangunan daring",
           "$ref": "#/$defs/SumberAgregasi"
+        },
+        "jenis_sumber": {
+          "description": "'snapshot' = berkas Kota Bengkulu; 'osm_daring' = diambil dari OSM lalu di-cache",
+          "$ref": "#/$defs/JenisSumberFootprint"
+        },
+        "area_dimuat": {
+          "description": "Bagian bbox yang dimuat; 'osm_daring' hanya jendela sekitar pusat bbox",
+          "$ref": "#/$defs/AreaDimuat"
         }
       },
       "required": [
@@ -404,7 +480,6 @@
         "jumlah",
         "terpotong",
         "bangunan",
-        "perkiraan_rumah",
         "sumber"
       ]
     },
@@ -594,7 +669,7 @@
               "type": "null"
             }
           ],
-          "description": "Footprint snapshot pada atau dekat titik alamat"
+          "description": "Footprint pada atau dekat titik alamat"
         },
         "kecocokan": {
           "anyOf": [
@@ -720,6 +795,10 @@
         "jejak": {
           "$ref": "#/$defs/JejakSimulasi"
         },
+        "cuaca": {
+          "description": "Titik cuaca yang dipakai; kosong pada hasil lama",
+          "$ref": "#/$defs/CuacaSimulasi"
+        },
         "parameter_fisika": {
           "description": "Masukan fisika yang dipakai untuk reproduksi hasil",
           "$ref": "#/$defs/ParameterFisika"
@@ -744,6 +823,95 @@
         "co2e_ton_25yr",
         "monthly_kwh",
         "asumsi"
+      ]
+    },
+    "InfoWilayah": {
+      "type": "object",
+      "properties": {
+        "provinsi_iso": {
+          "type": "string",
+          "pattern": "^ID-[A-Z]{2}$",
+          "description": "Kode ISO 3166-2 provinsi, mis. ID-BE"
+        },
+        "provinsi_nama": {
+          "type": "string",
+          "description": "Nama provinsi"
+        },
+        "sistem_grid": {
+          "description": "Nama sistem ketenagalistrikan pada dokumen sumber; null bila belum diverifikasi",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ef_grid_tco2_mwh": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Faktor emisi jaringan, tCO2/MWh; null bila belum diverifikasi"
+        },
+        "rentang_tco2_mwh": {
+          "anyOf": [
+            {
+              "minItems": 2,
+              "maxItems": 2,
+              "type": "array",
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "[terendah, tertinggi] faktor emisi antarsistem terpisah dalam provinsi, tCO2/MWh"
+        },
+        "tahun_data": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Tahun data faktor emisi, bukan tahun simulasi"
+        },
+        "metode": {
+          "type": "string",
+          "description": "Kolom dokumen yang dipakai dan cakupan gas"
+        },
+        "status": {
+          "$ref": "#/$defs/StatusFaktorEmisi"
+        },
+        "catatan": {
+          "type": "string",
+          "description": "Dasar pemilihan sistem untuk provinsi ini"
+        },
+        "sumber_id": {
+          "type": "string",
+          "description": "Kunci entri pada registri sumber"
+        },
+        "sumber_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Tautan dokumen sumber"
+        }
+      },
+      "required": [
+        "provinsi_iso",
+        "provinsi_nama",
+        "sistem_grid",
+        "ef_grid_tco2_mwh",
+        "rentang_tco2_mwh",
+        "tahun_data",
+        "metode",
+        "status",
+        "catatan",
+        "sumber_id",
+        "sumber_url"
       ]
     },
     "JejakDerate": {
@@ -835,6 +1003,13 @@
         "poa",
         "suhu_sel",
         "derate"
+      ]
+    },
+    "JenisSumberFootprint": {
+      "type": "string",
+      "enum": [
+        "snapshot",
+        "osm_daring"
       ]
     },
     "KecocokanBangunan": {
@@ -1016,7 +1191,7 @@
           "items": {
             "$ref": "#/$defs/HasilAlamat"
           },
-          "description": "Hanya titik di dalam batas Kota Bengkulu"
+          "description": "Hanya titik di dalam wilayah Indonesia"
         },
         "atribusi": {
           "type": "string",
@@ -1202,6 +1377,18 @@
           "minLength": 3,
           "maxLength": 200,
           "description": "Alamat atau nama tempat yang diketik pengguna"
+        },
+        "lat": {
+          "description": "Lintang pusat peta untuk mengutamakan hasil terdekat; wajib berpasangan dengan lon",
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lon": {
+          "description": "Bujur pusat peta untuk mengutamakan hasil terdekat; wajib berpasangan dengan lat",
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
         }
       },
       "required": [
@@ -1248,6 +1435,27 @@
         "selatan",
         "timur",
         "utara"
+      ]
+    },
+    "PermintaanWilayah": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Lintang titik, derajat WGS84"
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Bujur titik, derajat WGS84"
+        }
+      },
+      "required": [
+        "lat",
+        "lon"
       ]
     },
     "PolygonGeoJSON": {
@@ -1358,6 +1566,15 @@
         "savings_idr_yr1",
         "payback_median_years"
       ]
+    },
+    "StatusFaktorEmisi": {
+      "type": "string",
+      "enum": [
+        "terverifikasi",
+        "perkiraan",
+        "belum_diverifikasi"
+      ],
+      "description": "terverifikasi: tercantum di dokumen; perkiraan: dipilih PetaSurya; belum_diverifikasi: kosong"
     },
     "SumberAgregasi": {
       "type": "object",
