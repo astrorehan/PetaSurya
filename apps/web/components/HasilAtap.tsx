@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ChangeEvent } from "react";
-import type { AnalisisAtap, BangunanRingkas, HasilSimulasi, PaketPemindaian } from "@petasurya/contracts";
+import type { AnalisisAtap, BangunanRingkas, HasilSimulasi, InfoWilayah, PaketPemindaian } from "@petasurya/contracts";
 import { ParameterFisika } from "@petasurya/contracts";
 import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, PanelLipat, Tombol, TombolSalin, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
 import { ChevronDown, Crosshair, Sigma, TriangleAlert } from "lucide-react";
 import { Peta } from "./Peta";
 import { PemindaiAtap } from "./PemindaiAtap";
 import { GalatSimulasi, hitungUlangAtap } from "../lib/api";
+import { barisCuaca } from "../lib/cuaca";
 import { namaBangunan } from "../lib/pemindaian";
+import { bacaFaktorEmisi, barisWilayah, diKotaBengkulu, petunjukFaktorEmisi } from "../lib/wilayah";
 import parameterFisikaJson from "../../../data/fixtures/parameter/fisika-contoh.json";
 import s from "./hasilAtap.module.css";
 
@@ -37,6 +39,8 @@ type DataAtap = {
   simulasi: HasilSimulasi;
   pemindaian?: PaketPemindaian;
   tersimpanOffline?: boolean;
+  /** Provinsi dan sistem jaringan di titik bangunan; null bila engine tidak menjawab. */
+  wilayah?: InfoWilayah | null;
 };
 
 type JenisKeadaan = "kosong" | "galat";
@@ -49,6 +53,7 @@ type FormAsumsi = {
   scr: string;
   biaya_per_kwp: string;
   diskonto: string;
+  ef_grid: string;
 };
 
 type JejakTampilan = {
@@ -104,7 +109,7 @@ function PanelJejak({
   );
 }
 
-export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersimpanOffline }: DataAtap) {
+export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersimpanOffline, wilayah = null }: DataAtap) {
   const [jejakAktif, setJejakAktif] = useState<KunciJejak | null>(null);
   const [simulasiAktif, setSimulasiAktif] = useState<HasilSimulasi>(simulasi);
   const [sedangHitung, setSedangHitung] = useState(false);
@@ -118,7 +123,9 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
     scr: String(simulasi.asumsi.scr * 100),
     biaya_per_kwp: String(simulasi.asumsi.biaya_per_kwp),
     diskonto: String(simulasi.asumsi.diskonto * 100),
+    ef_grid: String(simulasi.asumsi.ef_grid_tco2_mwh),
   });
+  const ubahFaktorEmisi = Boolean(wilayah) && !diKotaBengkulu(bangunan);
 
   const rendah = analisis.confidence < 0.45;
   const modul = (simulasiAktif.parameter_fisika ?? PARAMETER_FISIKA_CONTOH).modul;
@@ -167,6 +174,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
         ["POA", `${angkaDesimal(simulasiAktif.poa_kwh_m2_yr, 1)} kWh/m²/tahun`],
         ["Performance ratio", persen(simulasiAktif.pr)],
         ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
+        ...barisCuaca(simulasiAktif.cuaca),
         ...(simulasiAktif.parameter_fisika && simulasiAktif.jejak ? [
           ["NOCT modul", `${angkaDesimal(simulasiAktif.parameter_fisika.modul.t_noct)} °C`],
           ["Faktor derate", persen(simulasiAktif.jejak.derate.gabungan)],
@@ -182,11 +190,12 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       masukan: [
         ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
         ["Faktor emisi CO₂", `${angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2)} tCO₂/MWh`],
+        ...barisWilayah(wilayah, bangunan),
         ["Hasil tahun pertama", ton(simulasiAktif.co2e_ton_yr)],
       ],
       sumber: simulasiAktif.jejak?.karbon?.sumber ?? "Faktor emisi masukan skenario; sumber belum tercatat.",
     },
-  }), [simulasiAktif, luasSkenario, modul.lebar_m, modul.panjang_m, modul.wp]);
+  }), [simulasiAktif, luasSkenario, modul.lebar_m, modul.panjang_m, modul.wp, wilayah, bangunan]);
 
   const ubahAsumsi = (kunci: keyof FormAsumsi) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAsumsi((sebelumnya) => ({ ...sebelumnya, [kunci]: event.target.value }));
@@ -209,6 +218,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
           scr: Number(asumsi.scr) / 100,
           biaya_per_kwp: Number(asumsi.biaya_per_kwp),
           diskonto: Number(asumsi.diskonto) / 100,
+          ...(ubahFaktorEmisi ? { ef_grid_tco2_mwh: bacaFaktorEmisi(asumsi.ef_grid) ?? simulasiAktif.asumsi.ef_grid_tco2_mwh } : {}),
         },
       };
       const dataBaru = await hitungUlangAtap(payload);
@@ -314,12 +324,21 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
             Diskonto (%)
             <input required type="number" min="0" max="30" step="0.1" value={asumsi.diskonto} onChange={ubahAsumsi("diskonto")} />
           </label>
+          {ubahFaktorEmisi ? <label>
+            Faktor emisi (tCO₂/MWh)
+            <input required type="number" inputMode="decimal" min="0.01" max="9.99" step="0.01" value={asumsi.ef_grid} onChange={ubahAsumsi("ef_grid")} />
+          </label> : null}
         </form>
         <p className={s.sumberJejak}>
           Acuan demo: tarif dasar Permen 7/2024, tidak naik sejak 2024 (rujukan hingga September 2026).
           Biaya acuan IESR 2020: Rp14–15 juta/kWp, titik tengah Rp14,5 juta/kWp.
           {" "}<Link href="/sumber-data">Lihat sumber dan tahun data</Link>.
         </p>
+        {wilayah && !diKotaBengkulu(bangunan) ? <p className={s.sumberJejak}>
+          {wilayah.ef_grid_tco2_mwh
+            ? <>Faktor emisi {angkaDesimal(wilayah.ef_grid_tco2_mwh, 2)} tCO₂/MWh{wilayah.status === "perkiraan" ? " (perkiraan)" : ""} mengikuti {wilayah.sistem_grid ? `sistem ${wilayah.sistem_grid}, ` : ""}{wilayah.provinsi_nama}.</>
+            : <>Faktor emisi diisi pengguna; {wilayah.provinsi_nama} belum punya faktor resmi.</>}
+        </p> : null}
         <div className={s.aksiAsumsi}>
           <button
             className={s.tombolUtama}
@@ -344,6 +363,30 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
           onTutup={() => setBukaPemindai(false)}
         />
       ) : null}
+    </main>
+  );
+}
+
+/** Wilayah tanpa faktor emisi resmi: hasil baru dihitung setelah pengguna mengisi faktornya. */
+export function FaktorEmisiDiperlukan({ id, bangunan, wilayah, profil, kwp: kapasitas, tidakSah = false }: { id: string; bangunan: BangunanRingkas; wilayah: InfoWilayah; profil?: string; kwp?: string; tidakSah?: boolean }) {
+  return (
+    <main className={s.halaman}>
+      <section className={s.keadaan} aria-labelledby="judul-faktor-emisi">
+        <h1 id="judul-faktor-emisi" className={s.judul}>{namaBangunan(bangunan)}</h1>
+        <form className={s.formFaktor} method="get" action={`/atap/${id}`}>
+          {profil ? <input type="hidden" name="profil" value={profil} /> : null}
+          {kapasitas ? <input type="hidden" name="kwp" value={kapasitas} /> : null}
+          <label>
+            Faktor emisi (tCO₂/MWh)
+            <input required autoFocus type="number" name="ef" inputMode="decimal" min="0.01" max="9.99" step="0.01" aria-describedby="petunjuk-ef" aria-invalid={tidakSah || undefined} />
+          </label>
+          <p id="petunjuk-ef" className={s.teks} role={tidakSah ? "alert" : undefined}>{tidakSah ? "Faktor emisi harus berupa angka positif. " : ""}{petunjukFaktorEmisi(wilayah)}</p>
+          <div className={s.keadaanAksi}>
+            <button className={s.tombolUtama} type="submit">Hitung hasil</button>
+            <Link className={s.tombolSekunder} href="/peta">Kembali ke peta</Link>
+          </div>
+        </form>
+      </section>
     </main>
   );
 }

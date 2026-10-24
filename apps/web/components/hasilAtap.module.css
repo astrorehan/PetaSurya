@@ -270,6 +270,12 @@
   font: var(--tipe-ui);
 }
 
+.formFaktor {
+  composes: formAsumsi;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 28rem;
+}
+
 .aksiAsumsi {
   display: flex;
   flex-wrap: wrap;

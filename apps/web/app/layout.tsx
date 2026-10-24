@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     locale: "id_ID",
     siteName: "PetaSurya",
     title: "PetaSurya — Atapmu, dihitung.",
-    description: "Kenali potensi energi dan penghematan atap Anda. Jelajahi peta bangunan dan uji skenario PLTS atap di Bengkulu.",
+    description: "Kenali potensi energi dan penghematan atap Anda. Jelajahi peta bangunan dan uji skenario PLTS atap di seluruh Indonesia.",
   },
   twitter: {
     card: "summary",
     title: "PetaSurya — Atapmu, dihitung.",
-    description: "Peta potensi PLTS atap di Bengkulu. Pilih bangunan, tinjau atap, lalu hitung potensi energi dan penghematan.",
+    description: "Peta potensi PLTS atap di Indonesia. Pilih bangunan, tinjau atap, lalu hitung potensi energi dan penghematan.",
   },
 };
 

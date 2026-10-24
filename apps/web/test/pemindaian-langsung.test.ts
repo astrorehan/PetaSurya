@@ -105,6 +105,26 @@ describe("footprint area peta", () => {
     expect(hasil.bangunan[0].perkiraan_jenis).toBe("rumah");
   });
 
+  it("menandai cakupan snapshot dan jendela OSM daring dengan area yang dimuat", async () => {
+    const { muatFootprintArea } = await import("../lib/api");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(area))));
+    expect((await muatFootprintArea(BBOX)).cakupan).toEqual({ langsung: false, dimuat: null });
+    const jakarta = { barat: 106.80, selatan: -6.19, timur: 106.84, utara: -6.17 };
+    const daring = { ...area, permintaan: { ...jakarta, batas: 1500 }, perkiraan_rumah: undefined, jenis_sumber: "osm_daring", area_dimuat: { barat: 106.81, selatan: -6.185, timur: 106.83, utara: -6.175 } };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(daring))));
+    const hasil = await muatFootprintArea(jakarta);
+    expect(hasil.cakupan).toEqual({ langsung: true, dimuat: [106.81, -6.185, 106.83, -6.175] });
+    expect(hasil.perkiraan_rumah).toBeUndefined();
+  });
+
+  it("meneruskan kode galat engine agar layar memilih pemulihan", async () => {
+    const { GalatPemindaian, muatFootprintArea } = await import("../lib/api");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: { code: "OUT_OF_COVERAGE", message: "Di luar Indonesia", retriable: false } }), { status: 422 })));
+    const galat = await muatFootprintArea(BBOX).catch((e) => e);
+    expect(galat).toBeInstanceOf(GalatPemindaian);
+    expect(galat.kode).toBe("OUT_OF_COVERAGE");
+  });
+
   it("menolak bbox di luar WGS84 sebelum memanggil engine dan respons yang tidak sah", async () => {
     const { GalatPemindaian, muatFootprintArea } = await import("../lib/api");
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...area, jumlah: -1 })));
@@ -131,6 +151,18 @@ describe("pencarian alamat", () => {
     expect(url.pathname).toBe("/api/v1/alamat");
     expect(url.searchParams.get("q")).toBe("Jl. Kapuas");
     expect(data.hasil[0].kecocokan).toBe("memuat");
+  });
+
+  it("mengirim pusat peta hanya bila diberikan", async () => {
+    const { cariAlamat } = await import("../lib/api");
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify(hasilAlamat))));
+    vi.stubGlobal("fetch", fetchMock);
+    await cariAlamat("Monas", undefined, [106.8272, -6.1754]);
+    const url = new URL(fetchMock.mock.calls[0][0]);
+    expect(url.searchParams.get("lon")).toBe("106.8272");
+    expect(url.searchParams.get("lat")).toBe("-6.1754");
+    await cariAlamat("Monas");
+    expect(new URL(fetchMock.mock.calls[1][0]).searchParams.has("lat")).toBe(false);
   });
 
   it("tidak memanggil geocoder untuk kueri pendek dan menolak respons tidak sah", async () => {

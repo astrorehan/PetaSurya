@@ -4,7 +4,7 @@ import { bacaPilihanKatalog } from "@/lib/pencarian";
 
 export const metadata: Metadata = {
   title: "Peta bangunan",
-  description: "Pilih bangunan di Bengkulu, tinjau atap, lalu hitung potensi PLTS.",
+  description: "Pilih bangunan di Indonesia, tinjau atap, lalu hitung potensi PLTS.",
 };
 
 // Katalog lokal ikut bundel klien; tambahan dari engine dimuat di peramban agar halaman tidak menunggu jaringan.
