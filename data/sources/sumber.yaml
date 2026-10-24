@@ -476,6 +476,46 @@ sumber:
       hasil di memori. Banyak rumah di OSM Bengkulu belum memiliki nomor;
       hasil sering setingkat jalan atau tempat sehingga hanya memindahkan peta.
 
+  - id: ef_grid_gatrik_2019
+    nama: Faktor emisi seluruh sistem ketenagalistrikan, data 2019 — CM ex-ante surya
+    nilai:
+      berkas: data/fixtures/emisi/grid-2019.json
+      jumlah_sistem: 154
+      sumatera: 0.84
+      jamali: 0.83
+      sulselbar: 0.84
+      sulutgo: 0.72
+      khatulistiwa: 1.31
+      barito: 1.21
+      mahakam: 1.13
+      tarakan: 0.56
+    satuan: tCO2/MWh
+    penerbit: Direktorat Jenderal Ketenagalistrikan, Kementerian ESDM
+    url: https://gatrik.esdm.go.id/gatrik/gatrik-api//storage/migrasi/download_index/files/96d7c-nilai-fe-grk-sistem-ketenagalistrikan-tahun-2019.pdf
+    tahun: 2019
+    diambil: 2026-10-12
+    dipakai_untuk: L5 karbon, faktor emisi bawaan menurut provinsi (GET /api/v1/wilayah)
+    status: terverifikasi
+    catatan: >-
+      Dokumen dan hash sama dengan ef_grid_sumatera_2019. Tabel 154 sistem,
+      7 halaman; kolom 10 (CM ex-ante, OM 0,75/BM 0,25, untuk PLTB dan PLTS)
+      disalin untuk semua sistem dan dicocokkan dengan teks dokumen, ekstraksi
+      sel tabel terpisah, dan tampilan halaman. Nilai N/A tetap kosong.
+      Yang terverifikasi adalah angka tabelnya; pemetaan provinsi ke sistem
+      adalah penafsiran kolom Provinsi dokumen. Status terverifikasi dipakai
+      bila provinsi tercantum pada sistem antarprovinsi (Sumatera, Jamali,
+      Sulselbar, Sulutgo) atau hanya pada satu grid (Kalimantan Barat,
+      Tengah, Timur, Utara). Perkiraan: Kepulauan Bangka Belitung, Nusa
+      Tenggara Barat, Maluku Utara, dan Papua Barat memakai grid yang memuat
+      lebih dari separuh pembangkit provinsi; dokumen tidak menyebut sistem
+      utama. Tanpa faktor: Bali (satu-satunya grid bernilai N/A), Kalimantan
+      Selatan (tidak tercantum), Kepulauan Riau, Nusa Tenggara Timur, Papua,
+      Maluku, Sulawesi Tengah, dan Sulawesi Tenggara (banyak grid terpisah
+      tanpa sistem dominan; rentang nilai disimpan). Pulau kecil bersistem
+      terpisah dalam provinsi bersistem antarprovinsi (mis. Nias, Siberut,
+      Karimun Jawa, Bengkalis) mengikuti sistem provinsinya, bukan grid
+      pulaunya. Tahun 2019 adalah tahun data. Sumber menyatakan CO2.
+
   - id: geoboundaries_idn_adm1
     nama: Batas 34 provinsi Indonesia (geoBoundaries gbOpen IDN ADM1, simplified)
     nilai: {jumlah_provinsi: 34, sha256: 5a6be3d1484166132751fe535dd164e1491e657f2d38dced177f067a7bc00d8f}

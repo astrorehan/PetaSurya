@@ -26,10 +26,13 @@ from app.contracts import (
     GalatApi,
     HasilAgregasi,
     HasilSimulasi,
+    InfoWilayah,
     KodeGalat,
     PaketPemindaian,
     PencarianAlamat,
+    PermintaanWilayah,
 )
+from app.emisi import info_wilayah
 from app.geodata import (
     HasilGeocode,
     MesinSibuk,
@@ -199,6 +202,15 @@ def footprint_area(permintaan: Annotated[PermintaanFootprintInput, Query()]) -> 
 def alamat(permintaan: Annotated[PermintaanAlamatInput, Query()]) -> PencarianAlamat:
     """Alamat di Indonesia dari Nominatim beserta footprint bangunan di titiknya."""
     return cari_alamat(permintaan.q, permintaan.lat, permintaan.lon)
+
+
+@app.get("/api/v1/wilayah", response_model=InfoWilayah)
+def wilayah(permintaan: Annotated[PermintaanWilayah, Query()]) -> InfoWilayah:
+    """Provinsi di titik dan faktor emisi sistem listriknya (Gatrik 2019)."""
+    info = info_wilayah(permintaan.lat, permintaan.lon)
+    if info is None:
+        raise DiLuarCakupan("Titik berada di luar wilayah Indonesia.")
+    return info
 
 
 @app.get("/api/v1/catalog", response_model=list[BangunanRingkas], response_model_exclude_unset=True)
