@@ -8,6 +8,25 @@ from typing import Literal
 from pydantic import AnyUrl, BaseModel, Field, RootModel
 
 
+class AreaDimuat(BaseModel):
+    barat: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur tepi barat area yang dimuat, derajat WGS84
+    """
+    selatan: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang tepi selatan area yang dimuat, derajat WGS84
+    """
+    timur: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur tepi timur area yang dimuat, derajat WGS84
+    """
+    utara: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang tepi utara area yang dimuat, derajat WGS84
+    """
+
+
 class AsumsiSimulasi(BaseModel):
     golongan_tarif: str
     """
@@ -77,6 +96,25 @@ class CitraAnalisis(BaseModel):
     """
 
 
+class CuacaSimulasi(BaseModel):
+    lat: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang titik cuaca yang diminta ke sumber, derajat
+    """
+    lon: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur titik cuaca yang diminta ke sumber, derajat
+    """
+    tahun: int = Field(..., ge=-9007199254740991, le=9007199254740991)
+    """
+    Tahun data cuaca per jam
+    """
+    sumber: str
+    """
+    Penerbit dan produk data cuaca
+    """
+
+
 class DerateSimulasi(BaseModel):
     kotoran: float = Field(..., ge=0.0, le=1.0)
     """
@@ -113,6 +151,24 @@ class JarakM(RootModel[float]):
     root: float = Field(..., ge=0.0)
     """
     Jarak titik ke footprint, meter; 0 bila memuat
+    """
+
+
+class EfGridTco2Mwh(RootModel[float]):
+    root: float = Field(..., gt=0.0)
+    """
+    Faktor emisi jaringan, tCO2/MWh; null bila belum diverifikasi
+    """
+
+
+class RentangTco2MwhItem(RootModel[float]):
+    root: float = Field(..., gt=0.0)
+
+
+class RentangTco2Mwh(RootModel[list[RentangTco2MwhItem]]):
+    root: list[RentangTco2MwhItem] = Field(..., max_length=2, min_length=2)
+    """
+    [terendah, tertinggi] faktor emisi antarsistem terpisah dalam provinsi, tCO2/MWh
     """
 
 
@@ -160,6 +216,11 @@ class JejakSimulasi(BaseModel):
     """
     Sumber, tahun data dan metode faktor emisi yang dipakai
     """
+
+
+class JenisSumberFootprint(StrEnum):
+    snapshot = "snapshot"
+    osm_daring = "osm_daring"
 
 
 class KecocokanBangunan(StrEnum):
@@ -321,6 +382,14 @@ class PermintaanAlamat(BaseModel):
     """
     Alamat atau nama tempat yang diketik pengguna
     """
+    lat: float | None = Field(None, ge=-90.0, le=90.0)
+    """
+    Lintang pusat peta untuk mengutamakan hasil terdekat; wajib berpasangan dengan lon
+    """
+    lon: float | None = Field(None, ge=-180.0, le=180.0)
+    """
+    Bujur pusat peta untuk mengutamakan hasil terdekat; wajib berpasangan dengan lat
+    """
 
 
 class PermintaanFootprintArea(BaseModel):
@@ -343,6 +412,17 @@ class PermintaanFootprintArea(BaseModel):
     batas: int | None = Field(1500, ge=1, le=2000)
     """
     Jumlah footprint maksimum per respons
+    """
+
+
+class PermintaanWilayah(BaseModel):
+    lat: float = Field(..., ge=-90.0, le=90.0)
+    """
+    Lintang titik, derajat WGS84
+    """
+    lon: float = Field(..., ge=-180.0, le=180.0)
+    """
+    Bujur titik, derajat WGS84
     """
 
 
@@ -397,6 +477,16 @@ class RingkasanAgregasi(BaseModel):
     """
     Median hanya atap yang balik modal; null bila tidak ada
     """
+
+
+class StatusFaktorEmisi(StrEnum):
+    """
+    terverifikasi: tercantum di dokumen; perkiraan: dipilih PetaSurya; belum_diverifikasi: kosong
+    """
+
+    terverifikasi = "terverifikasi"
+    perkiraan = "perkiraan"
+    belum_diverifikasi = "belum_diverifikasi"
 
 
 class SumberAgregasi(BaseModel):
@@ -543,13 +633,21 @@ class FootprintArea(BaseModel):
     """
     Terdekat dari pusat bbox lebih dahulu
     """
-    perkiraan_rumah: PerkiraanRumah
+    perkiraan_rumah: PerkiraanRumah | None = None
     """
-    Rentang luas building=yes yang ditandai perkiraan rumah
+    Rentang luas perkiraan rumah; hanya untuk snapshot Kota Bengkulu
     """
     sumber: SumberAgregasi
     """
-    Snapshot OSM yang sama dengan Mode Kota
+    Snapshot OSM (Mode Kota) atau layanan OSM yang dipakai untuk bangunan daring
+    """
+    jenis_sumber: JenisSumberFootprint | None = None
+    """
+    'snapshot' = berkas Kota Bengkulu; 'osm_daring' = diambil dari OSM lalu di-cache
+    """
+    area_dimuat: AreaDimuat | None = None
+    """
+    Bagian bbox yang dimuat; 'osm_daring' hanya jendela sekitar pusat bbox
     """
 
 
@@ -601,7 +699,7 @@ class HasilAlamat(BaseModel):
     """
     bangunan: BangunanRingkas | None
     """
-    Footprint snapshot pada atau dekat titik alamat
+    Footprint pada atau dekat titik alamat
     """
     kecocokan: KecocokanBangunan | None
     """
@@ -681,9 +779,57 @@ class HasilSimulasi(BaseModel):
     """
     asumsi: AsumsiSimulasi
     jejak: JejakSimulasi | None = None
+    cuaca: CuacaSimulasi | None = None
+    """
+    Titik cuaca yang dipakai; kosong pada hasil lama
+    """
     parameter_fisika: ParameterFisika | None = None
     """
     Masukan fisika yang dipakai untuk reproduksi hasil
+    """
+
+
+class InfoWilayah(BaseModel):
+    provinsi_iso: str = Field(..., pattern="^ID-[A-Z]{2}$")
+    """
+    Kode ISO 3166-2 provinsi, mis. ID-BE
+    """
+    provinsi_nama: str
+    """
+    Nama provinsi
+    """
+    sistem_grid: str | None
+    """
+    Nama sistem ketenagalistrikan pada dokumen sumber; null bila belum diverifikasi
+    """
+    ef_grid_tco2_mwh: EfGridTco2Mwh | None
+    """
+    Faktor emisi jaringan, tCO2/MWh; null bila belum diverifikasi
+    """
+    rentang_tco2_mwh: RentangTco2Mwh | None
+    """
+    [terendah, tertinggi] faktor emisi antarsistem terpisah dalam provinsi, tCO2/MWh
+    """
+    tahun_data: int = Field(..., ge=-9007199254740991, le=9007199254740991)
+    """
+    Tahun data faktor emisi, bukan tahun simulasi
+    """
+    metode: str
+    """
+    Kolom dokumen yang dipakai dan cakupan gas
+    """
+    status: StatusFaktorEmisi
+    catatan: str
+    """
+    Dasar pemilihan sistem untuk provinsi ini
+    """
+    sumber_id: str
+    """
+    Kunci entri pada registri sumber
+    """
+    sumber_url: AnyUrl
+    """
+    Tautan dokumen sumber
     """
 
 
@@ -699,7 +845,7 @@ class PencarianAlamat(BaseModel):
     kueri: str
     hasil: list[HasilAlamat]
     """
-    Hanya titik di dalam batas Kota Bengkulu
+    Hanya titik di dalam wilayah Indonesia
     """
     atribusi: str
     """

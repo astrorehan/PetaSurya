@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BangunanRingkas } from "./bangunan.ts";
-import { FootprintArea, PermintaanFootprintArea } from "./footprint.ts";
+import { AreaDimuat, FootprintArea, JenisSumberFootprint, PermintaanFootprintArea } from "./footprint.ts";
 import rumah from "../../../data/fixtures/bangunan/rumah-kandang-limun.json";
 
 const bbox = { barat: 102.26, selatan: -3.77, timur: 102.27, utara: -3.76 };
@@ -41,5 +41,32 @@ describe("FootprintArea", () => {
 
   it("tetap menerima bangunan lama tanpa perkiraan jenis", () => {
     expect(BangunanRingkas.parse(rumah).perkiraan_jenis).toBeUndefined();
+  });
+
+  it("menerima respons snapshot lama tanpa penanda sumber dan area dimuat", () => {
+    const hasil = FootprintArea.parse(data);
+    expect(hasil.jenis_sumber).toBeUndefined();
+    expect(hasil.area_dimuat).toBeUndefined();
+  });
+
+  it("menerima footprint OSM daring tanpa perkiraan rumah, dengan jendela yang dimuat", () => {
+    const { perkiraan_rumah: _, ...dasar } = data;
+    const daring = {
+      ...dasar,
+      bangunan: [{ ...rumah, building_tag: "yes" }],
+      jenis_sumber: "osm_daring",
+      area_dimuat: { barat: 106.824, selatan: -6.178, timur: 106.830, utara: -6.172 },
+    };
+    const hasil = FootprintArea.parse(daring);
+    expect(hasil.perkiraan_rumah).toBeUndefined();
+    expect(hasil.bangunan[0].perkiraan_jenis).toBeUndefined();
+    expect(hasil.jenis_sumber).toBe("osm_daring");
+    expect(hasil.area_dimuat?.timur).toBeGreaterThan(hasil.area_dimuat?.barat ?? 0);
+  });
+
+  it("menolak jenis sumber lain dan area dimuat di luar WGS84", () => {
+    expect(JenisSumberFootprint.safeParse("cache").success).toBe(false);
+    expect(FootprintArea.safeParse({ ...data, jenis_sumber: "tebakan" }).success).toBe(false);
+    expect(AreaDimuat.safeParse({ barat: 106.8, selatan: -91, timur: 106.9, utara: -6.1 }).success).toBe(false);
   });
 });

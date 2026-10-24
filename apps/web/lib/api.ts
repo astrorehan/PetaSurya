@@ -1,4 +1,5 @@
-import { BangunanRingkas, FootprintArea, GalatApi, HasilAgregasi, HasilSimulasi, PaketPemindaian, PencarianAlamat, PermintaanAgregasi, PermintaanAlamat, PermintaanFootprintArea, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
+import type { CakupanArea } from "./area";
+import { BangunanRingkas, FootprintArea, GalatApi, HasilAgregasi, HasilSimulasi, InfoWilayah, PaketPemindaian, PencarianAlamat, PermintaanAgregasi, PermintaanAlamat, PermintaanFootprintArea, type AsumsiSimulasi, type ParameterFisika } from "@petasurya/contracts";
 
 // NEXT_PUBLIC_API_BASE dibaca saat build klien Next.js.
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE?.trim() || "http://localhost:8000").replace(/\/+$/, "");
@@ -11,7 +12,14 @@ export type PermintaanHitungUlang = {
 };
 
 export class GalatSimulasi extends Error {}
-export class GalatPemindaian extends Error {}
+/** `kode` meneruskan kode galat engine (mis. OUT_OF_COVERAGE) agar layar dapat memilih pemulihan. */
+export class GalatPemindaian extends Error {
+  readonly kode?: string;
+  constructor(pesan: string, kode?: string) {
+    super(pesan);
+    this.kode = kode;
+  }
+}
 export class GalatAgregasi extends Error {}
 
 export async function hitungAgregasi(permintaan: PermintaanAgregasi, signal?: AbortSignal): Promise<HasilAgregasi> {
@@ -44,29 +52,46 @@ export async function hitungAgregasi(permintaan: PermintaanAgregasi, signal?: Ab
 async function bacaRespons(response: Response): Promise<unknown> {
   if (!response.ok) {
     const data = GalatApi.safeParse(await response.json().catch(() => null));
-    throw new GalatPemindaian(data.success ? data.data.error.message : "Layanan belum dapat dihubungi. Coba lagi.");
+    throw new GalatPemindaian(data.success ? data.data.error.message : "Layanan belum dapat dihubungi. Coba lagi.", data.success ? data.data.error.code : undefined);
   }
   return response.json();
 }
 
 /** Footprint snapshot kota yang memotong bbox peta; dibatalkan saat peta bergerak lagi. */
 // Geocoder dipanggil hanya saat kueri dikirim; engine menjeda dan menyimpan hasilnya.
-export async function cariAlamat(q: string, signal?: AbortSignal): Promise<PencarianAlamat> {
-  const masukan = PermintaanAlamat.parse({ q });
+// `pusat` [bujur, lintang] hanya mengutamakan hasil di sekitar pusat peta; engine tetap membatasi ke Indonesia.
+export async function cariAlamat(q: string, signal?: AbortSignal, pusat?: readonly [number, number]): Promise<PencarianAlamat> {
+  const masukan = PermintaanAlamat.parse(pusat ? { q, lon: pusat[0], lat: pusat[1] } : { q });
   const timeout = AbortSignal.timeout(15_000);
-  const response = await fetch(`${API_BASE}/api/v1/alamat?${new URLSearchParams(masukan)}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  const kueri = new URLSearchParams(Object.entries(masukan).map(([kunci, nilai]) => [kunci, String(nilai)]));
+  const response = await fetch(`${API_BASE}/api/v1/alamat?${kueri}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
   const hasil = PencarianAlamat.safeParse(await bacaRespons(response));
   if (!hasil.success) throw new GalatPemindaian("Hasil pencarian alamat tidak valid.");
   return hasil.data;
 }
 
-export async function muatFootprintArea(permintaan: PermintaanFootprintArea, signal?: AbortSignal): Promise<FootprintArea> {
+/** Footprint area beserta cakupannya: `langsung` bila dibaca dari OSM (jendela kecil), `dimuat` = [barat, selatan, timur, utara]. */
+export type FootprintAreaDimuat = FootprintArea & { cakupan: CakupanArea };
+
+export async function muatFootprintArea(permintaan: PermintaanFootprintArea, signal?: AbortSignal): Promise<FootprintAreaDimuat> {
   const masukan = PermintaanFootprintArea.parse(permintaan);
   const q = new URLSearchParams(Object.entries(masukan).map(([kunci, nilai]) => [kunci, String(nilai)]));
-  const timeout = AbortSignal.timeout(15_000);
+  // Di luar Kota Bengkulu engine membaca OpenStreetMap langsung, yang bisa lebih lambat dari snapshot.
+  const timeout = AbortSignal.timeout(30_000);
   const response = await fetch(`${API_BASE}/api/v1/footprints?${q}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
   const hasil = FootprintArea.safeParse(await bacaRespons(response));
   if (!hasil.success) throw new GalatPemindaian("Data bangunan area ini tidak valid.");
+  const d = hasil.data;
+  const a = d.area_dimuat;
+  return { ...d, cakupan: { langsung: d.jenis_sumber === "osm_daring", dimuat: a ? [a.barat, a.selatan, a.timur, a.utara] : null } };
+}
+
+/** Provinsi dan faktor emisi jaringan di titik; di luar Indonesia engine menjawab OUT_OF_COVERAGE. */
+export async function muatWilayah(lat: number, lon: number, signal?: AbortSignal): Promise<InfoWilayah> {
+  const timeout = AbortSignal.timeout(8_000);
+  const response = await fetch(`${API_BASE}/api/v1/wilayah?${new URLSearchParams({ lat: String(lat), lon: String(lon) })}`, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  const hasil = InfoWilayah.safeParse(await bacaRespons(response));
+  if (!hasil.success) throw new GalatPemindaian("Data wilayah tidak valid.");
   return hasil.data;
 }
 

@@ -475,3 +475,149 @@ sumber:
       kueri dikirim, membatasi viewbox ke batas Kota Bengkulu, dan menyimpan
       hasil di memori. Banyak rumah di OSM Bengkulu belum memiliki nomor;
       hasil sering setingkat jalan atau tempat sehingga hanya memindahkan peta.
+
+  - id: ef_grid_gatrik_2019
+    nama: Faktor emisi seluruh sistem ketenagalistrikan, data 2019 — CM ex-ante surya
+    nilai:
+      berkas: data/fixtures/emisi/grid-2019.json
+      jumlah_sistem: 154
+      sumatera: 0.84
+      jamali: 0.83
+      sulselbar: 0.84
+      sulutgo: 0.72
+      khatulistiwa: 1.31
+      barito: 1.21
+      mahakam: 1.13
+      tarakan: 0.56
+    satuan: tCO2/MWh
+    penerbit: Direktorat Jenderal Ketenagalistrikan, Kementerian ESDM
+    url: https://gatrik.esdm.go.id/gatrik/gatrik-api//storage/migrasi/download_index/files/96d7c-nilai-fe-grk-sistem-ketenagalistrikan-tahun-2019.pdf
+    tahun: 2019
+    diambil: 2026-10-12
+    dipakai_untuk: L5 karbon, faktor emisi bawaan menurut provinsi (GET /api/v1/wilayah)
+    status: terverifikasi
+    catatan: >-
+      Dokumen dan hash sama dengan ef_grid_sumatera_2019. Tabel 154 sistem,
+      7 halaman; kolom 10 (CM ex-ante, OM 0,75/BM 0,25, untuk PLTB dan PLTS)
+      disalin untuk semua sistem dan dicocokkan dengan teks dokumen, ekstraksi
+      sel tabel terpisah, dan tampilan halaman. Nilai N/A tetap kosong.
+      Yang terverifikasi adalah angka tabelnya; pemetaan provinsi ke sistem
+      adalah penafsiran kolom Provinsi dokumen. Status terverifikasi dipakai
+      bila provinsi tercantum pada sistem antarprovinsi (Sumatera, Jamali,
+      Sulselbar, Sulutgo) atau hanya pada satu grid (Kalimantan Barat,
+      Tengah, Timur, Utara). Perkiraan: Kepulauan Bangka Belitung, Nusa
+      Tenggara Barat, Maluku Utara, dan Papua Barat memakai grid yang memuat
+      lebih dari separuh pembangkit provinsi; dokumen tidak menyebut sistem
+      utama. Tanpa faktor: Bali (satu-satunya grid bernilai N/A), Kalimantan
+      Selatan (tidak tercantum), Kepulauan Riau, Nusa Tenggara Timur, Papua,
+      Maluku, Sulawesi Tengah, dan Sulawesi Tenggara (banyak grid terpisah
+      tanpa sistem dominan; rentang nilai disimpan). Pulau kecil bersistem
+      terpisah dalam provinsi bersistem antarprovinsi (mis. Nias, Siberut,
+      Karimun Jawa, Bengkalis) mengikuti sistem provinsinya, bukan grid
+      pulaunya. Tahun 2019 adalah tahun data. Sumber menyatakan CO2.
+
+  - id: nasa_power_hourly_nasional_2024
+    nama: Cuaca hourly 2024 NASA POWER per sel untuk seluruh Indonesia
+    nilai: {tahun: 2024, sel_surya_derajat: 1.0, sel_meteorologi_lintang_derajat: 0.5, sel_meteorologi_bujur_derajat: 0.625}
+    satuan: GHI/DNI/DHI Wh/m² per jam; suhu °C; angin m/s; ukuran sel dalam derajat
+    penerbit: NASA Langley Research Center POWER Project
+    url: https://power.larc.nasa.gov/docs/services/api/temporal/hourly/
+    tahun: 2024
+    diambil: 2026-10-25
+    dipakai_untuk: L3 cuaca per lokasi bangunan di luar sel Bengkulu (app/cuaca.py)
+    status: terverifikasi
+    catatan: >-
+      Endpoint https://power.larc.nasa.gov/api/temporal/hourly/point dengan
+      parameter, community=RE, rentang 20240101–20241231 dan time-standard=UTC
+      yang sama dengan berkas Bengkulu; bawaan API adalah waktu surya lokal,
+      sehingga UTC wajib dinyatakan. Dokumentasi menyebut data tersedia pada
+      resolusi sumber aslinya (surya 1° × 1°, meteorologi 0,5° × 0,625°);
+      tepi sel dipastikan dengan menyapu titik uji ke API pada 25 Okt 2026:
+      surya berubah di bilangan bulat derajat, meteorologi di ±0,25° lintang
+      dan ±0,3125° bujur dari pusat sel. Satu respons berlaku untuk seluruh
+      sel, jadi engine meminta titik di pusat irisan kedua sel dan
+      menyimpan respons mentah di cache disk. Halaman rujukan POWER meminta
+      pengguna menyebut layanan, versi dan tanggal akses (Hourly 2.x.x,
+      diakses 2026-10-25) dan memberi tahu proyek bila datanya dipakai dalam
+      publikasi atau presentasi; halaman itu tidak memuat lisensi terpisah,
+      sedangkan pendaftaran AWS Open Data menulis tanpa batasan pemakaian
+      (CC BY 4.0). Dokumen tidak menyebut batas laju numerik, hanya anjuran
+      tidak mengirim banyak permintaan sinkron; engine memakai batas waktu 30 s,
+      satu kali ulang untuk 429/5xx, dan satu unduhan per sel. Nilai suhu dan
+      angin adalah rerata sel yang elevasinya dapat berbeda dari bangunan
+      (respons memuat elevasi sel); itu batas kemampuan, bukan galat unduhan.
+      Rujukan: https://power.larc.nasa.gov/docs/referencing/
+
+  - id: geoboundaries_idn_adm1
+    nama: Batas 34 provinsi Indonesia (geoBoundaries gbOpen IDN ADM1, simplified)
+    nilai: {jumlah_provinsi: 34, sha256: 5a6be3d1484166132751fe535dd164e1491e657f2d38dced177f067a7bc00d8f}
+    satuan: poligon batas administrasi tingkat 1 (WGS84)
+    penerbit: William & Mary geoLab, geoBoundaries (gbOpen)
+    url: https://www.geoboundaries.org/api/current/gbOpen/IDN/ADM1/
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 pemeriksaan titik/bbox berada di Indonesia dan penentuan provinsi (app/wilayah_id.py); batas cakupan /footprints, /buildings, /alamat
+    status: terverifikasi
+    mentah: data/fixtures/wilayah/mentah-indonesia/geoBoundaries-IDN-ADM1_simplified.geojson
+    catatan: >-
+      Berkas diunduh dari
+      https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/IDN/ADM1/geoBoundaries-IDN-ADM1_simplified.geojson
+      (commit 9469f09) dan disimpan apa adanya; SHA-256 tercatat pada nilai.
+      Data diturunkan dari OpenStreetMap sehingga berlaku ODbL 1.0 dan
+      atribusi © OpenStreetMap contributors beserta geoBoundaries. Versi
+      simplified menyederhanakan garis pantai; engine memberi toleransi
+      0,1° (±11 km) di laut agar titik pesisir tidak ditolak, jadi
+      pemeriksaan ini penyaring cakupan kasar, bukan penetapan batas
+      negara atau yurisdiksi.
+
+  - id: osm_daring_footprint_nasional
+    nama: Footprint bangunan OSM di luar Kota Bengkulu, diambil saat diminta
+    nilai: {ukuran_sel_derajat: 0.003, sel_per_sisi_jendela: 2, ttl_cache_hari: 14, jeda_antarpermintaan_detik: 1, maks_sel_penutup: 16}
+    satuan: derajat WGS84 (±333 m per sel); hari; detik
+    penerbit: OpenStreetMap contributors (ODbL 1.0), melalui Overpass API dan OSM API 0.6
+    url: https://wiki.openstreetmap.org/wiki/Overpass_API
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 GET /api/v1/footprints, /buildings dan /alamat di luar snapshot Kota Bengkulu (app/osm_daring.py)
+    status: terverifikasi
+    catatan: >-
+      Kueri way["building"] per jendela 2 x 2 sel (±670 m) di sekitar pusat
+      bbox lewat https://overpass-api.de/api/interpreter; bila Overpass gagal
+      atau sibuk, jalur cadangan memakai https://api.openstreetmap.org/api/0.6/map
+      (batas OSM: bbox maksimal 0,25 derajat persegi, galat 400 bila lebih
+      dari 50.000 simpul, 509 bila bandwidth habis; jendela dipecah per sel
+      pada 400). Kebijakan Overpass yang dibaca 25 Okt 2026: sekitar 10.000
+      permintaan dan 1 GB per hari per alamat, 429 saat kelebihan, 504 saat
+      sumber daya habis. Engine mengirim User-Agent dengan URL repositori,
+      satu permintaan sekaligus dengan jeda minimal 1 s, menyimpan hasil per
+      sel di SQLite (kedaluwarsa 14 hari) sehingga area yang sama tidak diambil
+      ulang, dan menghentikan Overpass 120 s setelah gagal. Ukuran sel dan
+      jendela adalah pilihan rekayasa (satu jendela muat dalam satu kueri
+      kecil dan menjamin minimal 167 m di sekeliling pusat bbox), bukan
+      angka dari sumber. Bangunan daring tidak diberi perkiraan jenis rumah:
+      rentang luas rumah hanya diturunkan dari snapshot Kota Bengkulu.
+      Kelengkapan OSM berbeda antarwilayah; tidak ada bangunan di hasil
+      berarti belum dipetakan, bukan tidak ada bangunan. Atribusi ©
+      OpenStreetMap contributors wajib di antarmuka.
+
+  - id: nominatim_pencarian_alamat_nasional
+    nama: Geocoder Nominatim untuk pencarian alamat seluruh Indonesia
+    nilai: {permintaan_per_detik_maks: 1, countrycodes: id, ukuran_bias_derajat: 0.25}
+    satuan: permintaan per detik per aplikasi; derajat
+    penerbit: OpenStreetMap Foundation; data alamat OpenStreetMap contributors, ODbL 1.0
+    url: https://operations.osmfoundation.org/policies/nominatim/
+    tahun: 2026
+    diambil: 2026-10-25
+    dipakai_untuk: L1 pencarian alamat di seluruh Indonesia (GET /api/v1/alamat); melanjutkan nominatim_pencarian_alamat
+    status: terverifikasi
+    catatan: >-
+      Menggantikan pembatasan viewbox Kota Bengkulu pada entri
+      nominatim_pencarian_alamat. Kebijakan yang sama dipatuhi: satu permintaan
+      per detik, User-Agent dengan URL repositori, pencarian hanya saat kueri
+      dikirim, cache hasil, atribusi OSM. Kueri memakai countrycodes=id tanpa
+      viewbox terikat; pusat peta (opsional) hanya menggeser peringkat lewat
+      viewbox sekitar ±0,25° dengan koordinat dibulatkan 0,1° agar cache
+      terpakai, dan titik di luar daratan Indonesia dibuang di sisi engine.
+      Pemasangan titik ke footprint di luar Bengkulu memakai pencarian OSM
+      daring (osm_daring_footprint_nasional) dengan jendela kecil di titik,
+      paling banyak dua hasil per kueri.

@@ -3,12 +3,14 @@ import { HasilAlamat, KecocokanBangunan, PencarianAlamat, PermintaanAlamat } fro
 import { HasilAgregasi, PermintaanAgregasi, RingkasanAgregasi, SumberAgregasi, UrutanAgregasi, WilayahAgregasi } from "./agregasi.ts";
 import { AnalisisAtap, CitraAnalisis, MetodeAnalisis, TipeAtap } from "./analisis.ts";
 import { BangunanRingkas, PerkiraanJenis, SumberBangunan } from "./bangunan.ts";
-import { FootprintArea, PerkiraanRumah, PermintaanFootprintArea } from "./footprint.ts";
+import { AreaDimuat, FootprintArea, JenisSumberFootprint, PerkiraanRumah, PermintaanFootprintArea } from "./footprint.ts";
 import { GalatApi, KodeGalat } from "./galat.ts";
 import { MultiPolygonGeoJSON, PolygonGeoJSON } from "./geojson.ts";
 import { BingkaiPemindaian, PaketPemindaian, TilePemindaian } from "./pemindaian.ts";
+import { InfoWilayah, PermintaanWilayah, StatusFaktorEmisi } from "./wilayah.ts";
 import {
   AsumsiSimulasi,
+  CuacaSimulasi,
   DerateSimulasi,
   HasilSimulasi,
   JejakDerate,
@@ -27,6 +29,7 @@ export * from "./pemindaian.ts";
 export * from "./agregasi.ts";
 export * from "./footprint.ts";
 export * from "./alamat.ts";
+export * from "./wilayah.ts";
 
 // Registri skema yang di-generate ke JSON Schema lalu pydantic.
 // Kunci = nama kelas di sisi Python (services/engine/app/contracts.py).
@@ -40,12 +43,15 @@ export const registri: Record<string, ZodType> = {
   JejakRumus,
   JejakDerate,
   JejakSimulasi,
+  CuacaSimulasi,
   HasilSimulasi,
   SumberBangunan,
   PerkiraanJenis,
   BangunanRingkas,
   PermintaanFootprintArea,
   PerkiraanRumah,
+  JenisSumberFootprint,
+  AreaDimuat,
   FootprintArea,
   PermintaanAlamat,
   KecocokanBangunan,
@@ -66,4 +72,7 @@ export const registri: Record<string, ZodType> = {
   SumberAgregasi,
   UrutanAgregasi,
   WilayahAgregasi,
+  PermintaanWilayah,
+  StatusFaktorEmisi,
+  InfoWilayah,
 };

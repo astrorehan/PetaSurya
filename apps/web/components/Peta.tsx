@@ -6,6 +6,7 @@ import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { MultiPolygonGeoJSON, PolygonGeoJSON } from "@petasurya/contracts";
 import { Logo, SKALA_KOTA_KWP } from "@petasurya/ui";
+import { PUSAT_BENGKULU } from "../lib/cakupan";
 import { useTema } from "./Tema";
 import s from "./peta.module.css";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -16,8 +17,9 @@ const GAYA_PETA = {
 } as const;
 const URL_WORKER_PETA = "/maplibre/maplibre-gl-worker.mjs";
 
-const PUSAT_BENGKULU: [number, number] = [102.269, -3.7618];
 const ZOOM_AWAL = 15.1;
+// Seluruh Indonesia dapat digeser; di bawah zoom ini footprint tidak pernah dimuat.
+const ZOOM_MINIMUM_NASIONAL = 4;
 const SUMBER_CITRA = "esri-world-imagery";
 const LAPISAN_CITRA = "esri-world-imagery-layer";
 const SUMBER_ATAP = "petasurya-atap-sorot";
@@ -26,6 +28,8 @@ const LAPISAN_ATAP_GARIS = "petasurya-atap-sorot-garis";
 const SUMBER_BANGUNAN = "petasurya-bangunan";
 const LAPISAN_BANGUNAN_ISI = "petasurya-bangunan-isi";
 const LAPISAN_BANGUNAN_GARIS = "petasurya-bangunan-garis";
+const SUMBER_AREA = "petasurya-area-dimuat";
+const LAPISAN_AREA_GARIS = "petasurya-area-dimuat-garis";
 const SUMBER_WILAYAH = "petasurya-wilayah";
 const LAPISAN_WILAYAH_ISI = "petasurya-wilayah-isi";
 const LAPISAN_WILAYAH_GARIS = "petasurya-wilayah-garis";
@@ -66,7 +70,9 @@ function gerakKe(map: MapLibreMap, center: [number, number], zoom: number) {
   if (berkurang) {
     map.jumpTo({ center, zoom });
   } else {
-    map.flyTo({ center, zoom, duration: 550, essential: false });
+    // Lompatan antarkota di Indonesia butuh waktu lebih lama agar arah perpindahan terbaca.
+    const jarakKm = map.getCenter().distanceTo(new maplibregl.LngLat(center[0], center[1])) / 1000;
+    map.flyTo({ center, zoom, duration: jarakKm > 50 ? 1400 : 550, essential: false });
   }
 }
 
@@ -79,7 +85,7 @@ function bacaKamera(kunci: string | undefined, batas?: [number, number, number, 
     const zoom = data?.zoom;
     if (typeof lon !== "number" || typeof lat !== "number" || typeof zoom !== "number" || ![lon, lat, zoom].every(Number.isFinite)) return null;
     if (batas && (lon < batas[0] || lon > batas[2] || lat < batas[1] || lat > batas[3])) return null;
-    return { center: [lon, lat] as [number, number], zoom: Math.min(Math.max(zoom, 10), 19) };
+    return { center: [lon, lat] as [number, number], zoom: Math.min(Math.max(zoom, 4), 19) };
   } catch {
     return null;
   }
@@ -176,6 +182,39 @@ function pasangSorot(map: MapLibreMap, geometri: GeometriSorot | null | undefine
   if (sesuaikan && !bounds.isEmpty()) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     map.fitBounds(bounds, { padding: 56, maxZoom: 18, duration: reducedMotion ? 0 : 500 });
+  }
+}
+
+/** Garis putus-putus di sekitar area footprint yang benar-benar dimuat engine. */
+function pasangArea(map: MapLibreMap, area: [number, number, number, number] | null | undefined) {
+  const [barat, selatan, timur, utara] = area ?? [0, 0, 0, 0];
+  const data: { type: "FeatureCollection"; features: FiturGeoJSON[] } = {
+    type: "FeatureCollection",
+    features: area ? [{
+      type: "Feature",
+      properties: {},
+      geometry: { type: "Polygon", coordinates: [[[barat, selatan], [timur, selatan], [timur, utara], [barat, utara], [barat, selatan]]] },
+    }] : [],
+  };
+  const sumber = map.getSource(SUMBER_AREA);
+  if (!sumber) {
+    if (!area) return;
+    map.addSource(SUMBER_AREA, { type: "geojson", data });
+  } else if (sumber instanceof maplibregl.GeoJSONSource) {
+    sumber.setData(data);
+  }
+  if (!map.getLayer(LAPISAN_AREA_GARIS)) {
+    map.addLayer({
+      id: LAPISAN_AREA_GARIS,
+      type: "line",
+      source: SUMBER_AREA,
+      paint: {
+        "line-color": getComputedStyle(document.documentElement).getPropertyValue("--surya").trim() || "#e8920f",
+        "line-width": 1.5,
+        "line-opacity": 0.8,
+        "line-dasharray": [3, 3],
+      },
+    }, map.getLayer(LAPISAN_BANGUNAN_ISI) ? LAPISAN_BANGUNAN_ISI : undefined);
   }
 }
 
@@ -307,6 +346,8 @@ type PetaProps = {
   pertahankanKamera?: boolean;
   satelitAwal?: boolean;
   pratinjau?: ReactNode;
+  /** Kotak [barat, selatan, timur, utara] yang dimuat engine; digaris putus bila lebih kecil dari tampilan. */
+  areaDimuat?: [number, number, number, number] | null;
 };
 
 export function Peta({
@@ -328,6 +369,7 @@ export function Peta({
   pertahankanKamera = false,
   satelitAwal = false,
   pratinjau,
+  areaDimuat = null,
 }: PetaProps) {
   const { terpilih, siap } = useTema();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -339,8 +381,8 @@ export function Peta({
   const [citraLambat, setCitraLambat] = useState(false);
   const [petaGagal, setPetaGagal] = useState(false);
   const [percobaan, setPercobaan] = useState(0);
-  const terkini = useRef({bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera});
-  terkini.current = {bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera};
+  const terkini = useRef({areaDimuat, bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera});
+  terkini.current = {areaDimuat, bangunan, geometriSorot, wilayah, wilayahTerpilih, onPilihBangunan, onPilihWilayah, onKameraBerubah, label, batasPencarian, pertahankanKamera, zoomAwal, kunciKamera};
 
   useEffect(() => {
     if (petaSiap) return;
@@ -365,6 +407,7 @@ export function Peta({
         zoom: kameraTersimpan?.zoom ?? terkini.current.zoomAwal,
         attributionControl: false,
         keyboard: true,
+        minZoom: terkini.current.batasPencarian ? ZOOM_MINIMUM_NASIONAL : undefined,
         maxBounds: terkini.current.batasPencarian ? [[terkini.current.batasPencarian[0],terkini.current.batasPencarian[1]],[terkini.current.batasPencarian[2],terkini.current.batasPencarian[3]]] : undefined,
       });
     } catch {
@@ -427,6 +470,7 @@ export function Peta({
       const data = terkini.current;
       const sesuaikan = kameraAwal && !data.pertahankanKamera;
       pasangCitra(map, satelitRef.current);
+      pasangArea(map, data.areaDimuat);
       pasangSorot(map, data.geometriSorot, sesuaikan);
       pasangBangunan(map, data.bangunan, sesuaikan);
       pasangWilayah(map, data.wilayah, data.wilayahTerpilih, kameraAwal);
@@ -477,6 +521,11 @@ export function Peta({
 
   useEffect(() => {
     const map = mapRef.current;
+    if (map && petaSiap) pasangArea(map, areaDimuat);
+  }, [areaDimuat, petaSiap]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (map && petaSiap && fokus) gerakKe(map, fokus.pusat, fokus.zoom);
   }, [fokus, petaSiap]);
 
@@ -495,6 +544,8 @@ export function Peta({
     if (map?.getLayer(LAPISAN_CITRA)) pasangCitra(map, satelit);
   }, [satelit]);
 
+  // Peta hasil menyorot satu bangunan, yang bisa berada di mana pun di Indonesia; ruang kerja kembali ke Bengkulu.
+  const pusatBangunan = Boolean(geometriSorot) && !batasPencarian;
   const kelas = [s.peta, className].filter(Boolean).join(" ");
   const gaya: CSSProperties = { height: `var(--tinggi-peta, ${tinggi}px)` };
 
@@ -508,9 +559,10 @@ export function Peta({
           onClick={() => {
             if (!mapRef.current) return;
             if (wilayah.length) pasangWilayah(mapRef.current, wilayah, wilayahTerpilih);
+            else if (pusatBangunan) pasangSorot(mapRef.current, geometriSorot);
             else gerakKe(mapRef.current, PUSAT_BENGKULU, zoomAwal);
           }}
-          title="Pusatkan di Bengkulu"
+          title={pusatBangunan ? "Pusatkan di bangunan" : "Pusatkan di Bengkulu"}
         >
           <Crosshair size={16} aria-hidden="true" />
           <span className={s.labelRingkas}>Pusatkan</span>

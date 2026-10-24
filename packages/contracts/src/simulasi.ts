@@ -69,6 +69,14 @@ export const JejakSimulasi = z.object({
   karbon: JejakRumus.optional().describe("Sumber, tahun data dan metode faktor emisi yang dipakai"),
 });
 
+// Titik dan tahun data cuaca yang dipakai simulasi (L3).
+export const CuacaSimulasi = z.object({
+  lat: z.number().min(-90).max(90).describe("Lintang titik cuaca yang diminta ke sumber, derajat"),
+  lon: z.number().min(-180).max(180).describe("Bujur titik cuaca yang diminta ke sumber, derajat"),
+  tahun: z.number().int().describe("Tahun data cuaca per jam"),
+  sumber: z.string().describe("Penerbit dan produk data cuaca"),
+});
+
 export const HasilSimulasi = z.object({
   id: z.string().describe("UUID simulasi"),
   engine_version: z
@@ -91,10 +99,12 @@ export const HasilSimulasi = z.object({
   monthly_kwh: z.array(z.number()).length(12).describe("Energi AC per bulan Jan–Des, kWh"),
   asumsi: AsumsiSimulasi,
   jejak: JejakSimulasi.optional(),
+  cuaca: CuacaSimulasi.optional().describe("Titik cuaca yang dipakai; kosong pada hasil lama"),
   parameter_fisika: ParameterFisika.optional().describe("Masukan fisika yang dipakai untuk reproduksi hasil"),
 });
 
 export type AsumsiSimulasi = z.infer<typeof AsumsiSimulasi>;
 export type HasilSimulasi = z.infer<typeof HasilSimulasi>;
+export type CuacaSimulasi = z.infer<typeof CuacaSimulasi>;
 export type JejakSimulasi = z.infer<typeof JejakSimulasi>;
 export type ParameterFisika = z.infer<typeof ParameterFisika>;

@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import type { HasilSimulasi, PaketPemindaian } from "@petasurya/contracts";
+import type { HasilSimulasi, InfoWilayah, PaketPemindaian } from "@petasurya/contracts";
 import { AlertTriangle, ArrowLeft, ArrowRight, Pause, Play, Scan, Square, X } from "lucide-react";
 import { Angka, BandingLapisan, DaftarData, GrafikBulanan, Ikon, Lencana, PanelLipat, PilihanKartu, Tombol, kelasTombol, kwh, kwp, m2, rupiah, tahun } from "@petasurya/ui";
 import { GalatPemindaian, GalatSimulasi, hitungUlangAtap, muatPemindaian, pindaiBangunan } from "../lib/api";
 import { KATALOG_BANGUNAN, PROFIL_SIMULASI, type ProfilSimulasi, areaSkenario, namaBangunan, paketBangunan, profilBangunan, potensiLuas, simulasiContoh, tampilanPaket } from "../lib/pemindaian";
+import { keteranganCuaca } from "../lib/cuaca";
+import { asumsiDenganWilayah, bacaFaktorEmisi, diKotaBengkulu, perluFaktorEmisi, petunjukFaktorEmisi, wilayahBangunan } from "../lib/wilayah";
 import { TAHAP_INFO } from "./pemindaiData";
 import { PanggungAtap } from "./PanggungAtap";
 import { AlurEnergi } from "./AlurEnergi";
@@ -48,6 +50,10 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
   const [profil, setProfil] = useState<ProfilSimulasi>(awal ? profilBangunan(awal.bangunan) : "rumah");
   const [simulasi, setSimulasi] = useState<HasilSimulasi | undefined>();
   const [kapasitas,setKapasitas]=useState("");
+  const [wilayah, setWilayah] = useState<InfoWilayah | null>(null);
+  const [faktorEmisi, setFaktorEmisi] = useState("");
+  const [faktorKurang, setFaktorKurang] = useState(false);
+  const kolomFaktor = useRef<HTMLInputElement>(null);
   const [sibuk, setSibuk] = useState<"muat" | "analisis" | "hitung" | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
   const [citraGagal, setCitraGagal] = useState(false);
@@ -89,6 +95,20 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
     }).finally(() => { if (berlaku) setSibuk(null); });
     return () => { berlaku = false; };
   }, [id, mode, paketAwal]);
+
+  // Provinsi dan faktor emisi dibaca saat batas atap tersedia; Kota Bengkulu tidak memerlukannya.
+  const bangunanWilayah = a && aktif && !diKotaBengkulu(aktif.bangunan) ? aktif.bangunan : null;
+  const bangunanWilayahRef = useRef(bangunanWilayah);
+  bangunanWilayahRef.current = bangunanWilayah;
+  const idWilayah = bangunanWilayah?.id;
+  useEffect(() => {
+    let berlaku = true;
+    setWilayah(null); setFaktorEmisi(""); setFaktorKurang(false);
+    const b = bangunanWilayahRef.current;
+    if (b) void wilayahBangunan(b).then((w) => { if (berlaku) setWilayah(w); });
+    return () => { berlaku = false; };
+  }, [idWilayah]);
+  const wajibIsiFaktor = Boolean(bangunanWilayah) && perluFaktorEmisi(wilayah, bangunanWilayah!);
 
   useEffect(() => {
     let berlaku = true;
@@ -155,11 +175,16 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
     setSibuk("hitung"); setGalat(null);
     try {
       const acuan = PROFIL_SIMULASI[profil].data;
-      const data = await hitungUlangAtap({ roof_analysis_id: a.roof_analysis_id, asumsi: acuan.asumsi, parameter_fisika: acuan.parameter_fisika, usable_area_m2:Math.min(a.usable_area_m2,areaSkenario(dipilih,profil)) });
+      // Faktor emisi mengikuti provinsi bangunan; di Kota Bengkulu nilai bawaan tetap.
+      const wil = diKotaBengkulu(aktif.bangunan) ? null : await wilayahBangunan(aktif.bangunan);
+      const manual = bacaFaktorEmisi(faktorEmisi);
+      if (perluFaktorEmisi(wil, aktif.bangunan) && !manual) { setFaktorKurang(true); setSibuk(null); requestAnimationFrame(() => kolomFaktor.current?.focus()); return; }
+      const asumsi = asumsiDenganWilayah(acuan.asumsi, wil, aktif.bangunan, manual);
+      const data = await hitungUlangAtap({ roof_analysis_id: a.roof_analysis_id, asumsi, parameter_fisika: acuan.parameter_fisika, usable_area_m2:Math.min(a.usable_area_m2,areaSkenario(dipilih,profil)) });
       setSimulasi(data); setTahap(3);
     } catch (error) { setGalat(error instanceof GalatSimulasi ? error.message : "Perhitungan belum berhasil. Cek koneksi dan coba lagi."); }
     finally { setSibuk(null); }
-  }, [a, aktif, kapasitas, profil, sibuk]);
+  }, [a, aktif, faktorEmisi, kapasitas, profil, sibuk]);
 
   useEffect(() => {
     if (!demoAktif || demoJeda || sibuk) return;
@@ -206,7 +231,7 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
   const kanvas = (<section className={s.kolomKanvas} aria-label={tahap === 3 ? "Produksi energi" : "Citra dan batas bangunan"}>
         {tahap === 3 && simulasi ? <div className={s.hasilGrafik} key={`${id}-${putaranDemo}`}>
           <AlurEnergi />
-          <Angka label="Produksi tahun pertama" nilai={kwh(simulasi.e_ac_kwh_yr1)} keterangan="kWh/tahun · cuaca acuan Bengkulu 2024" aksen="surya"/>
+          <Angka label="Produksi tahun pertama" nilai={kwh(simulasi.e_ac_kwh_yr1)} keterangan={keteranganCuaca(simulasi.cuaca)} aksen="surya"/>
           <GrafikBulanan data={simulasi.monthly_kwh} animasi/>
           <p className={s.penjelasanTahap}>Energi dihitung dari kapasitas skenario, orientasi asumsi, cuaca, dan faktor rugi.</p>
         </div> : <>
@@ -238,6 +263,10 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
             pilihan={Object.entries(PROFIL_SIMULASI).map(([nilai, p]) => ({ nilai: nilai as ProfilSimulasi, label: p.nama, rincian: `${p.data.asumsi.golongan_tarif} · ${p.data.asumsi.daya_va.toLocaleString("id-ID")} VA` }))}
             onUbah={next => {hentikanDemo();setProfil(next);setSimulasi(undefined);if(aktif)setKapasitas(String(Math.min(potensiLuas(aktif),PROFIL_SIMULASI[next].data.asumsi.daya_va/1000)));}} />
           <label className={s.pilihBangunan}>Kapasitas skenario (kWp)<input type="number" min="0.55" step="0.01" max={aktif ? potensiLuas(aktif) : undefined} value={kapasitas} disabled={Boolean(sibuk)} onChange={e=>{hentikanDemo();setKapasitas(e.target.value);setSimulasi(undefined);}}/></label>
+          {wajibIsiFaktor && wilayah && <>
+            <label className={s.pilihBangunan}>Faktor emisi (tCO₂/MWh)<input ref={kolomFaktor} type="number" inputMode="decimal" required min="0.01" max="9.99" step="0.01" value={faktorEmisi} disabled={Boolean(sibuk)} aria-describedby="petunjuk-faktor-emisi" aria-invalid={faktorKurang || undefined} onChange={e=>{hentikanDemo();setFaktorEmisi(e.target.value);setFaktorKurang(false);setSimulasi(undefined);}}/></label>
+            <p id="petunjuk-faktor-emisi" className={s.penjelasanTahap} role={faktorKurang ? "alert" : undefined}>{faktorKurang ? "Faktor emisi wajib diisi sebelum menghitung. " : ""}{petunjukFaktorEmisi(wilayah)}</p>
+          </>}
           <p className={s.penjelasanTahap}>Awal skenario mengikuti daya listrik yang dipilih. Potensi luas atap {aktif ? kwp(potensiLuas(aktif)) : "—"}.</p>
           <p className={s.penjelasanTahap}>Profil pemakaian masih asumsi; dapat diubah pada hasil.</p>
           <Tombol varian="primer" ikon={ArrowRight} disabled={Boolean(sibuk)} onClick={() => {hentikanDemo();void hitungPotensi();}}>Hitung potensi</Tombol>
@@ -248,7 +277,7 @@ export function PemindaiAtap({ bangunanAwalId, paketAwal, mode = "halaman", onTu
           <div className={s.fokusJawaban} data-aksen="daun"><Angka label="Potensi hemat per tahun" nilai={rupiah(simulasi.savings_idr_yr1,true)} ukuran="display" aksen="daun" keterangan={`Balik modal ${simulasi.payback_years === null ? "lebih dari 25 tahun" : tahun(simulasi.payback_years)}`}/></div>
           <DaftarData baris={[{label:"Kapasitas perhitungan",nilai:kwp(simulasi.kwp)},{label:"Potensi luas atap",nilai:aktif ? kwp(potensiLuas(aktif)) : "—"},{label:"Modul dalam skenario",nilai:`${simulasi.module_count.toLocaleString("id-ID")} modul`},{label:"Skenario listrik",nilai:PROFIL_SIMULASI[profil].nama}]}/>
           <p className={s.penjelasanTahap}>Kapasitas pasang memerlukan penataan panel dan pemeriksaan atap.</p>
-          <Link href={`/atap/${id}?profil=${profil}&kwp=${kapasitas}`} onClick={onTutup} className={kelasTombol("primer")}>Lihat hasil dan ubah asumsi<Ikon ikon={ArrowRight}/></Link>
+          <Link href={`/atap/${id}?profil=${profil}&kwp=${kapasitas}${wajibIsiFaktor ? `&ef=${bacaFaktorEmisi(faktorEmisi) ?? ""}` : ""}`} onClick={onTutup} className={kelasTombol("primer")}>Lihat hasil dan ubah asumsi<Ikon ikon={ArrowRight}/></Link>
           <Tombol varian="sekunder" ikon={ArrowLeft} onClick={() => {hentikanDemo();setTahap(2);}}>Kembali ke batas dan luas</Tombol>
         </>}
         {a && <PanelLipat judul="Rincian analisis">

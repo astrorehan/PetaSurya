@@ -2,22 +2,25 @@
 
 **Atapmu, dihitung.**
 
-Peta potensi PLTS atap tingkat bangunan untuk Indonesia, dimulai dari Kota Bengkulu.
+Peta potensi PLTS atap tingkat bangunan untuk seluruh Indonesia.
 Pilih atap di peta, lalu lihat luas atap yang terbaca dari citra satelit, kapasitas
 kWp, produksi kWh per tahun, penghematan rupiah, waktu balik modal, dan tCO₂ yang
 terhindar. Setiap angka membawa rumus dan sumbernya.
 
 ## Yang bisa dilakukan
 
-- **Pilih bangunan mana pun di kota.** `/peta` memuat 120.975 footprint OpenStreetMap
-  Kota Bengkulu sesuai area peta yang terlihat. Bangunan tanpa nama seukuran rumah
-  diberi label *Perkiraan rumah* — tebakan dari luas, bukan tag OSM.
+- **Pilih bangunan di mana pun di Indonesia.** `/peta` memuat footprint
+  OpenStreetMap sesuai area peta: Kota Bengkulu dari snapshot 120.975 bangunan,
+  daerah lain langsung dari OSM di sekitar pusat peta. Alamat dapat dicari
+  se-Indonesia. Di Bengkulu, bangunan tanpa nama seukuran rumah diberi label
+  *Perkiraan rumah*, yaitu tebakan dari luas, bukan tag OSM.
 - **Pindai atap.** MobileSAM (ONNX, CPU) membaca batas atap dari citra Esri World
   Imagery yang hanya diproses di memori. Bila hasil model kurang meyakinkan, jejak
   OSM dipakai sebagai cadangan dan ditandai.
 - **Hitung potensi.** Transposisi Hay-Davies, suhu sel NOCT, derate, tarif PLN
-  Permen ESDM 7/2024, dan faktor emisi jaringan Sumatera. Asumsi dapat diubah lalu
-  dihitung ulang.
+  Permen ESDM 7/2024, cuaca NASA POWER 2024 di lokasi bangunan, dan faktor emisi
+  sistem kelistrikan provinsinya (Gatrik 2019). Asumsi dapat diubah lalu dihitung
+  ulang.
 - **Hasil tersimpan.** Setiap analisis disimpan sehingga bangunan yang sama terbuka
   lagi tanpa inferensi ulang. Satu kawasan dapat dianalisis sekaligus dengan skrip
   batch yang lajunya dibatasi.
@@ -26,7 +29,11 @@ terhindar. Setiap angka membawa rumus dan sumbernya.
 
 ## Batas yang perlu diketahui
 
-- Cakupan baru Kota Bengkulu; cuaca simulasi memakai acuan Bengkulu 2024.
+- Analisis tersedia di seluruh Indonesia. Mode Kota dan hasil batch kawasan baru
+  mencakup Kota Bengkulu. Di luar Bengkulu, footprint dan alamat bergantung pada
+  kelengkapan OSM dan memerlukan internet.
+- Faktor emisi provinsi yang dilayani banyak sistem terpisah (antara lain NTT,
+  Maluku, Papua) tidak ditebak; pengguna mengisinya sendiri.
 - Luas atap adalah proyeksi pada citra, bukan luas permukaan miring. Halangan dan
   bayangan belum diukur. Tilt, hadap panel, dan cadangan area adalah asumsi.
 - Ambang penyaring model belum dikalibrasi terhadap acuan yang ditinjau; skornya

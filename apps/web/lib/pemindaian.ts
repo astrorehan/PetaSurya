@@ -54,6 +54,11 @@ function centroid(ring: number[][]): Titik {
   return [ox+sx/(3*luas),oy+sy/(3*luas)];
 }
 
+/** Titik di dalam cincin luar bangunan [bujur, lintang], untuk mencari wilayah dan cuaca. */
+export function pusatBangunan(b: BangunanRingkas): Titik {
+  return centroid(b.geom.coordinates[0]);
+}
+
 export function paketBangunan(b: BangunanRingkas): PaketPemindaian {
   const tersimpan = paketContoh(b.id);
   if (tersimpan) return tersimpan;

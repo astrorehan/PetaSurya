@@ -38,12 +38,12 @@ const FAQ = [
   {
     pertanyaan: "Wilayah mana yang sudah tersedia?",
     jawaban:
-      "Demo saat ini mencakup Kota Bengkulu. Katalog awal berada di sekitar Universitas Bengkulu. Bangunan lain dapat diambil dari OpenStreetMap dalam radius 200 meter dari pusat peta.",
+      "Analisis atap tersedia untuk bangunan di seluruh Indonesia yang tercatat di OpenStreetMap. Hasil tersimpan dan Mode Kota baru mencakup Kota Bengkulu.",
   },
   {
     pertanyaan: "Dari mana angka energi dan penghematannya?",
     jawaban:
-      "Perhitungan memakai cuaca acuan Bengkulu, parameter modul, tarif, dan asumsi skenario. Rumus serta sumber tersedia pada hasil. Tarif, biaya, dan pola pemakaian dapat Anda ubah untuk menghitung ulang.",
+      "Perhitungan memakai cuaca di lokasi bangunan, parameter modul, tarif, dan asumsi skenario. Rumus serta sumber tersedia pada hasil. Tarif, biaya, dan pola pemakaian dapat Anda ubah untuk menghitung ulang.",
   },
   {
     pertanyaan: "Bagaimana jika citra atau jaringan tidak tersedia?",
@@ -90,7 +90,7 @@ export function HalamanBrand() {
                 <Play size={13} fill="currentColor" aria-hidden="true" /> Lihat demo
               </Link>
             </div>
-            <p className={s.statusHero}><span aria-hidden="true" /> Demo Bengkulu · Tanpa akun</p>
+            <p className={s.statusHero}><span aria-hidden="true" /> Seluruh Indonesia · Tanpa akun</p>
           </div>
 
           <div className={s.panggung} data-panggung>
@@ -172,7 +172,7 @@ export function HalamanBrand() {
         <section className={s.penutup} aria-labelledby="judul-penutup" data-reveal="penutup">
           <div className={s.gerbangSalinan}>
             <h2 id="judul-penutup">Sekarang,<br /><span>giliran atap Anda.</span></h2>
-            <p>Peta Bengkulu sudah menanti.<br />Mulai dari satu bangunan.</p>
+            <p>Peta Indonesia sudah menanti.<br />Mulai dari satu bangunan.</p>
             <Link className={s.tombolPrimer} href="/peta">Masuk ke peta <span className={s.ikonMasuk}><ArrowUpRight size={17} aria-hidden="true" /></span></Link>
             <span className={s.gerbangCatatan}>{JUMLAH_BANGUNAN_AWAL} bangunan di katalog awal · Tanpa akun</span>
           </div>

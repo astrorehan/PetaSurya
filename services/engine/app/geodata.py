@@ -157,7 +157,7 @@ def analisis_tersimpan(building_id: int) -> AnalisisAtap | None:
 
 
 def proses_analisis_atap(building_id: int, force: bool = False) -> AnalisisAtap:
-    """Ambil atau hitung analisis atap untuk bangunan OSM di Bengkulu."""
+    """Ambil atau hitung analisis atap untuk bangunan OSM di Indonesia."""
     tersimpan = analisis_tersimpan(building_id)
     if tersimpan and not force:
         return tersimpan

@@ -40,3 +40,46 @@ export function gabungBangunan(...daftar: BangunanRingkas[][]): BangunanRingkas[
 export function simpanArea(lama: BangunanRingkas[], baru: BangunanRingkas[], batas = BATAS_SIMPANAN): BangunanRingkas[] {
   return gabungBangunan(baru, lama).slice(0, batas);
 }
+
+/**
+ * Cakupan respons footprint. Di dalam Kota Bengkulu engine memotong snapshot
+ * sesuai bbox; di tempat lain ia membaca OpenStreetMap langsung hanya untuk
+ * jendela kecil di sekitar pusat bbox, tercatat di `dimuat`.
+ */
+export type CakupanArea = { langsung: boolean; dimuat: Kotak | null };
+
+// Pusat peta yang bergeser kurang dari seperempat lebar jendela tidak memuat ulang:
+// bangunan di sekitarnya sudah ada dan Overpass tidak perlu dipanggil tiap geseran kecil.
+const MARGIN_JENDELA = 0.25;
+
+/** Perlu meminta area baru bila kamera keluar dari jendela footprint langsung. */
+export function perluMuatArea(kamera: Kotak, cakupan: CakupanArea | null): boolean {
+  if (!cakupan?.langsung || !cakupan.dimuat) return true;
+  const [b, s, t, u] = cakupan.dimuat;
+  if (kamera[0] >= b && kamera[1] >= s && kamera[2] <= t && kamera[3] <= u) return false;
+  const x = (kamera[0] + kamera[2]) / 2;
+  const y = (kamera[1] + kamera[3]) / 2;
+  const mx = (t - b) * MARGIN_JENDELA;
+  const my = (u - s) * MARGIN_JENDELA;
+  return !(x >= b + mx && x <= t - mx && y >= s + my && y <= u - my);
+}
+
+function titikDalamCincin(lon: number, lat: number, cincin: number[][]): boolean {
+  let dalam = false;
+  for (let i = 0, j = cincin.length - 1; i < cincin.length; j = i++) {
+    const [xi, yi] = cincin[i];
+    const [xj, yj] = cincin[j];
+    if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) dalam = !dalam;
+  }
+  return dalam;
+}
+
+/** Bangunan yang cincin luarnya memuat titik, tanpa memperhitungkan lubang. */
+export function bangunanDiTitik(daftar: BangunanRingkas[], lon: number, lat: number): BangunanRingkas | null {
+  for (const b of daftar) {
+    const [x0, y0, x1, y1] = kotakBangunan(b);
+    if (lon < x0 || lon > x1 || lat < y0 || lat > y1) continue;
+    if (titikDalamCincin(lon, lat, b.geom.coordinates[0])) return b;
+  }
+  return null;
+}

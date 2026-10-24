@@ -56,8 +56,18 @@ def rujukan_biaya(nilai: float) -> str:
     return "Biaya masukan pengguna; sumber nominal belum diverifikasi"
 
 
-def faktor_emisi(nilai: float) -> tuple[FaktorEmisiGrid, str]:
-    """Pilih sumber CM ex-ante surya; nilai lain tetap masukan pengguna."""
+def faktor_emisi(
+    nilai: float, lat: float | None = None, lon: float | None = None
+) -> tuple[FaktorEmisiGrid, str]:
+    """Pilih sumber CM ex-ante surya; nilai lain tetap masukan pengguna.
+
+    Tanpa lat/lon yang dibandingkan adalah faktor Sumatera. Dengan lat/lon, sumber
+    resmi hanya diklaim bila nilai sama dengan faktor sistem listrik di titik itu.
+    """
+    if (lat is None) != (lon is None):
+        raise ValueError("lat dan lon harus diisi bersamaan.")
+    if lat is not None and lon is not None:
+        return _faktor_emisi_titik(nilai, lat, lon)
     sumber = registri()["ef_grid_sumatera_2019"]
     cocok = nilai == sumber["nilai"]["cm_ex_ante_om_075_bm_025"]
     faktor = FaktorEmisiGrid(
@@ -71,4 +81,33 @@ def faktor_emisi(nilai: float) -> tuple[FaktorEmisiGrid, str]:
         if cocok
         else "Faktor emisi masukan pengguna; tahun dan metode belum diverifikasi"
     )
+    return faktor, rujukan
+
+
+def _faktor_emisi_titik(nilai: float, lat: float, lon: float) -> tuple[FaktorEmisiGrid, str]:
+    """Faktor emisi dengan pembanding sistem listrik di titik (app.emisi)."""
+    from app.emisi import faktor_emisi_wilayah
+
+    wilayah = faktor_emisi_wilayah(lat, lon)
+    cocok = wilayah is not None and wilayah.ef_tco2_mwh is not None and nilai == wilayah.ef_tco2_mwh
+    sistem = wilayah.sistem if wilayah is not None and wilayah.sistem else "Masukan pengguna"
+    if not cocok:
+        faktor = FaktorEmisiGrid(
+            sistem=sistem,
+            nilai_tco2_per_mwh=nilai,
+            tahun=0,
+            sumber_url="https://petasurya.id/metodologi",
+        )
+        return faktor, "Faktor emisi masukan pengguna; tahun dan metode belum diverifikasi"
+    faktor = FaktorEmisiGrid(
+        sistem=sistem,
+        nilai_tco2_per_mwh=nilai,
+        tahun=wilayah.tahun_data,
+        sumber_url=wilayah.sumber_url,
+    )
+    rujukan = (
+        f"Gatrik, {sistem} {wilayah.tahun_data}, CM ex-ante OM/BM 0,75/0,25; komponen CO2 saja"
+    )
+    if wilayah.pendekatan:
+        rujukan += f"; perkiraan sistem untuk provinsi {wilayah.provinsi_nama}"
     return faktor, rujukan

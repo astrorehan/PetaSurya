@@ -9,8 +9,9 @@ import { Ikon, PanelLipat, Tombol, kelasTautan, m2 } from "@petasurya/ui";
 import { Peta, type BangunanPeta, type KameraPeta } from "./Peta";
 import { JejakKawasan } from "./JejakKawasan";
 import { GalatPemindaian, cariAlamat, indeksHasil, muatFootprintArea, muatKatalog } from "../lib/api";
-import { ZOOM_MUAT, gabungBangunan, memotongArea, simpanArea } from "../lib/area";
-import { BATAS_KOTA, KATALOG_BANGUNAN, namaBangunan, simulasiContoh } from "../lib/pemindaian";
+import { ZOOM_MUAT, bangunanDiTitik, gabungBangunan, memotongArea, perluMuatArea, simpanArea, type CakupanArea } from "../lib/area";
+import { BATAS_INDONESIA } from "../lib/cakupan";
+import { KATALOG_BANGUNAN, namaBangunan, simulasiContoh } from "../lib/pemindaian";
 import { cariBangunan, tautanKatalog, urutkanBangunan, type FilterBangunan, type PilihanKatalog, type UrutanBangunan } from "../lib/pencarian";
 import s from "./beranda.module.css";
 
@@ -38,6 +39,7 @@ type StatusAlamat =
 type StatusArea =
   | { jenis: "awal" | "jauh" }
   | { jenis: "siap"; jumlah: number; terpotong: boolean }
+  | { jenis: "luar" }
   | { jenis: "galat"; pesan: string };
 
 export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "nama" }: {
@@ -51,7 +53,11 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
   const [kamera, setKamera] = useState<KameraPeta | null>(null);
   const [statusArea, setStatusArea] = useState<StatusArea>({ jenis: "awal" });
   const [memuatArea, setMemuatArea] = useState(false);
+  // Rincian snapshot Kota Bengkulu; respons langsung dari OpenStreetMap tidak membawanya.
   const [infoArea, setInfoArea] = useState<Pick<FootprintArea, "perkiraan_rumah" | "sumber"> | null>(null);
+  const [cakupan, setCakupan] = useState<CakupanArea | null>(null);
+  const cakupanRef = useRef<CakupanArea | null>(null);
+  const terakhirSiap = useRef({ jumlah: 0, terpotong: false });
   const [pencarian, setPencarian] = useState(query);
   const [batasDaftar, setBatasDaftar] = useState(20);
   const [tersimpan, setTersimpan] = useState(() => new Set(KATALOG_BANGUNAN.filter((b) => simulasiContoh(b.id)).map((b) => b.id)));
@@ -91,6 +97,12 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
       setStatusArea({ jenis: "jauh" });
       return;
     }
+    // Jendela langsung masih mencakup pusat peta: bangunannya sudah termuat.
+    if (!perluMuatArea(k.kotak, cakupanRef.current)) {
+      setMemuatArea(false);
+      setStatusArea({ jenis: "siap", ...terakhirSiap.current });
+      return;
+    }
     setMemuatArea(true);
     jadwalArea.current = setTimeout(async () => {
       const permintaan = new AbortController();
@@ -100,11 +112,17 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
         const data = await muatFootprintArea({ barat, selatan, timur, utara }, permintaan.signal);
         if (permintaan.signal.aborted) return;
         setArea((lama) => simpanArea(lama, data.bangunan));
-        setInfoArea({ perkiraan_rumah: data.perkiraan_rumah, sumber: data.sumber });
-        setStatusArea({ jenis: "siap", jumlah: data.jumlah, terpotong: data.terpotong });
+        if (data.perkiraan_rumah && data.sumber) setInfoArea({ perkiraan_rumah: data.perkiraan_rumah, sumber: data.sumber });
+        cakupanRef.current = data.cakupan;
+        setCakupan(data.cakupan);
+        terakhirSiap.current = { jumlah: data.jumlah, terpotong: data.terpotong };
+        setStatusArea({ jenis: "siap", ...terakhirSiap.current });
       } catch (e) {
         if (permintaan.signal.aborted) return;
-        setStatusArea({ jenis: "galat", pesan: e instanceof GalatPemindaian ? e.message : "Bangunan di area ini belum dapat dimuat." });
+        cakupanRef.current = null;
+        setCakupan(null);
+        setStatusArea(e instanceof GalatPemindaian && e.kode === "OUT_OF_COVERAGE" ? { jenis: "luar" }
+          : { jenis: "galat", pesan: e instanceof GalatPemindaian && e.kode === "GEODATA_UNAVAILABLE" ? "Data OpenStreetMap belum dapat dimuat." : "Bangunan di area ini belum dapat dimuat." });
       } finally {
         if (!permintaan.signal.aborted) setMemuatArea(false);
       }
@@ -131,16 +149,23 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
   const bangunanPeta = useMemo<BangunanPeta[]>(() => sumberPeta.map((b) => ({ id: b.id, nama: namaBangunan(b), geom: b.geom, tersimpan: tersimpan.has(b.id) })), [sumberPeta, tersimpan]);
   const pilih = useCallback((id: number) => router.push(`/pindai?id=${id}`), [router]);
   const rumah = infoArea?.perkiraan_rumah;
+  // Di luar Kota Bengkulu engine belum tentu memasangkan titik alamat; footprint yang sudah termuat dicocokkan di sini.
+  const bangunanAlamat = useMemo(() => titikAlamat?.bangunan ?? (titikAlamat ? bangunanDiTitik(area, titikAlamat.lon, titikAlamat.lat) : null), [area, titikAlamat]);
   const adaHasilAlamat = adaKueri && alamat.jenis === "siap" && alamat.data.kueri === pencarian.trim() && alamat.data.hasil.length > 0;
 
+  const langsung = Boolean(cakupan?.langsung);
   const pesanArea = statusArea.jenis === "jauh" ? "Perbesar peta untuk memuat bangunan"
+    : statusArea.jenis === "luar" ? "Bangunan hanya tersedia di wilayah Indonesia"
+    : memuatArea && (!diArea.length || langsung) ? "Memuat bangunan…"
     : statusArea.jenis === "siap" && statusArea.terpotong ? `Perbesar peta untuk melihat semua ${statusArea.jumlah.toLocaleString("id-ID")} bangunan`
-    : memuatArea && !diArea.length ? "Memuat bangunan…"
+    : langsung ? "Bangunan dimuat di sekitar pusat peta"
     : "Geser peta untuk bangunan lain";
   const kosong = filter === "tersimpan" ? { judul: "Belum ada hasil tersimpan yang cocok.", saran: "Pilih Semua untuk melihat bangunan yang dapat dianalisis." }
     : adaKueri ? { judul: "Bangunan belum ditemukan.", saran: "Coba nama lain, jenis bangunan, atau ID." }
     : statusArea.jenis === "jauh" ? { judul: "Perbesar peta untuk memuat bangunan.", saran: null }
+    : statusArea.jenis === "luar" ? { judul: "Peta di luar wilayah Indonesia.", saran: "Geser peta kembali ke Indonesia." }
     : memuatArea ? { judul: "Memuat bangunan…", saran: null }
+    : langsung ? { judul: "Belum ada bangunan di sekitar pusat peta.", saran: "Geser peta ke area lain." }
     : { judul: "Belum ada bangunan terpetakan di area ini.", saran: "Geser peta ke area lain." };
 
   function ubahPilihan(perubahan: Partial<PilihanKatalog>) {
@@ -160,7 +185,7 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
     permintaanAlamat.current = permintaan;
     setAlamat({ jenis: "memuat", kueri: q });
     try {
-      const data = await cariAlamat(q, permintaan.signal);
+      const data = await cariAlamat(q, permintaan.signal, kamera ? [(kamera.kotak[0] + kamera.kotak[2]) / 2, (kamera.kotak[1] + kamera.kotak[3]) / 2] : undefined);
       if (!permintaan.signal.aborted) setAlamat({ jenis: "siap", data });
     } catch (e) {
       if (permintaan.signal.aborted) return;
@@ -187,7 +212,7 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
     <main className={s.halaman}>
       <header className={s.kepala}>
         <h1 className={s.judul}>Temukan <span>atap Anda.</span></h1>
-        <p className={s.lokasi}><MapPin size={15} aria-hidden="true" /><strong>Bengkulu</strong><span>Seluruh kota</span></p>
+        <p className={s.lokasi}><MapPin size={15} aria-hidden="true" /><strong>Indonesia</strong></p>
       </header>
 
       <ol className={s.alur} aria-label="Langkah analisis atap">
@@ -217,7 +242,7 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
 
         <div className={s.barisPeta}>
           <div id="peta-bangunan" className={s.kolomPeta}>
-            <Peta className={s.petaBeranda} label="Peta bangunan Kota Bengkulu" tinggi={520} bangunan={bangunanPeta} onPilihBangunan={pilih} onKameraBerubah={ubahKamera} zoomAwal={ZOOM_AWAL} kunciKamera="petasurya:kamera-peta" batasPencarian={BATAS_KOTA} fokus={fokus} geometriSorot={titikAlamat?.bangunan?.geom ?? null} pertahankanKamera satelitAwal pratinjau={<JejakKawasan dekoratif />} />
+            <Peta className={s.petaBeranda} label="Peta bangunan Indonesia" tinggi={520} bangunan={bangunanPeta} onPilihBangunan={pilih} onKameraBerubah={ubahKamera} zoomAwal={ZOOM_AWAL} kunciKamera="petasurya:kamera-peta" batasPencarian={BATAS_INDONESIA} fokus={fokus} geometriSorot={bangunanAlamat?.geom ?? null} areaDimuat={langsung ? cakupan?.dimuat ?? null : null} pertahankanKamera satelitAwal pratinjau={<JejakKawasan dekoratif />} />
             <div className={s.kakiPeta}>
               <span className={s.legenda}><span><i /> Bangunan</span><span><i data-tersimpan="" /> Hasil tersimpan</span></span>
               {/* Satu simpul untuk kedua keadaan: fokus pindah ke sini sebelum tombol Coba lagi hilang. */}
@@ -237,10 +262,10 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
               <MapPin size={16} aria-hidden="true" />
               <div>
                 <strong>{titikAlamat.nama}</strong>
-                <p>{titikAlamat.bangunan
-                  ? titikAlamat.kecocokan === "memuat" ? `Bangunan di titik alamat · ${m2(titikAlamat.bangunan.footprint_m2)}` : `Bangunan terdekat, ${Math.round(titikAlamat.jarak_m ?? 0)} m dari titik alamat`
+                <p>{bangunanAlamat
+                  ? titikAlamat.bangunan && titikAlamat.kecocokan !== "memuat" ? `Bangunan terdekat, ${Math.round(titikAlamat.jarak_m ?? 0)} m dari titik alamat` : `Bangunan di titik alamat · ${m2(bangunanAlamat.footprint_m2)}`
                   : "Titik alamat belum cocok dengan satu bangunan. Pilih rumahnya di peta."}</p>
-                {titikAlamat.bangunan && <Link href={`/pindai?id=${titikAlamat.bangunan.id}`} className={kelasTautan()}>Analisis atap bangunan ini</Link>}
+                {bangunanAlamat && <Link href={`/pindai?id=${bangunanAlamat.id}`} className={kelasTautan()}>Analisis atap bangunan ini</Link>}
               </div>
               <button type="button" onClick={() => setTitikAlamat(null)} aria-label="Tutup alamat"><X size={14} aria-hidden="true" /></button>
             </div>}
@@ -273,7 +298,7 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
                       <span className={s.ringkasanBangunan}><strong>{h.nama}</strong><span>{h.alamat}</span></span>
                       <Ikon ikon={ChevronRight} />
                     </button>
-                  </li>)}</ul> : <p className={s.pesanAlamat} role="status">Alamat tidak ditemukan di Kota Bengkulu.</p>}
+                  </li>)}</ul> : <p className={s.pesanAlamat} role="status">Alamat tidak ditemukan.</p>}
                   <p className={s.atribusiAlamat}>{alamat.data.atribusi}</p>
                 </>
                 : alamat.jenis === "memuat" && alamat.kueri === pencarian.trim() ? <p className={s.pesanAlamat} role="status">Mencari alamat…</p>
@@ -292,9 +317,9 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
             </div>
 
             <div className={s.tentangData}><PanelLipat judul="Cakupan & sumber">
-              <p>Footprint OpenStreetMap seluruh Kota Bengkulu{infoArea ? `, snapshot ${TANGGAL.format(new Date(infoArea.sumber.diambil))}` : ""}, dimuat sesuai area peta. {tersimpan.size.toLocaleString("id-ID")} hasil tersimpan; bangunan lain dianalisis saat dipilih.</p>
+              <p>Footprint OpenStreetMap: Kota Bengkulu dari snapshot{infoArea ? ` ${TANGGAL.format(new Date(infoArea.sumber.diambil))}` : ""}, wilayah lain dibaca langsung di sekitar pusat peta. {tersimpan.size.toLocaleString("id-ID")} hasil tersimpan di Kota Bengkulu; bangunan lain dianalisis saat dipilih. Footprint © kontributor OpenStreetMap (ODbL).</p>
               {rumah && <p>Perkiraan rumah ditebak dari luas {m2(rumah.min_m2)}–{m2(rumah.max_m2)} pada bangunan tanpa nama, bukan dari tag OSM.</p>}
-              <p>Citra satelit memerlukan internet. Cuaca memakai acuan Bengkulu 2024.</p>
+              <p>Citra satelit memerlukan internet. Cuaca mengikuti lokasi bangunan.</p>
               <Link href="/sumber-data" className={kelasTautan()}>Lihat sumber data</Link>
             </PanelLipat></div>
           </aside>
