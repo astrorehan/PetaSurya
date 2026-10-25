@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownUp, ArrowUpRight, Building2, Check, ChevronDown, ChevronRight, GraduationCap, House, List, Map, MapPin, RotateCw, Search, Store, X } from "lucide-react";
+import { ArrowDownUp, ArrowUpRight, Building2, Check, ChevronDown, ChevronRight, GraduationCap, House, List, Map, MapPin, Navigation, RotateCw, Search, Store, X } from "lucide-react";
 import type { BangunanRingkas, FootprintArea, HasilAlamat, PencarianAlamat } from "@petasurya/contracts";
 import { Ikon, PanelLipat, Tombol, kelasTautan, m2 } from "@petasurya/ui";
 import { Peta, type BangunanPeta, type KameraPeta } from "./Peta";
@@ -11,6 +11,7 @@ import { JejakKawasan } from "./JejakKawasan";
 import { GalatPemindaian, cariAlamat, indeksHasil, muatFootprintArea, muatKatalog } from "../lib/api";
 import { ZOOM_MUAT, bangunanDiTitik, gabungBangunan, memotongArea, perluMuatArea, simpanArea, type CakupanArea } from "../lib/area";
 import { formatKoordinat, uraiKoordinat } from "../lib/koordinat";
+import { bacaLokasi } from "../lib/lokasi";
 import { BATAS_INDONESIA } from "../lib/cakupan";
 import { KATALOG_BANGUNAN, namaBangunan, simulasiContoh } from "../lib/pemindaian";
 import { cariBangunan, tautanKatalog, urutkanBangunan, type FilterBangunan, type PilihanKatalog, type UrutanBangunan } from "../lib/pencarian";
@@ -72,6 +73,10 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
   const [titikAlamat, setTitikAlamat] = useState<HasilAlamat | null>(null);
   const [fokus, setFokus] = useState<{ pusat: [number, number]; zoom: number } | null>(null);
   const permintaanAlamat = useRef<AbortController | null>(null);
+  // Akurasi lokasi perangkat (m) bila titik berasal dari tombol Lokasi saya; null untuk alamat dan koordinat.
+  const [akurasiTitik, setAkurasiTitik] = useState<{ m: number; tepat: boolean } | null>(null);
+  const [lokasi, setLokasi] = useState<{ jenis: "diam" | "memuat" } | { jenis: "galat"; pesan: string }>({ jenis: "diam" });
+  const urutLokasi = useRef(0);
 
   useEffect(() => {
     let aktif = true;
@@ -151,7 +156,9 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
   const pilih = useCallback((id: number) => router.push(`/pindai?id=${id}`), [router]);
   const rumah = infoArea?.perkiraan_rumah;
   // Di luar Kota Bengkulu engine belum tentu memasangkan titik alamat; footprint yang sudah termuat dicocokkan di sini.
-  const bangunanAlamat = useMemo(() => titikAlamat?.bangunan ?? (titikAlamat ? bangunanDiTitik(area, titikAlamat.lon, titikAlamat.lat) : null), [area, titikAlamat]);
+  // Lokasi perangkat yang kurang tepat tidak menyorot bangunan: titiknya bisa jatuh di rumah tetangga.
+  const bangunanAlamat = useMemo(() => akurasiTitik && !akurasiTitik.tepat ? null
+    : titikAlamat?.bangunan ?? (titikAlamat ? bangunanDiTitik(area, titikAlamat.lon, titikAlamat.lat) : null), [akurasiTitik, area, titikAlamat]);
   const titikKueri = useMemo(() => uraiKoordinat(pencarian), [pencarian]);
   const adaHasilAlamat = adaKueri && alamat.jenis === "siap" && alamat.data.kueri === pencarian.trim() && alamat.data.hasil.length > 0;
 
@@ -202,7 +209,21 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
     }
   }
 
+  async function keLokasiSaya() {
+    const urut = ++urutLokasi.current;
+    setLokasi({ jenis: "memuat" });
+    const hasil = await bacaLokasi(typeof navigator === "undefined" ? undefined : navigator.geolocation);
+    if (urut !== urutLokasi.current) return;
+    if (hasil.jenis === "galat") { setLokasi(hasil); return; }
+    const { lat, lon, akurasi_m } = hasil.lokasi;
+    setLokasi({ jenis: "diam" });
+    permintaanAlamat.current?.abort();
+    pilihAlamat({ nama: "Lokasi Anda", alamat: formatKoordinat({ lat, lon }), lat, lon, presisi: "perangkat", bangunan: null, kecocokan: null, jarak_m: null }, hasil.tepat ? ZOOM_RUMAH : ZOOM_JALAN);
+    setAkurasiTitik({ m: akurasi_m, tepat: hasil.tepat });
+  }
+
   function pilihAlamat(h: HasilAlamat, zoom?: number) {
+    setAkurasiTitik(null);
     const bangunan = h.bangunan;
     if (bangunan) setArea((lama) => simpanArea(lama, [bangunan]));
     setTitikAlamat(h);
@@ -242,6 +263,10 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
             <input id="cari-katalog" name="q" type="search" placeholder="Cari alamat, rumah, toko…" value={pencarian} onChange={(event) => { setPencarian(event.target.value); setBatasDaftar(20); if (event.target.value.trim()) setTampilan("daftar"); }} onKeyDown={(event) => { if (event.key === "Escape" && pencarian) { event.preventDefault(); hapusPencarian(); } }} aria-controls="hasil-bangunan" aria-keyshortcuts="/" enterKeyHint="search" autoComplete="off" spellCheck={false} />
             {pencarian ? <button type="button" onClick={() => hapusPencarian()} aria-label="Hapus pencarian"><X size={16} aria-hidden="true" /></button> : <kbd aria-hidden="true">/</kbd>}
           </form>
+          <button type="button" className={s.tombolLokasi} onClick={() => void keLokasiSaya()} disabled={lokasi.jenis === "memuat"} aria-label={lokasi.jenis === "memuat" ? "Mencari lokasi Anda" : "Lokasi saya"}>
+            <Navigation size={16} aria-hidden="true" /><span>{lokasi.jenis === "memuat" ? "Mencari…" : "Lokasi saya"}</span>
+          </button>
+          {lokasi.jenis === "galat" && <p className={s.galatLokasi} role="alert">{lokasi.pesan}</p>}
         </div>
 
         <div className={s.pilihanTampilan} role="group" aria-label="Tampilan bangunan">
@@ -271,9 +296,12 @@ export function BerandaInteraktif({ query, filterAwal = "semua", urutanAwal = "n
               <MapPin size={16} aria-hidden="true" />
               <div>
                 <strong>{titikAlamat.nama}</strong>
-                <p>{bangunanAlamat
+                <p>{akurasiTitik && !akurasiTitik.tepat ? `Lokasi perangkat ±${Math.round(akurasiTitik.m).toLocaleString("id-ID")} m, terlalu lebar untuk satu rumah. Pilih rumahnya di peta.`
+                  : bangunanAlamat && akurasiTitik ? `Bangunan di lokasi Anda (±${Math.round(akurasiTitik.m)} m) · ${m2(bangunanAlamat.footprint_m2)}`
+                  : bangunanAlamat
                   ? titikAlamat.bangunan && titikAlamat.kecocokan !== "memuat" ? `Bangunan terdekat, ${Math.round(titikAlamat.jarak_m ?? 0)} m dari titik alamat` : `Bangunan di titik alamat · ${m2(bangunanAlamat.footprint_m2)}`
                   : memuatArea ? "Memuat bangunan di sekitar titik…"
+                  : akurasiTitik ? "Lokasi Anda belum cocok dengan satu bangunan. Pilih rumahnya di peta."
                   : "Titik alamat belum cocok dengan satu bangunan. Pilih rumahnya di peta."}</p>
                 {bangunanAlamat && <Link href={`/pindai?id=${bangunanAlamat.id}`} className={kelasTautan()}>Analisis atap bangunan ini</Link>}
               </div>

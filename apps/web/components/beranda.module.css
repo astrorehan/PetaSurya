@@ -29,6 +29,12 @@
 .pencarian kbd { flex-shrink: 0; display: grid; place-items: center; width: 26px; height: 26px; margin-right: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-bar); color: var(--ink-2); font: 400 12px / 1 var(--f-mono); }
 .pencarian button { flex-shrink: 0; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: none; border-radius: var(--r-pill); background: var(--surface-3); color: var(--ink-2); cursor: pointer; }
 .pencarian button:hover { color: var(--ink); }
+.bilahPeta { flex-wrap: wrap; row-gap: var(--sp-2); }
+.tombolLokasi { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); min-width: var(--kontrol-h); min-height: var(--kontrol-h); padding: 0 var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface-2); color: var(--ink); font: var(--tipe-ui); cursor: pointer; transition: border-color var(--t-base), color var(--t-base); }
+.tombolLokasi > svg { color: var(--surya); }
+.tombolLokasi:hover { border-color: var(--line-2); }
+.tombolLokasi:disabled { color: var(--ink-2); cursor: progress; }
+.galatLokasi { width: 100%; margin: 0; color: var(--ink); font: 400 var(--fs-xs) / 1.45 var(--f-ui); }
 
 /* Peta dan daftar mengisi satu layar; daftar bergulir di panelnya sendiri. */
 .barisPeta { --tinggi-ruang: clamp(460px, calc(100dvh - 330px), 720px); display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: var(--tinggi-ruang); }
@@ -135,7 +141,7 @@ button.bangunan { width: 100%; border: none; background: transparent; font: inhe
   .status { padding: var(--sp-4); border-left: none; }
   .gulirDaftar { flex: none; overflow: visible; }
   .bilahPeta { min-height: 64px; }
-  .pencarian { width: 100%; }
+  .pencarian { flex: 1 1 0; width: auto; min-width: 0; }
   .pencarian input, .pilihanUrutan select { font-size: var(--fs-b); }
 }
 @media (max-width: 560px) {
@@ -145,7 +151,10 @@ button.bangunan { width: 100%; border: none; background: transparent; font: inhe
   .alur { gap: var(--sp-3); margin-bottom: var(--sp-4); }
   .alur li { flex-direction: column; gap: 2px; }
   .alur strong { font-size: 11px; }
-  .bilahPeta { padding-inline: var(--sp-3); }
+  .bilahPeta { padding-inline: var(--sp-3); gap: var(--sp-2); }
+  /* Panah lokasi adalah aksi peta universal; nama aksesibel tetap "Lokasi saya". */
+  .tombolLokasi { padding: 0; }
+  .tombolLokasi > span { display: none; }
   .kolomPeta { padding: var(--sp-2); }
   .kakiPeta { padding-inline: var(--sp-1); }
   .legenda { gap: var(--sp-3); }
