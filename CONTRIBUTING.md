@@ -53,6 +53,9 @@ titiknya dan menyorot bangunan yang memuat titik itu, lengkap dengan tautan anal
 Koordinat "lintang, bujur" atau tautan Google Maps yang memuat koordinat
 langsung memakai titik itu tanpa geocoder, sehingga rumah tanpa alamat bernomor
 tetap dapat dipilih.
+Tombol Lokasi saya memakai lokasi perangkat (izin peramban, HTTPS). Bila akurasinya
+≤ 50 m, peta mendekat ke titik itu dan menyorot bangunan yang memuatnya; bila lebih
+lebar, peta hanya pindah ke kawasannya dan pengguna memilih rumahnya sendiri.
 Filter Hasil tersimpan membatasi hasil pada analisis yang sudah tersedia di
 seluruh kota. Tombol `/` memfokuskan kolom pencarian selama pengguna tidak sedang
 mengetik pada isian lain. Peta mengukur ulang kanvas saat ditampilkan kembali.
