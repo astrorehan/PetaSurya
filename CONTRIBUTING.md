@@ -135,6 +135,10 @@ terpisah. Nilai awal memakai nilai terkecil antara potensi luas dan daya profil
 dalam kVA, sebagai asumsi demo yang dapat diubah, bukan batas izin pemasangan.
 Masukan `usable_area_m2` pada `/simulate` membawa luas ekuivalen kapasitas yang
 dipilih, sehingga hitung ulang asumsi mempertahankan kapasitas skenario.
+Halaman hasil menulis asal penghematan (kWh × porsi dipakai sendiri × tarif) dan
+membandingkan tagihan per bulan tanpa dan dengan PLTS dari tagihan PLN yang diisi
+pengguna atau `?tagihan=…`; model ini linier, tanpa biaya beban dan rekening minimum.
+Rumus pada lembar Cara hitung dirender dengan KaTeX.
 
 `POST /api/v1/analyze` mengembalikan hasil tersimpan tanpa jaringan. `force: true`
 menjalankan inferensi dari citra lokal bergeoreferensi bila ada, atau mosaik Esri
