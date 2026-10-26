@@ -288,6 +288,7 @@
 
 .isiJejak {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--sp-5);
   margin-top: var(--sp-5);
 }
@@ -299,14 +300,36 @@
   font: var(--tipe-label);
 }
 
-.rumus code {
-  display: block;
-  padding: var(--sp-3);
+/* Rumus KaTeX: rata kiri, ukuran sedikit di bawah teks agar baris nilai muat 375 px; sisa lebar digulir. */
+.tampilRumus {
+  min-width: 0;
+  padding: var(--sp-3) var(--sp-4);
   border-radius: var(--r-s);
   color: var(--ink);
   background: var(--surface-2);
-  font: var(--tipe-data);
-  overflow-wrap: anywhere;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.tampilRumus :global(.katex-display) {
+  margin: 0;
+  text-align: left;
+}
+
+.tampilRumus :global(.katex-display > .katex) {
+  text-align: left;
+  font-size: 1.02em;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .tampilRumus :global(.katex-display > .katex) {
+    font-size: 0.92em;
+  }
+}
+
+.tampilRumus :global(.katex .text) {
+  font-family: var(--f-ui);
 }
 
 .sumberJejak {
@@ -433,5 +456,169 @@
 
   .skeletonHasil {
     height: 460px;
+  }
+}
+
+/* Tagihan bulanan: tanpa vs dengan PLTS. Panjang batang sebanding rupiah. */
+.kartuTagihan {
+  min-width: 0;
+  margin-top: var(--sp-5);
+  padding: var(--panel-pad);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.kepalaTagihan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-3) var(--sp-5);
+}
+
+.kepalaTagihan h2 {
+  margin: 0;
+  font: var(--tipe-ui);
+  font-weight: 600;
+}
+
+.isianTagihan {
+  display: grid;
+  gap: var(--sp-2);
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+}
+
+.isianRp {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--kontrol-h);
+  padding-inline: var(--sp-3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-s);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: var(--tipe-ui);
+}
+
+.isianRp:focus-within {
+  box-shadow: var(--ring);
+}
+
+.isianRp input:focus-visible {
+  box-shadow: none;
+}
+
+.isianRp input {
+  inline-size: 14ch;
+  min-height: calc(var(--kontrol-h) - 2px);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font: var(--tipe-ui);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  outline: none;
+}
+
+.batangTagihan {
+  display: grid;
+  gap: var(--sp-3);
+  margin: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+
+.batangTagihan[data-menghitung] {
+  opacity: 0.5;
+}
+
+.batangTagihan > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.batangTagihan dt {
+  color: var(--ink-2);
+  font: var(--tipe-kecil);
+}
+
+.batangTagihan dd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9.5rem;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0;
+  color: var(--ink);
+  font: var(--tipe-ui);
+  font-weight: 600;
+  text-align: right;
+}
+
+.jalurBatang {
+  display: block;
+  block-size: 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.batang {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  transition: inline-size var(--t-move) var(--ease-out);
+}
+
+.batang[data-jenis="tanpa"] {
+  background: var(--ink-3);
+}
+
+.batang[data-jenis="dengan"] {
+  background: var(--daun);
+}
+
+.ringkasTagihan {
+  margin: 0;
+  color: var(--ink);
+  font: var(--tipe-ui);
+}
+
+.ringkasTagihan strong {
+  font-weight: 600;
+}
+
+.peringatanTagihan {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  color: var(--ink);
+  font: var(--tipe-kecil);
+}
+
+@media (max-width: 560px) {
+  .kepalaTagihan {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .isianRp input {
+    inline-size: 100%;
+  }
+
+  .batangTagihan > div {
+    grid-template-columns: 1fr;
+    gap: var(--sp-1);
+  }
+
+  .batangTagihan dd {
+    grid-template-columns: minmax(0, 1fr) 8.75rem;
   }
 }

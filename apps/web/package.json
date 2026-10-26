@@ -12,6 +12,7 @@
   "dependencies": {
     "@petasurya/contracts": "workspace:*",
     "@petasurya/ui": "workspace:*",
+    "katex": "0.16.22",
     "lucide-react": "^1.47.0",
     "maplibre-gl": "^6.10.0",
     "next": "^15.5.25",
