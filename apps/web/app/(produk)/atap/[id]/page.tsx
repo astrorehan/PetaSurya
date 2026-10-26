@@ -1,5 +1,6 @@
 import { FaktorEmisiDiperlukan, HasilAtap, KeadaanAtap } from "@/components/HasilAtap";
 import { DATA_DEMO } from "@/lib/demo";
+import { bacaTagihan } from "@/lib/tagihan";
 import { hitungUlangAtap, muatPemindaian } from "@/lib/api";
 import { asumsiDenganWilayah, bacaFaktorEmisi, perluFaktorEmisi, wilayahBangunan } from "@/lib/wilayah";
 import { PROFIL_SIMULASI, type ProfilSimulasi, areaSkenario, paketContoh, profilBangunan, potensiLuas } from "@/lib/pemindaian";
@@ -12,7 +13,7 @@ const ALIAS: Record<string, number> = {
 
 export default async function HalamanAtap({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{profil?: string;kwp?:string;ef?:string}>;
+  searchParams?: Promise<{profil?: string;kwp?:string;ef?:string;tagihan?:string}>;
 }) {
   const { id } = await params;
   const idBersih = decodeURIComponent(id).trim().toLowerCase();
@@ -21,6 +22,7 @@ export default async function HalamanAtap({ params, searchParams }: {
   if (!Number.isSafeInteger(identitas) || identitas <= 0) return <KeadaanAtap jenis="kosong" id={id}/>;
   const tersimpan = DATA_DEMO.find(d => d.bangunan.id === identitas);
   const pilihan = await searchParams;
+  const tagihanAwal = bacaTagihan(pilihan?.tagihan);
   try {
     const paket = await muatPemindaian(identitas);
     if (!paket.analisis) return <KeadaanAtap jenis="kosong" id={String(identitas)}/>;
@@ -37,9 +39,9 @@ export default async function HalamanAtap({ params, searchParams }: {
       return <FaktorEmisiDiperlukan id={String(identitas)} bangunan={paket.bangunan} wilayah={wilayah} profil={input} kwp={pilihan?.kwp} tidakSah={pilihan?.ef !== undefined}/>;
     }
     const simulasi = await hitungUlangAtap({roof_analysis_id:paket.analisis.roof_analysis_id,asumsi:asumsiDenganWilayah(acuan.asumsi,wilayah,paket.bangunan,manual),parameter_fisika:acuan.parameter_fisika,usable_area_m2:Math.min(paket.analisis.usable_area_m2,areaSkenario(kapasitas,profil))});
-    return <HasilAtap id={String(identitas)} bangunan={paket.bangunan} analisis={paket.analisis} simulasi={simulasi} pemindaian={paket} wilayah={wilayah}/>;
+    return <HasilAtap id={String(identitas)} bangunan={paket.bangunan} analisis={paket.analisis} simulasi={simulasi} pemindaian={paket} wilayah={wilayah} tagihanAwal={tagihanAwal}/>;
   } catch {
-    if (tersimpan && !pilihan?.profil && !pilihan?.kwp) return <HasilAtap id={String(identitas)} {...tersimpan} pemindaian={paketContoh(identitas)} tersimpanOffline/>;
+    if (tersimpan && !pilihan?.profil && !pilihan?.kwp) return <HasilAtap id={String(identitas)} {...tersimpan} pemindaian={paketContoh(identitas)} tersimpanOffline tagihanAwal={tagihanAwal}/>;
     return <KeadaanAtap jenis="galat" id={String(identitas)}/>;
   }
 }

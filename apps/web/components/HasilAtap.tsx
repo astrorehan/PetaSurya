@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useId, useMemo, useState, type ChangeEvent } from "react";
 import type { AnalisisAtap, BangunanRingkas, HasilSimulasi, InfoWilayah, PaketPemindaian } from "@petasurya/contracts";
 import { ParameterFisika } from "@petasurya/contracts";
 import { Angka, GrafikBulanan, Ikon, Lencana, LembarSamping, PanelLipat, Tombol, TombolSalin, kwh, kwp, m2, persen, rupiah, tahun, ton } from "@petasurya/ui";
 import { ChevronDown, Crosshair, Sigma, TriangleAlert } from "lucide-react";
 import { Peta } from "./Peta";
+import { Rumus, teks as T } from "./Rumus";
 import { PemindaiAtap } from "./PemindaiAtap";
 import { GalatSimulasi, hitungUlangAtap } from "../lib/api";
 import { barisCuaca } from "../lib/cuaca";
 import { namaBangunan } from "../lib/pemindaian";
+import { bacaTagihan, bandingTagihan, formatIsianTagihan } from "../lib/tagihan";
 import { bacaFaktorEmisi, barisWilayah, diKotaBengkulu, petunjukFaktorEmisi } from "../lib/wilayah";
 import parameterFisikaJson from "../../../data/fixtures/parameter/fisika-contoh.json";
 import s from "./hasilAtap.module.css";
@@ -41,6 +43,8 @@ type DataAtap = {
   tersimpanOffline?: boolean;
   /** Provinsi dan sistem jaringan di titik bangunan; null bila engine tidak menjawab. */
   wilayah?: InfoWilayah | null;
+  /** Tagihan PLN per bulan dari ?tagihan=, Rp; mengisi perbandingan sejak awal. */
+  tagihanAwal?: number | null;
 };
 
 type JenisKeadaan = "kosong" | "galat";
@@ -58,6 +62,7 @@ type FormAsumsi = {
 
 type JejakTampilan = {
   judul: string;
+  /** Rumus dalam TeX (KaTeX): baris simbolik lalu nilai skenario. */
   rumus: string;
   masukan: [string, string][];
   sumber: string;
@@ -76,6 +81,12 @@ function namaSumberCitra(source: string) {
 
 function angkaDesimal(nilai: number, maksimum = 2) {
   return nilai.toLocaleString("id-ID", { maximumFractionDigits: maksimum });
+}
+
+/** Tarif dengan sen bila tidak bulat: 1444.7 → "Rp 1.444,70/kWh". */
+function tarifKwh(nilai: number) {
+  const sen = Number.isInteger(nilai) ? 0 : 2;
+  return `Rp\u00a0${nilai.toLocaleString("id-ID", { minimumFractionDigits: sen, maximumFractionDigits: sen })}/kWh`;
 }
 
 function PanelJejak({
@@ -99,7 +110,7 @@ function PanelJejak({
         </select>
       </label>
       <div className={s.isiJejak}>
-        <div className={s.rumus}><span className={s.subLabel}>Rumus</span><code>{jejak.rumus}</code></div>
+        <div className={s.rumus}><span className={s.subLabel}>Rumus</span><Rumus className={s.tampilRumus} tex={jejak.rumus} /></div>
         <dl className={s.daftarMasukan}>
           {jejak.masukan.map(([nama, nilai]) => <div key={nama}><dt>{nama}</dt><dd className="num">{nilai}</dd></div>)}
         </dl>
@@ -109,12 +120,14 @@ function PanelJejak({
   );
 }
 
-export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersimpanOffline, wilayah = null }: DataAtap) {
+export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersimpanOffline, wilayah = null, tagihanAwal = null }: DataAtap) {
   const [jejakAktif, setJejakAktif] = useState<KunciJejak | null>(null);
   const [simulasiAktif, setSimulasiAktif] = useState<HasilSimulasi>(simulasi);
   const [sedangHitung, setSedangHitung] = useState(false);
   const [pesanMesin, setPesanMesin] = useState<string>("");
   const [bukaPemindai, setBukaPemindai] = useState(false);
+  const [isianTagihan, setIsianTagihan] = useState(tagihanAwal ? formatIsianTagihan(String(tagihanAwal)) : "");
+  const idTagihan = useId();
 
   const [asumsi, setAsumsi] = useState<FormAsumsi>({
     golongan_tarif: simulasi.asumsi.golongan_tarif,
@@ -132,30 +145,51 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
   const luasSkenario = simulasiAktif.module_count * modul.panjang_m * modul.lebar_m;
   const nama = namaBangunan(bangunan);
   const geometriSorot = analisis.mask_geojson ?? bangunan.geom;
+  const faktorEkspor = simulasiAktif.asumsi.faktor_ekspor ?? 0;
   const jejak = useMemo<Record<KunciJejak, JejakTampilan>>(() => ({
     hemat: {
       judul: "Penghematan per tahun",
-      rumus: "penghematan = E_AC × [SCR + (1−SCR) × faktor ekspor] × tarif",
+      rumus: String.raw`\begin{aligned}
+\text{Hemat} &= E_{\text{AC}} \times \bigl[\,\text{SCR} + (1-\text{SCR})\,f_{\text{ekspor}}\bigr] \\
+&\qquad \times \text{tarif} \\
+&= ${T(kwh(simulasiAktif.e_ac_kwh_yr1))} \times \bigl[\,${T(persen(simulasiAktif.scr))} + ${T(persen(1 - simulasiAktif.scr))} \times ${T(angkaDesimal(faktorEkspor))}\bigr] \\
+&\qquad \times ${T(tarifKwh(simulasiAktif.asumsi.tarif_rp_kwh))} \\
+&= ${T(rupiah(simulasiAktif.savings_idr_yr1))}\ \text{per tahun}
+\end{aligned}`,
       masukan: [
-        ["E_AC tahun pertama", kwh(simulasiAktif.e_ac_kwh_yr1)],
-        ["SCR", persen(simulasiAktif.scr)],
-        ["Tarif", rupiah(simulasiAktif.asumsi.tarif_rp_kwh)],
+        ["Produksi tahun pertama (E_AC)", kwh(simulasiAktif.e_ac_kwh_yr1)],
+        ["Dipakai sendiri (SCR)", persen(simulasiAktif.scr)],
+        ["Nilai listrik diekspor", persen(faktorEkspor)],
+        ["Tarif", tarifKwh(simulasiAktif.asumsi.tarif_rp_kwh)],
       ],
       sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Asumsi tarif ${simulasiAktif.asumsi.golongan_tarif}.`,
     },
     payback: {
       judul: "Waktu balik modal",
-      rumus: "payback = saat arus kas bersih kumulatif mencapai CAPEX (interpolasi antar tahun)",
+      rumus: String.raw`\begin{aligned}
+\text{CAPEX} &= P \times \text{biaya per kWp} \\
+&= ${T(rupiah(simulasiAktif.capex_idr))} \\
+\text{Kas}_n &= \text{Hemat}\,(1-d)^{n-1}(1+e)^{n-1} \\
+&\qquad - o \times \text{CAPEX} \\
+\text{Payback} &= N\ \text{saat}\ \textstyle\sum_{n=1}^{N} \text{Kas}_n = \text{CAPEX} \\
+&= ${T(tahun(simulasiAktif.payback_years ?? Infinity))}
+\end{aligned}`,
       masukan: [
         ["CAPEX", rupiah(simulasiAktif.capex_idr)],
         ["Penghematan tahun pertama", rupiah(simulasiAktif.savings_idr_yr1)],
+        ["Degradasi modul (d)", `${persen(simulasiAktif.asumsi.degradasi_thn)} per tahun`],
+        ["Kenaikan tarif (e)", `${persen(simulasiAktif.asumsi.eskalasi_tarif)} per tahun`],
+        ["Perawatan (o)", `${persen(simulasiAktif.asumsi.opex_frac)} CAPEX per tahun`],
         ["Umur sistem", `${simulasiAktif.asumsi.umur_tahun} tahun`],
       ],
       sumber: simulasiAktif.jejak?.ekonomi?.sumber ?? `Kalkulasi simulasi · ${simulasiAktif.engine_version}.`,
     },
     kwp: {
       judul: "Kapasitas skenario",
-      rumus: "modul skenario = ⌊luas ekuivalen skenario / luas satu modul⌋; kWp = modul skenario × Wp / 1.000",
+      rumus: String.raw`\begin{aligned}
+N &= \left\lfloor \frac{A_{\text{skenario}}}{A_{\text{modul}}} \right\rfloor = \left\lfloor \frac{${T(m2(luasSkenario))}}{${T(`${angkaDesimal(modul.panjang_m * modul.lebar_m, 3)} m²`)}} \right\rfloor = ${T(String(simulasiAktif.module_count))} \\
+P &= \frac{N \times W_p}{1.000} = \frac{${T(String(simulasiAktif.module_count))} \times ${T(`${modul.wp} Wp`)}}{1.000} = ${T(kwp(simulasiAktif.kwp))}
+\end{aligned}`,
       masukan: [
         ["Luas ekuivalen skenario", m2(luasSkenario)],
         ["Luas satu modul", `${angkaDesimal(modul.panjang_m * modul.lebar_m, 3)} m²`],
@@ -168,8 +202,14 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
     energi: {
       judul: "Produksi tahun pertama",
       rumus: simulasiAktif.parameter_fisika
-        ? "P_AC = P_DC × (1−kotoran) × (1−mismatch) × (1−kabel) × η_inverter × (1−ketersediaan); E_AC = Σ P_AC / 1.000"
-        : simulasiAktif.jejak?.poa.rumus ?? "POA → suhu sel → derate → E_AC",
+        ? String.raw`\begin{aligned}
+P_{\text{AC}} &= P_{\text{DC}}\,(1-k_{\text{kotoran}})(1-k_{\text{mismatch}}) \\
+&\qquad \times (1-k_{\text{kabel}})\,\eta_{\text{inverter}}\,(1-k_{\text{ketersediaan}}) \\
+E_{\text{AC}} &= \frac{1}{1.000} \sum_{t} P_{\text{AC},t} = ${T(kwh(simulasiAktif.e_ac_kwh_yr1))}
+\end{aligned}`
+        : simulasiAktif.jejak?.poa.rumus
+          ? T(simulasiAktif.jejak.poa.rumus)
+          : String.raw`\text{POA} \rightarrow T_{\text{sel}} \rightarrow \text{derate} \rightarrow E_{\text{AC}}`,
       masukan: [
         ["POA", `${angkaDesimal(simulasiAktif.poa_kwh_m2_yr, 1)} kWh/m²/tahun`],
         ["Performance ratio", persen(simulasiAktif.pr)],
@@ -186,7 +226,11 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
     },
     karbon: {
       judul: "Emisi terhindar",
-      rumus: simulasiAktif.jejak?.karbon?.rumus ?? "CO₂ = E_AC ÷ 1.000 × faktor emisi jaringan",
+      rumus: String.raw`\begin{aligned}
+\text{CO}_2 &= \frac{E_{\text{AC}}}{1.000} \times \text{EF}_{\text{jaringan}} \\
+&= \frac{${T(kwh(simulasiAktif.e_ac_kwh_yr1))}}{1.000} \times ${T(angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2))}\ \text{tCO}_2/\text{MWh} \\
+&= ${T(angkaDesimal(simulasiAktif.co2e_ton_yr, 2))}\ \text{tCO}_2\ \text{per tahun}
+\end{aligned}`,
       masukan: [
         ["Produksi AC", kwh(simulasiAktif.e_ac_kwh_yr1)],
         ["Faktor emisi CO₂", `${angkaDesimal(simulasiAktif.asumsi.ef_grid_tco2_mwh, 2)} tCO₂/MWh`],
@@ -195,7 +239,19 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       ],
       sumber: simulasiAktif.jejak?.karbon?.sumber ?? "Faktor emisi masukan skenario; sumber belum tercatat.",
     },
-  }), [simulasiAktif, luasSkenario, modul.lebar_m, modul.panjang_m, modul.wp, wilayah, bangunan]);
+  }), [simulasiAktif, faktorEkspor, luasSkenario, modul.lebar_m, modul.panjang_m, modul.wp, wilayah, bangunan]);
+
+  const tagihan = bacaTagihan(isianTagihan);
+  const banding = tagihan
+    ? bandingTagihan({
+        tagihanBulanan: tagihan,
+        hematTahunan: simulasiAktif.savings_idr_yr1,
+        tarifRpKwh: simulasiAktif.asumsi.tarif_rp_kwh,
+        eAcKwhTahunan: simulasiAktif.e_ac_kwh_yr1,
+        scr: simulasiAktif.scr,
+      })
+    : null;
+  const asalHemat = `${kwh(simulasiAktif.e_ac_kwh_yr1)} × ${persen(simulasiAktif.scr)} dipakai sendiri × ${tarifKwh(simulasiAktif.asumsi.tarif_rp_kwh)}${faktorEkspor > 0 ? " + nilai ekspor" : ""}`;
 
   const ubahAsumsi = (kunci: keyof FormAsumsi) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setAsumsi((sebelumnya) => ({ ...sebelumnya, [kunci]: event.target.value }));
@@ -251,7 +307,7 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
       <section className={`${s.metrix} ${rendah ? s.keyakinanRendah : ""}`} aria-label="Hasil perhitungan" aria-busy={sedangHitung}>
         <div className={s.gridAngka} data-menghitung={sedangHitung || undefined}>
           <div className={s.kartuUtama}>
-            <div className={s.fokusHemat} key={simulasiAktif.savings_idr_yr1}><Angka label="Hemat per tahun" nilai={rupiah(simulasiAktif.savings_idr_yr1, true)} lengkap={rupiah(simulasiAktif.savings_idr_yr1)} ukuran="display" aksen="daun" menghitung={sedangHitung} /></div>
+            <div className={s.fokusHemat} key={simulasiAktif.savings_idr_yr1}><Angka label="Hemat per tahun" nilai={rupiah(simulasiAktif.savings_idr_yr1, true)} lengkap={rupiah(simulasiAktif.savings_idr_yr1)} ukuran="display" aksen="daun" menghitung={sedangHitung} keterangan={asalHemat} /></div>
             <div className={s.payback}>
               <Angka label="Balik modal" nilai={tahun(simulasiAktif.payback_years ?? Infinity)} menghitung={sedangHitung} />
             </div>
@@ -266,6 +322,51 @@ export function HasilAtap({ id, bangunan, analisis, simulasi, pemindaian, tersim
           <Tombol ikon={Crosshair} onClick={() => { setJejakAktif(null); setBukaPemindai(true); }}>Pindai atap</Tombol>
           <TombolSalin label="Salin ringkasan" nilai={`${nama}\nKapasitas skenario: ${kwp(simulasiAktif.kwp)}\nHemat per tahun: ${rupiah(simulasiAktif.savings_idr_yr1)}\nBalik modal: ${tahun(simulasiAktif.payback_years ?? Infinity)}\n${tersimpanOffline ? "Skenario contoh tersimpan. " : ""}Batas atap dan kapasitas pasang belum diverifikasi.`} />
         </div>
+      </section>
+
+      <section className={s.kartuTagihan} aria-labelledby="judul-tagihan">
+        <div className={s.kepalaTagihan}>
+          <h2 id="judul-tagihan">Tagihan listrik per bulan</h2>
+          <label className={s.isianTagihan} htmlFor={idTagihan}>
+            Tagihan PLN sekarang
+            <span className={s.isianRp}>
+              <span aria-hidden="true">Rp</span>
+              <input
+                id={idTagihan}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="1.500.000"
+                value={isianTagihan}
+                onChange={(event) => setIsianTagihan(formatIsianTagihan(event.target.value))}
+              />
+            </span>
+          </label>
+        </div>
+        {banding ? (
+          <>
+            <dl className={s.batangTagihan} data-menghitung={sedangHitung || undefined}>
+              <div>
+                <dt>Tanpa PLTS</dt>
+                <dd><span className={s.jalurBatang} aria-hidden="true"><span className={s.batang} data-jenis="tanpa" style={{ inlineSize: "100%" }} /></span><span className="num">{rupiah(banding.tanpa)}</span></dd>
+              </div>
+              <div>
+                <dt>Dengan PLTS</dt>
+                <dd><span className={s.jalurBatang} aria-hidden="true"><span className={s.batang} data-jenis="dengan" style={{ inlineSize: `${Math.max(0, (1 - banding.turun) * 100)}%` }} /></span><span className="num">{rupiah(banding.dengan)}</span></dd>
+              </div>
+            </dl>
+            <p className={s.ringkasTagihan}>
+              Turun <strong className="num">{persen(banding.turun)}</strong>, hemat <strong className="num">{rupiah(banding.hemat)}</strong> per bulan.
+            </p>
+            {banding.melebihi ? (
+              <p className={s.peringatanTagihan} role="status">
+                <Ikon ikon={TriangleAlert} />
+                <span>Produksi yang diasumsikan dipakai sendiri ({kwh(banding.terpakaiKwh)}/bulan) melebihi pemakaian dari tagihan ini ({kwh(banding.pemakaianKwh)}/bulan). Turunkan kapasitas atau persentase dipakai sendiri.</span>
+              </p>
+            ) : null}
+            <p className={s.sumberJejak}>Rata-rata bulanan dengan tarif {tarifKwh(simulasiAktif.asumsi.tarif_rp_kwh)}; biaya beban dan rekening minimum belum dihitung.</p>
+          </>
+        ) : null}
       </section>
 
       <section className={s.gridLokasi} aria-label="Lokasi dan keyakinan analisis">

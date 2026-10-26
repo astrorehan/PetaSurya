@@ -6,18 +6,25 @@
 .lembar {
   position: fixed;
   z-index: var(--z-lembar);
-  top: var(--header-h);
-  right: 0;
-  bottom: 0;
+  /*
+   * Mengambang setinggi layar di atas header (z-lembar > z-header). Dulu
+   * mulai di bawah --header-h, sehingga celah di atasnya memperlihatkan
+   * header kapsul dan isi halaman yang terpotong.
+   */
+  top: var(--sp-3);
+  right: var(--sp-3);
+  bottom: var(--sp-3);
   display: flex;
   flex-direction: column;
-  width: min(var(--lebar-lembar), 100vw);
-  border-left: 1px solid var(--line);
+  width: min(var(--lebar-lembar), calc(100vw - 2 * var(--sp-3)));
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
   background: var(--surface);
   box-shadow: var(--shadow-m);
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(100%);
+  transform: translateX(calc(100% + var(--sp-3)));
   transition:
     transform var(--t-move) var(--ease-out),
     opacity var(--t-base) var(--ease-out),
@@ -81,11 +88,13 @@
 @media (max-width: 767px) {
   .lembar {
     top: auto;
+    right: 0;
+    bottom: 0;
     left: 0;
     width: auto;
     max-height: min(85dvh, 640px);
+    border: 0;
     border-top: 1px solid var(--line);
-    border-left: 0;
     border-radius: var(--r-l) var(--r-l) 0 0;
     transform: translateY(100%);
   }
